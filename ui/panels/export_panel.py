@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QPushButton,
-    QLineEdit, QProgressBar, QTextEdit, QMessageBox
+    QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton
 )
+from PySide6.QtCore import Qt
 
 class ExportPanel(QWidget):
     def __init__(self, character_system):
@@ -12,51 +12,37 @@ class ExportPanel(QWidget):
     def init_ui(self):
         layout = QVBoxLayout()
 
-        layout.addWidget(QLabel("📤 Export & Preset"))
+        title = QLabel("📤 Export-Panel")
+        title.setAlignment(Qt.AlignCenter)
+        layout.addWidget(title)
 
+        # Preset speichern
         self.name_input = QLineEdit()
-        self.name_input.setPlaceholderText("Name des Presets eingeben ...")
+        self.name_input.setPlaceholderText("Name für Preset (z. B. brakka)")
         layout.addWidget(self.name_input)
 
         save_btn = QPushButton("💾 Preset speichern")
         save_btn.clicked.connect(self.save_preset)
         layout.addWidget(save_btn)
 
-        export_btn = QPushButton("📤 FBX Export starten")
+        # FBX Export starten
+        export_btn = QPushButton("📦 FBX Export starten")
         export_btn.clicked.connect(self.export_fbx)
         layout.addWidget(export_btn)
 
-        self.progress = QProgressBar()
-        self.progress.setMinimum(0)
-        self.progress.setMaximum(0)  # Unbestimmter Fortschritt
-        self.progress.setVisible(False)
-        layout.addWidget(self.progress)
-
-        self.log_output = QTextEdit()
-        self.log_output.setReadOnly(True)
-        self.log_output.setMaximumHeight(200)
-        layout.addWidget(self.log_output)
+        self.status = QLabel("Bereit")
+        layout.addWidget(self.status)
 
         layout.addStretch()
         self.setLayout(layout)
 
     def save_preset(self):
-        name = self.name_input.text().strip() or "custom"
+        name = self.name_input.text().strip()
+        if not name:
+            name = "custom"
         path = self.character_system.save_preset(name)
-        QMessageBox.information(self, "Preset gespeichert", f"{name}.json wurde gespeichert in:\n{path}")
-        self.log(f"💾 Preset gespeichert als: {name}.json")
+        self.status.setText(f"✅ Preset gespeichert: {path.name}")
 
     def export_fbx(self):
-        self.progress.setVisible(True)
-        self.log("📤 Starte FBX-Export...")
-
-        try:
-            self.character_system.export_fbx()
-            self.log("✅ FBX erfolgreich exportiert!")
-        except Exception as e:
-            self.log(f"❌ Fehler: {str(e)}")
-
-        self.progress.setVisible(False)
-
-    def log(self, text):
-        self.log_output.append(text)
+        self.character_system.export_fbx()
+        self.status.setText("📦 Export läuft (siehe Konsole)...")
