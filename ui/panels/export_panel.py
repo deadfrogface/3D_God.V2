@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit
 from PySide6.QtCore import Qt
 
 class ExportPanel(QWidget):
@@ -10,42 +10,46 @@ class ExportPanel(QWidget):
     def init_ui(self):
         layout = QVBoxLayout()
 
-        title = QLabel("📤 Export")
+        title = QLabel("📤 Export Panel")
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
 
-        # Preset Name Eingabe
-        preset_layout = QHBoxLayout()
-        self.preset_input = QLineEdit()
-        self.preset_input.setPlaceholderText("Name für Preset...")
-        save_preset_btn = QPushButton("💾 Preset speichern")
-        save_preset_btn.clicked.connect(self.save_preset)
-        preset_layout.addWidget(self.preset_input)
-        preset_layout.addWidget(save_preset_btn)
-        layout.addLayout(preset_layout)
+        # Preset speichern
+        self.save_name = QLineEdit()
+        self.save_name.setPlaceholderText("Preset-Name eingeben")
+        layout.addWidget(self.save_name)
 
-        # Export Button
-        export_btn = QPushButton("📦 Exportiere als FBX")
-        export_btn.clicked.connect(self.export_fbx)
+        save_btn = QPushButton("💾 Preset speichern")
+        save_btn.clicked.connect(self.save_preset)
+        layout.addWidget(save_btn)
+
+        # Preset laden
+        self.load_name = QLineEdit()
+        self.load_name.setPlaceholderText("Preset-Name zum Laden")
+        layout.addWidget(self.load_name)
+
+        load_btn = QPushButton("📂 Preset laden")
+        load_btn.clicked.connect(self.load_preset)
+        layout.addWidget(load_btn)
+
+        # FBX Export
+        export_btn = QPushButton("📦 FBX exportieren")
+        export_btn.clicked.connect(self.character_system.export_fbx)
         layout.addWidget(export_btn)
-
-        # Statusanzeige
-        self.status = QLabel("")
-        layout.addWidget(self.status)
 
         layout.addStretch()
         self.setLayout(layout)
 
     def save_preset(self):
-        name = self.preset_input.text().strip()
-        if not name:
-            self.status.setText("❌ Bitte einen Namen für das Preset angeben.")
-            return
+        name = self.save_name.text().strip()
+        if name:
+            path = self.character_system.save_preset(name)
+            print(f"💾 Preset gespeichert: {path}")
 
-        path = self.character_system.save_preset(name)
-        self.status.setText(f"✅ Preset gespeichert: {path}")
-
-    def export_fbx(self):
-        self.status.setText("🚀 Exportiere als FBX...")
-        self.character_system.export_fbx()
-        self.status.setText("✅ FBX-Export abgeschlossen.")
+    def load_preset(self):
+        name = self.load_name.text().strip()
+        if name:
+            if self.character_system.load_preset(name):
+                print(f"📂 Preset geladen: {name}")
+            else:
+                print(f"❌ Fehler beim Laden: {name}")
