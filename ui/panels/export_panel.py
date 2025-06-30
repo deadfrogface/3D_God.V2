@@ -1,7 +1,4 @@
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout,
-    QLineEdit, QComboBox, QTextEdit
-)
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit, QHBoxLayout
 from PySide6.QtCore import Qt
 
 class ExportPanel(QWidget):
@@ -13,78 +10,42 @@ class ExportPanel(QWidget):
     def init_ui(self):
         layout = QVBoxLayout()
 
-        label = QLabel("📤 Export zu Unreal Engine 5.6")
-        label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(label)
+        title = QLabel("📤 Export")
+        title.setAlignment(Qt.AlignCenter)
+        layout.addWidget(title)
 
-        # Preset speichern
-        save_layout = QHBoxLayout()
-        self.save_name = QLineEdit()
-        self.save_name.setPlaceholderText("Name für Preset...")
-        save_btn = QPushButton("💾 Preset speichern")
-        save_btn.clicked.connect(self.save_preset)
-        save_layout.addWidget(self.save_name)
-        save_layout.addWidget(save_btn)
-        layout.addLayout(save_layout)
+        # Preset Name Eingabe
+        preset_layout = QHBoxLayout()
+        self.preset_input = QLineEdit()
+        self.preset_input.setPlaceholderText("Name für Preset...")
+        save_preset_btn = QPushButton("💾 Preset speichern")
+        save_preset_btn.clicked.connect(self.save_preset)
+        preset_layout.addWidget(self.preset_input)
+        preset_layout.addWidget(save_preset_btn)
+        layout.addLayout(preset_layout)
 
-        # Preset laden
-        load_layout = QHBoxLayout()
-        self.load_box = QComboBox()
-        self.update_preset_list()
-        load_btn = QPushButton("📂 Preset laden")
-        load_btn.clicked.connect(self.load_preset)
-        load_layout.addWidget(self.load_box)
-        load_layout.addWidget(load_btn)
-        layout.addLayout(load_layout)
-
-        # Export starten
-        export_btn = QPushButton("📦 FBX Export")
-        export_btn.clicked.connect(self.export)
+        # Export Button
+        export_btn = QPushButton("📦 Exportiere als FBX")
+        export_btn.clicked.connect(self.export_fbx)
         layout.addWidget(export_btn)
 
-        # Status & Logs
-        self.status = QLabel("⏳ Bereit für Export")
+        # Statusanzeige
+        self.status = QLabel("")
         layout.addWidget(self.status)
-
-        self.log_output = QTextEdit()
-        self.log_output.setReadOnly(True)
-        self.log_output.setMaximumHeight(120)
-        layout.addWidget(self.log_output)
 
         layout.addStretch()
         self.setLayout(layout)
 
     def save_preset(self):
-        name = self.save_name.text().strip()
+        name = self.preset_input.text().strip()
         if not name:
-            self.log("⚠️ Kein Name eingegeben.")
+            self.status.setText("❌ Bitte einen Namen für das Preset angeben.")
             return
+
         path = self.character_system.save_preset(name)
-        self.log(f"✅ Preset gespeichert: {path}")
-        self.update_preset_list()
-        self.status.setText("✅ Preset gespeichert")
+        self.status.setText(f"✅ Preset gespeichert: {path}")
 
-    def load_preset(self):
-        name = self.load_box.currentText()
-        if self.character_system.load_preset(name):
-            self.log(f"✅ Preset geladen: {name}")
-            self.status.setText("✅ Preset geladen")
-        else:
-            self.log(f"❌ Fehler beim Laden von: {name}")
-            self.status.setText("❌ Fehler beim Laden")
-
-    def update_preset_list(self):
-        self.load_box.clear()
-        path = self.character_system.preset_path
-        if path.exists():
-            presets = [f.stem for f in path.glob("*.json")]
-            self.load_box.addItems(presets)
-
-    def export(self):
-        self.status.setText("📦 Export läuft...")
+    def export_fbx(self):
+        self.status.setText("🚀 Exportiere als FBX...")
         self.character_system.export_fbx()
-        self.status.setText("✅ Export abgeschlossen")
-        self.log("📁 FBX-Export abgeschlossen")
-
-    def log(self, message):
-        self.log_output.append(message)
+        self.status.setText("✅ FBX-Export abgeschlossen.")
