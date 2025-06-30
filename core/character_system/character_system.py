@@ -1,5 +1,5 @@
-import json
 import os
+import json
 import subprocess
 from pathlib import Path
 
@@ -10,14 +10,11 @@ class CharacterSystem:
         self.sculpt_data = {}       # z. B. {"torso_width": 1.2, "arm_length": 0.9}
         self.preset_path = Path("assets/character_presets/")
         self.preset_path.mkdir(parents=True, exist_ok=True)
-        Path("exports").mkdir(exist_ok=True)
 
-        # Optional: Sculpting-Objekt vorbereiten
         try:
             from core.sculpting.sculpt_bridge import SculptTools
             self.sculpt_tools = SculptTools()
-        except Exception as e:
-            print(f"[System] ⚠️ SculptTools konnte nicht geladen werden: {e}")
+        except:
             self.sculpt_tools = None
 
     def set_nsfw_mode(self, enabled: bool):
@@ -76,10 +73,6 @@ class CharacterSystem:
             print("❌ Export-Skript fehlt!")
             return
 
-        if not self.sculpt_tools:
-            print("❌ SculptTools nicht verfügbar!")
-            return
-
         cmd = [
             str(self.sculpt_tools.blender_path),
             "--background",
@@ -91,3 +84,8 @@ class CharacterSystem:
 
         print(f"📦 Starte FBX-Export nach: {output_path}")
         subprocess.run(cmd, env=env)
+
+    def update_anatomy_layer(self, layer: str, enabled: bool):
+        """Aktualisiere Sichtbarkeit einzelner Anatomie-Layer"""
+        self.anatomy_state[layer.lower()] = enabled
+        print(f"[System] 🧠 Anatomie-Layer aktualisiert: {layer} = {'An' if enabled else 'Aus'}")
