@@ -6,27 +6,18 @@ from pathlib import Path
 class CharacterSystem:
     def __init__(self):
         self.nsfw_enabled = True
-
-        # Anatomie-Zustand (sichtbare Layer)
-        self.anatomy_state = {
-            "haut": True,
-            "fett": True,
-            "muskeln": True,
-            "knochen": True,
-            "organe": True
-        }
-
-        # Sculpting-Daten (Körperform)
-        self.sculpt_data = {}
-
+        self.anatomy_state = {}     # z. B. {"skin": True, "muscle": True}
+        self.sculpt_data = {}       # z. B. {"torso_width": 1.2, "arm_length": 0.9}
         self.preset_path = Path("assets/character_presets/")
         self.preset_path.mkdir(parents=True, exist_ok=True)
+        Path("exports").mkdir(exist_ok=True)
 
         # Optional: Sculpting-Objekt vorbereiten
         try:
             from core.sculpting.sculpt_bridge import SculptTools
             self.sculpt_tools = SculptTools()
-        except:
+        except Exception as e:
+            print(f"[System] ⚠️ SculptTools konnte nicht geladen werden: {e}")
             self.sculpt_tools = None
 
     def set_nsfw_mode(self, enabled: bool):
@@ -35,13 +26,7 @@ class CharacterSystem:
 
     def new_character(self):
         print("[System] 🆕 Neuer Charakter erstellt")
-        self.anatomy_state = {
-            "haut": True,
-            "fett": True,
-            "muskeln": True,
-            "knochen": True,
-            "organe": True
-        }
+        self.anatomy_state = {}
         self.sculpt_data = {}
 
     def save_preset(self, name: str = "custom") -> Path:
@@ -89,6 +74,10 @@ class CharacterSystem:
 
         if not export_script.exists():
             print("❌ Export-Skript fehlt!")
+            return
+
+        if not self.sculpt_tools:
+            print("❌ SculptTools nicht verfügbar!")
             return
 
         cmd = [
