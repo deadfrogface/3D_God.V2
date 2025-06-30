@@ -5,12 +5,14 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from ui.panels.nsfw_panel import NSFWPanel
 from ui.panels.export_panel import ExportPanel
-from ui.panels.sculpt_panel import SculptPanel  # NEU
+from ui.panels.sculpt_panel import SculptPanel
+from ui.panels.ai_generator_panel import AIGeneratorPanel  # NEU
 
 class MainWindow(QMainWindow):
-    def __init__(self, character_system):
+    def __init__(self, character_system, ai_generator):
         super().__init__()
         self.character_system = character_system
+        self.ai_generator = ai_generator
         self.setWindowTitle("🔱 3D_God")
         self.setMinimumSize(1200, 800)
 
@@ -51,9 +53,12 @@ class MainWindow(QMainWindow):
         self.tabs = QTabWidget()
         self.setCentralWidget(self.tabs)
 
+        # 🤖 KI-Panel
+        ai_tab = AIGeneratorPanel(self.ai_generator)
+        self.tabs.addTab(ai_tab, "🤖 KI")
+
         self.create_tab("Charakter")
         self.create_tab("Kleidung")
-        self.create_tab("KI")
         self.create_tab("Rigging")
 
         # 🎨 Sculpting
@@ -92,9 +97,11 @@ if __name__ == "__main__":
     import sys
     from PySide6.QtWidgets import QApplication
     from core.character_system.character_system import CharacterSystem
+    from core.ai_generation.ai_generator import AIGenerator
 
     app = QApplication(sys.argv)
     character_system = CharacterSystem()
-    window = MainWindow(character_system)
+    ai_generator = AIGenerator(config={})
+    window = MainWindow(character_system, ai_generator)
     window.show()
     sys.exit(app.exec())
