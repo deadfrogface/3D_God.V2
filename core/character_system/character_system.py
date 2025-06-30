@@ -5,6 +5,8 @@ from core.rigging.metahuman_skeleton import MetahumanSkeleton
 from core.rigging.extra_bones import ExtraBoneHandler
 from core.export.fbx_exporter import FBXExporter
 from core.export.preset_saver import PresetSaver
+from core.sculpting.blender_bridge import BlenderBridge
+from core.sculpting.sculpt_tools import SculptTools
 
 class CharacterSystem:
     def __init__(self):
@@ -15,6 +17,8 @@ class CharacterSystem:
         self.extra_bones = ExtraBoneHandler()
         self.exporter = FBXExporter()
         self.preset_saver = PresetSaver()
+        self.sculpt_tools = SculptTools()
+        self.blender = BlenderBridge()
 
         self.current_data = {
             "name": "Unbenannt",
@@ -60,3 +64,9 @@ class CharacterSystem:
 
     def save_current_as_preset(self):
         return self.preset_saver.save(self.current_data)
+
+    def sculpt(self):
+        self.sculpt_tools.start_sculpt_session()
+
+    def run_blender_script(self, script, args=None):
+        return self.blender.run_blender_script(script, args)
