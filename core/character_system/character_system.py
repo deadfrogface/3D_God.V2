@@ -1,5 +1,5 @@
-import os
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -14,7 +14,8 @@ class CharacterSystem:
         try:
             from core.sculpting.sculpt_bridge import SculptTools
             self.sculpt_tools = SculptTools()
-        except:
+        except Exception as e:
+            print(f"[SculptTools] Fehler beim Laden: {e}")
             self.sculpt_tools = None
 
     def set_nsfw_mode(self, enabled: bool):
@@ -51,7 +52,6 @@ class CharacterSystem:
         self.nsfw_enabled = data.get("nsfw", True)
         self.anatomy_state = data.get("anatomy", {})
         self.sculpt_data = data.get("sculpted", {})
-
         print(f"✅ Preset geladen: {name}")
         return True
 
@@ -80,12 +80,9 @@ class CharacterSystem:
             "--python", str(export_script)
         ]
 
+        # Export-Ziel via Umgebungsvariable setzen
         env = dict(**os.environ, FBX_EXPORT_PATH=str(output_path))
 
         print(f"📦 Starte FBX-Export nach: {output_path}")
         subprocess.run(cmd, env=env)
-
-    def update_anatomy_layer(self, layer: str, enabled: bool):
-        """Aktualisiere Sichtbarkeit einzelner Anatomie-Layer"""
-        self.anatomy_state[layer.lower()] = enabled
-        print(f"[System] 🧠 Anatomie-Layer aktualisiert: {layer} = {'An' if enabled else 'Aus'}")
+        print(f"✅ Export abgeschlossen: {output_path}")
