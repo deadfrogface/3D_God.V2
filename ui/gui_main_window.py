@@ -7,7 +7,7 @@ from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QKeySequence
 from pathlib import Path
 
-# Import all panels
+# Panels
 from ui.panels.ai_generator_panel import AIGeneratorPanel
 from ui.panels.character_editor import CharacterEditorPanel
 from ui.panels.sculpt_panel import SculptPanel
@@ -17,6 +17,7 @@ from ui.panels.rigging_panel import RiggingPanel
 from ui.panels.nsfw_panel import NSFWPanel
 from ui.panels.export_panel import ExportPanel
 from ui.panels.debug_console import DebugConsole
+from ui.panels.settings_panel import SettingsPanel
 from ui.viewport_3d import Viewport3D
 
 class MainWindow(QMainWindow):
@@ -161,6 +162,7 @@ class MainWindow(QMainWindow):
         toolbar.addAction(QAction("👕", self, triggered=lambda: self.tab_widget.setCurrentIndex(3)))
         toolbar.addAction(QAction("🦴", self, triggered=lambda: self.tab_widget.setCurrentIndex(4)))
         toolbar.addAction(QAction("📤", self, triggered=lambda: self.tab_widget.setCurrentIndex(5)))
+        toolbar.addAction(QAction("⚙️", self, triggered=lambda: self.tab_widget.setCurrentIndex(6)))
 
     def create_central_widget(self):
         central_widget = QWidget()
@@ -191,6 +193,9 @@ class MainWindow(QMainWindow):
 
         self.export_panel = ExportPanel(self.character_system)
         self.tab_widget.addTab(self.export_panel, "📤 Export")
+
+        self.settings_panel = SettingsPanel(self.config, callback_reload=self.apply_theme_reload)
+        self.tab_widget.addTab(self.settings_panel, "⚙️ Einstellungen")
 
         splitter.addWidget(self.tab_widget)
 
@@ -238,17 +243,17 @@ class MainWindow(QMainWindow):
         self.config["nsfw_enabled"] = checked
         self.character_system.set_nsfw_mode(checked)
         self.viewport.update_view()
-
         for dock in self.findChildren(QDockWidget):
             if "NSFW" in dock.windowTitle():
                 dock.setVisible(checked)
-
-        self.status_bar.showMessage(
-            f"🔞 NSFW-Modus: {'Aktiviert' if checked else 'Deaktiviert'}"
-        )
+        self.status_bar.showMessage(f"🔞 NSFW-Modus: {'Aktiviert' if checked else 'Deaktiviert'}")
 
     def toggle_debug_console(self, checked):
         self.debug_console_dock.setVisible(checked)
+
+    def apply_theme_reload(self):
+        self.load_theme()
+        self.status_bar.showMessage("🎨 Theme & Einstellungen neu geladen")
 
     def load_window_state(self):
         pass
