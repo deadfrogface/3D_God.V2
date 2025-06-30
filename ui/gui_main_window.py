@@ -17,6 +17,7 @@ from ui.panels.rigging_panel import RiggingPanel
 from ui.panels.nsfw_panel import NSFWPanel
 from ui.panels.export_panel import ExportPanel
 from ui.viewport_3d import Viewport3D
+from ui.panels.debug_console import DebugConsole
 
 class MainWindow(QMainWindow):
     def __init__(self, config, character_system, ai_generator):
