@@ -10,6 +10,8 @@ class CharacterSystem:
         self.sculpt_data = {}       # z. B. {"torso_width": 1.2, "arm_length": 0.9}
         self.preset_path = Path("assets/character_presets/")
         self.preset_path.mkdir(parents=True, exist_ok=True)
+        self.controller_enabled = False
+        self.config_data = {}
 
         try:
             from core.sculpting.sculpt_bridge import SculptTools
@@ -52,6 +54,7 @@ class CharacterSystem:
         self.nsfw_enabled = data.get("nsfw", True)
         self.anatomy_state = data.get("anatomy", {})
         self.sculpt_data = data.get("sculpted", {})
+
         print(f"✅ Preset geladen: {name}")
         return True
 
@@ -80,9 +83,23 @@ class CharacterSystem:
             "--python", str(export_script)
         ]
 
-        # Export-Ziel via Umgebungsvariable setzen
         env = dict(**os.environ, FBX_EXPORT_PATH=str(output_path))
 
         print(f"📦 Starte FBX-Export nach: {output_path}")
         subprocess.run(cmd, env=env)
         print(f"✅ Export abgeschlossen: {output_path}")
+
+    def update_anatomy_layer(self, layer: str, enabled: bool):
+        self.anatomy_state[layer.lower()] = enabled
+        print(f"[System] 🧠 Anatomie-Layer aktualisiert: {layer} = {'An' if enabled else 'Aus'}")
+
+    def refresh_layers(self):
+        print("🔄 Anatomie-Layer aktualisieren...")
+        for name, active in self.anatomy_state.items():
+            print(f"  - {name}: {'ein' if active else 'aus'}")
+
+    def apply_loaded_state(self):
+        """Aktualisiert Viewport und Panels nach Preset-Import"""
+        print("🔁 Lade Preset-Zustand in GUI...")
+        if hasattr(self, "viewport"):
+            self.viewport.refresh_layers()
