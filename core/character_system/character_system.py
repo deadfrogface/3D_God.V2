@@ -66,5 +66,22 @@ class CharacterSystem:
             self.sculpt_tools.run_script(script_name)
 
     def export_fbx(self):
-        print("📤 Exportiere FBX... [Stub]")
-        # TODO: Blender-Export anstoßen
+    output_path = Path("exports/character.fbx").resolve()
+    export_script = Path("blender_embedded/scripts/export_fbx.py").resolve()
+
+    if not export_script.exists():
+        print("❌ Export-Skript fehlt!")
+        return
+
+    cmd = [
+        str(self.sculpt_tools.blender_path),
+        "--background",
+        str(self.sculpt_tools.blend_file),
+        "--python", str(export_script)
+    ]
+
+    # Export-Ziel via Umgebungsvariable setzen
+    env = dict(**os.environ, FBX_EXPORT_PATH=str(output_path))
+
+    print(f"📦 Starte FBX-Export nach: {output_path}")
+    subprocess.run(cmd, env=env)
