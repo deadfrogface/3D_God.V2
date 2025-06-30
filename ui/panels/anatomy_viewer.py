@@ -17,7 +17,7 @@ class AnatomyViewer(QWidget):
         self.checkboxes = {}
         for layer in ["Haut", "Fett", "Muskeln", "Knochen", "Organe"]:
             checkbox = QCheckBox(layer)
-            checkbox.setChecked(True)
+            checkbox.setChecked(self.character_system.anatomy_state.get(layer.lower(), True))
             checkbox.stateChanged.connect(lambda state, l=layer: self.set_layer(l, state))
             layout.addWidget(checkbox)
             self.checkboxes[layer.lower()] = checkbox
@@ -27,5 +27,4 @@ class AnatomyViewer(QWidget):
 
     def set_layer(self, name, state):
         active = (state == Qt.Checked)
-        self.character_system.anatomy_state[name.lower()] = active
-        print(f"🧠 Anatomie-Layer '{name}': {'Ein' if active else 'Aus'}")
+        self.character_system.update_anatomy_layer(name, active)
