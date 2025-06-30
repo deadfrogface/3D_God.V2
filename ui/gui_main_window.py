@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from ui.panels.nsfw_panel import NSFWPanel
 from ui.panels.export_panel import ExportPanel
+from ui.panels.sculpt_panel import SculptPanel  # NEU
 
 class MainWindow(QMainWindow):
     def __init__(self, character_system):
@@ -55,7 +56,11 @@ class MainWindow(QMainWindow):
         self.create_tab("KI")
         self.create_tab("Rigging")
 
-        # NEU: Export-Tab mit Panel
+        # 🎨 Sculpting
+        sculpt_tab = SculptPanel(self.character_system)
+        self.tabs.addTab(sculpt_tab, "🎨 Sculpting")
+
+        # 📤 Export
         export_tab = ExportPanel(self.character_system)
         self.tabs.addTab(export_tab, "📤 Export")
 
