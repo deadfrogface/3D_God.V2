@@ -103,3 +103,7 @@ class CharacterSystem:
         print("🔁 Lade Preset-Zustand in GUI...")
         if hasattr(self, "viewport"):
             self.viewport.refresh_layers()
+if hasattr(self, "anatomy_panel"):
+    self.anatomy_panel.update_checkboxes()
+if hasattr(self, "slider_panel"):
+    self.slider_panel.update_sliders()
