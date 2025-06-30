@@ -1,12 +1,14 @@
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QTabWidget, QWidget,
-    QVBoxLayout, QMenuBar, QMenu, QAction, QStatusBar, QDockWidget
+    QVBoxLayout, QMenuBar, QMenu, QAction, QStatusBar, QDockWidget,
+    QSplitter, QHBoxLayout
 )
 from PySide6.QtCore import Qt
 from ui.panels.nsfw_panel import NSFWPanel
 from ui.panels.export_panel import ExportPanel
 from ui.panels.sculpt_panel import SculptPanel
-from ui.panels.ai_generator_panel import AIGeneratorPanel  # NEU
+from ui.panels.ai_generator_panel import AIGeneratorPanel
+from ui.viewport_3d import Viewport3D
 
 class MainWindow(QMainWindow):
     def __init__(self, character_system, ai_generator):
@@ -14,11 +16,11 @@ class MainWindow(QMainWindow):
         self.character_system = character_system
         self.ai_generator = ai_generator
         self.setWindowTitle("🔱 3D_God")
-        self.setMinimumSize(1200, 800)
+        self.setMinimumSize(1400, 900)
 
         self.create_menu()
         self.create_status_bar()
-        self.create_tabs()
+        self.create_splitter_layout()
         self.create_nsfw_dock()
 
     def create_menu(self):
@@ -49,25 +51,33 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.status_bar)
         self.status_bar.showMessage("🔱 3D_God gestartet – NSFW-Modus: An")
 
-    def create_tabs(self):
-        self.tabs = QTabWidget()
-        self.setCentralWidget(self.tabs)
+    def create_splitter_layout(self):
+        splitter = QSplitter(Qt.Horizontal)
+        self.setCentralWidget(splitter)
 
-        # 🤖 KI-Panel
-        ai_tab = AIGeneratorPanel(self.ai_generator)
-        self.tabs.addTab(ai_tab, "🤖 KI")
+        # Linke Seite: Tabs
+        self.tabs = QTabWidget()
+        splitter.addWidget(self.tabs)
+
+        self.ai_panel = AIGeneratorPanel(self.ai_generator)
+        self.tabs.addTab(self.ai_panel, "🤖 KI")
 
         self.create_tab("Charakter")
         self.create_tab("Kleidung")
         self.create_tab("Rigging")
 
-        # 🎨 Sculpting
         sculpt_tab = SculptPanel(self.character_system)
         self.tabs.addTab(sculpt_tab, "🎨 Sculpting")
 
-        # 📤 Export
         export_tab = ExportPanel(self.character_system)
         self.tabs.addTab(export_tab, "📤 Export")
+
+        # Rechte Seite: 3D-Viewport
+        self.viewport = Viewport3D(self.character_system)
+        splitter.addWidget(self.viewport)
+
+        # Größenverhältnis: 60% Tabs, 40% Viewport
+        splitter.setSizes([900, 500])
 
     def create_tab(self, name):
         tab = QWidget()
@@ -88,6 +98,7 @@ class MainWindow(QMainWindow):
 
     def load_preset(self, name):
         if self.character_system.load_preset(name):
+            self.viewport.update_view()
             self.status_bar.showMessage(f"✅ Preset geladen: {name}")
         else:
             self.status_bar.showMessage(f"❌ Fehler beim Laden: {name}")
