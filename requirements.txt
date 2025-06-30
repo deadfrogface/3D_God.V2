@@ -1,0 +1,6 @@
+PySide6
+torch
+numpy
+opencv-python
+Pillow
+trimesh
