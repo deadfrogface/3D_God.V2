@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QDockWidget, QToolBar, QAction
 )
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QIcon, QKeySequence
+from PySide6.QtGui import QKeySequence
 from pathlib import Path
 
 # Import all panels
@@ -16,8 +16,8 @@ from ui.panels.clothing_panel import ClothingPanel
 from ui.panels.rigging_panel import RiggingPanel
 from ui.panels.nsfw_panel import NSFWPanel
 from ui.panels.export_panel import ExportPanel
-from ui.viewport_3d import Viewport3D
 from ui.panels.debug_console import DebugConsole
+from ui.viewport_3d import Viewport3D
 
 class MainWindow(QMainWindow):
     def __init__(self, config, character_system, ai_generator):
@@ -81,8 +81,6 @@ class MainWindow(QMainWindow):
 
     def create_menu_bar(self):
         menubar = self.menuBar()
-
-        # Datei-Menü
         file_menu = menubar.addMenu("📁 Datei")
 
         new_action = QAction("🆕 Neuer Charakter", self)
@@ -100,7 +98,6 @@ class MainWindow(QMainWindow):
 
         file_menu.addSeparator()
 
-        # Preset-Menü
         preset_menu = file_menu.addMenu("👥 Presets laden")
         preset_folder = Path("assets/character_presets")
         preset_folder.mkdir(parents=True, exist_ok=True)
@@ -117,12 +114,10 @@ class MainWindow(QMainWindow):
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
 
-        # Bearbeiten-Menü
         edit_menu = menubar.addMenu("✏️ Bearbeiten")
         edit_menu.addAction(QAction("↩️ Rückgängig", self))
         edit_menu.addAction(QAction("↪️ Wiederholen", self))
 
-        # Ansicht-Menü
         view_menu = menubar.addMenu("👁️ Ansicht")
 
         nsfw_action = QAction("🔞 NSFW-Modus", self)
@@ -130,6 +125,12 @@ class MainWindow(QMainWindow):
         nsfw_action.setChecked(self.config.get("nsfw_enabled", True))
         nsfw_action.triggered.connect(self.toggle_nsfw)
         view_menu.addAction(nsfw_action)
+
+        debug_toggle = QAction("🛠 Debug-Konsole", self)
+        debug_toggle.setCheckable(True)
+        debug_toggle.setChecked(False)
+        debug_toggle.triggered.connect(self.toggle_debug_console)
+        view_menu.addAction(debug_toggle)
 
         anatomy_menu = view_menu.addMenu("🦴 Anatomie-Layer")
         for layer in ["Haut", "Fett", "Muskeln", "Knochen", "Organe"]:
@@ -195,7 +196,6 @@ class MainWindow(QMainWindow):
 
         self.viewport = Viewport3D(self.character_system)
         splitter.addWidget(self.viewport)
-
         splitter.setSizes([640, 960])
 
     def create_dock_widgets(self):
@@ -210,6 +210,12 @@ class MainWindow(QMainWindow):
             nsfw_dock.setWidget(self.nsfw_panel)
             self.addDockWidget(Qt.RightDockWidgetArea, nsfw_dock)
             self.tabifyDockWidget(anatomy_dock, nsfw_dock)
+
+        self.debug_console_dock = QDockWidget("🛠 Debug-Konsole", self)
+        self.debug_console = DebugConsole()
+        self.debug_console_dock.setWidget(self.debug_console)
+        self.addDockWidget(Qt.BottomDockWidgetArea, self.debug_console_dock)
+        self.debug_console_dock.hide()
 
     def create_status_bar(self):
         self.status_bar = QStatusBar()
@@ -240,6 +246,9 @@ class MainWindow(QMainWindow):
         self.status_bar.showMessage(
             f"🔞 NSFW-Modus: {'Aktiviert' if checked else 'Deaktiviert'}"
         )
+
+    def toggle_debug_console(self, checked):
+        self.debug_console_dock.setVisible(checked)
 
     def load_window_state(self):
         pass
