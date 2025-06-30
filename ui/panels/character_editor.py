@@ -5,12 +5,12 @@ class CharacterEditorPanel(QWidget):
     def __init__(self, character_system):
         super().__init__()
         self.character_system = character_system
+        self.character_system.slider_panel = self
         self.sliders = {}
         self.init_ui()
 
     def init_ui(self):
         layout = QVBoxLayout()
-
         title = QLabel("🧍 Körperform & Proportionen")
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
@@ -42,6 +42,10 @@ class CharacterEditorPanel(QWidget):
 
     def update_value(self, key, value):
         self.character_system.sculpt_data[key] = value
-        print(f"🔧 {key}: {value}")
         if hasattr(self.character_system, "viewport"):
             self.character_system.viewport.update_view()
+
+    def update_sliders(self):
+        for key, slider in self.sliders.items():
+            val = self.character_system.sculpt_data.get(key, 1.0)
+            slider.setValue(int(val * 100))
