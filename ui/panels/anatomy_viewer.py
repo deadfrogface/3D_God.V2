@@ -6,10 +6,10 @@ class AnatomyViewer(QWidget):
         super().__init__()
         self.character_system = character_system
         self.init_ui()
+        self.character_system.anatomy_panel = self  # Rückbindung
 
     def init_ui(self):
         layout = QVBoxLayout()
-
         title = QLabel("🧠 Anatomie-Layer")
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
@@ -23,8 +23,6 @@ class AnatomyViewer(QWidget):
             self.checkboxes[layer.lower()] = checkbox
 
         layout.addStretch()
-
-        # Debug-Konsole
         layout.addWidget(QLabel("🪵 Debug-Konsole"))
         self.console_output = QTextEdit()
         self.console_output.setReadOnly(True)
@@ -38,9 +36,13 @@ class AnatomyViewer(QWidget):
 
     def set_layer(self, name, state):
         active = (state == Qt.Checked)
-        self.character_system.anatomy_state[name.lower()] = active
+        self.character_system.update_anatomy_layer(name, active)
         self.character_system.refresh_layers()
-        print(f"🧠 Anatomie-Layer '{name}': {'Ein' if active else 'Aus'}")
+
+    def update_checkboxes(self):
+        for layer, checkbox in self.checkboxes.items():
+            state = self.character_system.anatomy_state.get(layer, True)
+            checkbox.setChecked(state)
 
     def log(self, message):
         self.console_output.append(message)
