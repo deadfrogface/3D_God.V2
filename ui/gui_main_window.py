@@ -4,8 +4,7 @@ from PySide6.QtWidgets import (
     QDockWidget, QToolBar, QAction
 )
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QKeySequence
-from pathlib import Path
+from PySide6.QtGui import QIcon, QKeySequence
 
 # Panels
 from ui.panels.ai_generator_panel import AIGeneratorPanel
@@ -16,8 +15,6 @@ from ui.panels.clothing_panel import ClothingPanel
 from ui.panels.rigging_panel import RiggingPanel
 from ui.panels.nsfw_panel import NSFWPanel
 from ui.panels.export_panel import ExportPanel
-from ui.panels.debug_console import DebugConsole
-from ui.panels.settings_panel import SettingsPanel
 from ui.viewport_3d import Viewport3D
 
 class MainWindow(QMainWindow):
@@ -26,6 +23,7 @@ class MainWindow(QMainWindow):
         self.config = config
         self.character_system = character_system
         self.ai_generator = ai_generator
+        self.debug_console = None  # 👈 Für Debug-Konsole
 
         self.setWindowTitle("🔱 3D_God - Character Creator")
         self.setMinimumSize(1600, 900)
@@ -49,75 +47,43 @@ class MainWindow(QMainWindow):
                 QMainWindow { background-color: #0a0a0a; color: #00ff88; }
                 QTabWidget::pane { border: 2px solid #00ff88; background-color: #1a1a1a; }
                 QTabBar::tab {
-                    background-color: #2a2a2a;
-                    color: #00ff88;
-                    padding: 8px 16px;
-                    margin: 2px;
-                    border: 1px solid #444;
-                    font-weight: bold;
+                    background-color: #2a2a2a; color: #00ff88;
+                    padding: 8px 16px; margin: 2px; border: 1px solid #444; font-weight: bold;
                 }
                 QTabBar::tab:selected {
-                    background-color: #00ff88;
-                    color: #000000;
-                    border: 2px solid #00ffff;
+                    background-color: #00ff88; color: #000000; border: 2px solid #00ffff;
                 }
                 QPushButton {
-                    background-color: #2a2a2a;
-                    color: #00ff88;
-                    border: 2px solid #00ff88;
-                    padding: 8px;
-                    font-weight: bold;
+                    background-color: #2a2a2a; color: #00ff88;
+                    border: 2px solid #00ff88; padding: 8px; font-weight: bold;
                 }
-                QPushButton:hover {
-                    background-color: #00ff88;
-                    color: #000000;
-                }
+                QPushButton:hover { background-color: #00ff88; color: #000000; }
                 QDockWidget { color: #00ff88; font-weight: bold; }
                 QDockWidget::title {
-                    background-color: #1a1a1a;
-                    border: 1px solid #00ff88;
-                    padding: 4px;
+                    background-color: #1a1a1a; border: 1px solid #00ff88; padding: 4px;
                 }
             """)
 
     def create_menu_bar(self):
         menubar = self.menuBar()
+
         file_menu = menubar.addMenu("📁 Datei")
-
-        new_action = QAction("🆕 Neuer Charakter", self)
-        new_action.setShortcut(QKeySequence.New)
-        new_action.triggered.connect(self.new_character)
-        file_menu.addAction(new_action)
-
-        load_action = QAction("📂 Charakter laden", self)
-        load_action.setShortcut(QKeySequence.Open)
-        file_menu.addAction(load_action)
-
-        save_action = QAction("💾 Charakter speichern", self)
-        save_action.setShortcut(QKeySequence.Save)
-        file_menu.addAction(save_action)
-
-        file_menu.addSeparator()
+        file_menu.addAction(QAction("🆕 Neuer Charakter", self, shortcut=QKeySequence.New, triggered=self.new_character))
+        file_menu.addAction(QAction("📂 Charakter laden", self, shortcut=QKeySequence.Open))
+        file_menu.addAction(QAction("💾 Charakter speichern", self, shortcut=QKeySequence.Save))
 
         preset_menu = file_menu.addMenu("👥 Presets laden")
-        preset_folder = Path("assets/character_presets")
-        preset_folder.mkdir(parents=True, exist_ok=True)
-        presets = [f.stem for f in preset_folder.glob("*.json")]
-
-        for preset in presets:
-            action = QAction(f"🎭 {preset}", self)
-            action.triggered.connect(lambda checked, p=preset: self.load_preset(p))
-            preset_menu.addAction(action)
+        for preset in ["Brakka", "Dogmeat", "Bogg", "General Rattzkrieg"]:
+            preset_action = QAction(f"🎭 {preset}", self)
+            preset_action.triggered.connect(lambda checked, p=preset: self.load_preset(p))
+            preset_menu.addAction(preset_action)
 
         file_menu.addSeparator()
-        exit_action = QAction("❌ Beenden", self)
-        exit_action.setShortcut(QKeySequence.Quit)
-        exit_action.triggered.connect(self.close)
-        file_menu.addAction(exit_action)
+        file_menu.addAction(QAction("❌ Beenden", self, shortcut=QKeySequence.Quit, triggered=self.close))
 
         edit_menu = menubar.addMenu("✏️ Bearbeiten")
-        edit_menu.addAction(QAction("↩️ Rückgängig", self))
-        edit_menu.addAction(QAction("↪️ Wiederholen", self))
+        edit_menu.addAction(QAction("↩️ Rückgängig", self, shortcut=QKeySequence.Undo))
+        edit_menu.addAction(QAction("↪️ Wiederholen", self, shortcut=QKeySequence.Redo))
 
         view_menu = menubar.addMenu("👁️ Ansicht")
 
@@ -127,11 +93,11 @@ class MainWindow(QMainWindow):
         nsfw_action.triggered.connect(self.toggle_nsfw)
         view_menu.addAction(nsfw_action)
 
-        debug_toggle = QAction("🛠 Debug-Konsole", self)
-        debug_toggle.setCheckable(True)
-        debug_toggle.setChecked(False)
-        debug_toggle.triggered.connect(self.toggle_debug_console)
-        view_menu.addAction(debug_toggle)
+        debug_action = QAction("🐞 Debug-Konsole anzeigen", self)
+        debug_action.setCheckable(True)
+        debug_action.setChecked(False)
+        debug_action.triggered.connect(self.toggle_debug_console)
+        view_menu.addAction(debug_action)
 
         anatomy_menu = view_menu.addMenu("🦴 Anatomie-Layer")
         for layer in ["Haut", "Fett", "Muskeln", "Knochen", "Organe"]:
@@ -141,8 +107,8 @@ class MainWindow(QMainWindow):
             anatomy_menu.addAction(action)
 
         tools_menu = menubar.addMenu("🔧 Werkzeuge")
-        tools_menu.addAction(QAction("🎨 Sculpting-Modus", self))
-        tools_menu.addAction(QAction("🦴 Auto-Rigging", self))
+        tools_menu.addAction(QAction("🎨 Sculpting-Modus", self, shortcut="S"))
+        tools_menu.addAction(QAction("🦴 Auto-Rigging", self, shortcut="R"))
 
         help_menu = menubar.addMenu("❓ Hilfe")
         help_menu.addAction(QAction("🎮 Controller-Mapping", self))
@@ -153,16 +119,15 @@ class MainWindow(QMainWindow):
         toolbar.setIconSize(QSize(32, 32))
         self.addToolBar(toolbar)
 
-        toolbar.addAction(QAction("🆕", self))
-        toolbar.addAction(QAction("💾", self))
+        toolbar.addAction(QAction("🆕", self, toolTip="Neuer Charakter"))
+        toolbar.addAction(QAction("💾", self, toolTip="Speichern"))
         toolbar.addSeparator()
-        toolbar.addAction(QAction("🤖", self, triggered=lambda: self.tab_widget.setCurrentIndex(0)))
-        toolbar.addAction(QAction("🧍", self, triggered=lambda: self.tab_widget.setCurrentIndex(1)))
-        toolbar.addAction(QAction("🎨", self, triggered=lambda: self.tab_widget.setCurrentIndex(2)))
-        toolbar.addAction(QAction("👕", self, triggered=lambda: self.tab_widget.setCurrentIndex(3)))
-        toolbar.addAction(QAction("🦴", self, triggered=lambda: self.tab_widget.setCurrentIndex(4)))
-        toolbar.addAction(QAction("📤", self, triggered=lambda: self.tab_widget.setCurrentIndex(5)))
-        toolbar.addAction(QAction("⚙️", self, triggered=lambda: self.tab_widget.setCurrentIndex(6)))
+        toolbar.addAction(QAction("🤖", self, toolTip="KI", triggered=lambda: self.tab_widget.setCurrentIndex(0)))
+        toolbar.addAction(QAction("🧍", self, toolTip="Editor", triggered=lambda: self.tab_widget.setCurrentIndex(1)))
+        toolbar.addAction(QAction("🎨", self, toolTip="Sculpt", triggered=lambda: self.tab_widget.setCurrentIndex(2)))
+        toolbar.addAction(QAction("👕", self, toolTip="Kleidung", triggered=lambda: self.tab_widget.setCurrentIndex(3)))
+        toolbar.addAction(QAction("🦴", self, toolTip="Rigging", triggered=lambda: self.tab_widget.setCurrentIndex(4)))
+        toolbar.addAction(QAction("📤", self, toolTip="Export", triggered=lambda: self.tab_widget.setCurrentIndex(5)))
 
     def create_central_widget(self):
         central_widget = QWidget()
@@ -175,30 +140,20 @@ class MainWindow(QMainWindow):
 
         self.tab_widget = QTabWidget()
         self.tab_widget.setTabPosition(QTabWidget.West)
-
         self.ai_panel = AIGeneratorPanel(self.ai_generator)
         self.tab_widget.addTab(self.ai_panel, "🤖 KI-Generator")
-
         self.character_panel = CharacterEditorPanel(self.character_system)
         self.tab_widget.addTab(self.character_panel, "🧍 Character")
-
         self.sculpt_panel = SculptPanel(self.character_system)
         self.tab_widget.addTab(self.sculpt_panel, "🎨 Sculpting")
-
         self.clothing_panel = ClothingPanel(self.character_system)
         self.tab_widget.addTab(self.clothing_panel, "👕 Kleidung")
-
         self.rigging_panel = RiggingPanel(self.character_system)
         self.tab_widget.addTab(self.rigging_panel, "🦴 Rigging")
-
         self.export_panel = ExportPanel(self.character_system)
         self.tab_widget.addTab(self.export_panel, "📤 Export")
 
-        self.settings_panel = SettingsPanel(self.config, callback_reload=self.apply_theme_reload)
-        self.tab_widget.addTab(self.settings_panel, "⚙️ Einstellungen")
-
         splitter.addWidget(self.tab_widget)
-
         self.viewport = Viewport3D(self.character_system)
         splitter.addWidget(self.viewport)
         splitter.setSizes([640, 960])
@@ -216,12 +171,6 @@ class MainWindow(QMainWindow):
             self.addDockWidget(Qt.RightDockWidgetArea, nsfw_dock)
             self.tabifyDockWidget(anatomy_dock, nsfw_dock)
 
-        self.debug_console_dock = QDockWidget("🛠 Debug-Konsole", self)
-        self.debug_console = DebugConsole()
-        self.debug_console_dock.setWidget(self.debug_console)
-        self.addDockWidget(Qt.BottomDockWidgetArea, self.debug_console_dock)
-        self.debug_console_dock.hide()
-
     def create_status_bar(self):
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
@@ -233,7 +182,8 @@ class MainWindow(QMainWindow):
         self.status_bar.showMessage("✨ Neuer Charakter erstellt")
 
     def load_preset(self, preset_name):
-        if self.character_system.load_preset(preset_name):
+        preset_path = f"assets/character_presets/{preset_name.lower()}.json"
+        if self.character_system.load_preset(preset_path):
             self.viewport.update_view()
             self.status_bar.showMessage(f"✅ Preset geladen: {preset_name}")
         else:
@@ -249,17 +199,17 @@ class MainWindow(QMainWindow):
         self.status_bar.showMessage(f"🔞 NSFW-Modus: {'Aktiviert' if checked else 'Deaktiviert'}")
 
     def toggle_debug_console(self, checked):
-        self.debug_console_dock.setVisible(checked)
-
-    def apply_theme_reload(self):
-        self.load_theme()
-        self.status_bar.showMessage("🎨 Theme & Einstellungen neu geladen")
+        if checked:
+            if not self.debug_console:
+                from ui.debug_console import DebugConsole
+                self.debug_console = DebugConsole()
+            self.debug_console.show()
+        else:
+            if self.debug_console:
+                self.debug_console.hide()
 
     def load_window_state(self):
         pass
 
     def closeEvent(self, event):
         event.accept()
-
-# Debug-Konsole optional anzeigen
-self.debug_console = None
