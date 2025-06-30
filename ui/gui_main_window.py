@@ -260,3 +260,6 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         event.accept()
+
+# Debug-Konsole optional anzeigen
+self.debug_console = None
