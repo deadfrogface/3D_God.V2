@@ -1,11 +1,24 @@
 import json
+import os
+import subprocess
 from pathlib import Path
 
 class CharacterSystem:
     def __init__(self):
         self.nsfw_enabled = True
-        self.anatomy_state = {}     # z. B. {"skin": True, "muscle": True}
-        self.sculpt_data = {}       # z. B. {"torso_width": 1.2, "arm_length": 0.9}
+
+        # Anatomie-Zustand (sichtbare Layer)
+        self.anatomy_state = {
+            "haut": True,
+            "fett": True,
+            "muskeln": True,
+            "knochen": True,
+            "organe": True
+        }
+
+        # Sculpting-Daten (Körperform)
+        self.sculpt_data = {}
+
         self.preset_path = Path("assets/character_presets/")
         self.preset_path.mkdir(parents=True, exist_ok=True)
 
@@ -22,7 +35,13 @@ class CharacterSystem:
 
     def new_character(self):
         print("[System] 🆕 Neuer Charakter erstellt")
-        self.anatomy_state = {}
+        self.anatomy_state = {
+            "haut": True,
+            "fett": True,
+            "muskeln": True,
+            "knochen": True,
+            "organe": True
+        }
         self.sculpt_data = {}
 
     def save_preset(self, name: str = "custom") -> Path:
@@ -56,7 +75,6 @@ class CharacterSystem:
 
     def sculpt(self):
         print("🎨 Starte Sculpting...")
-        # Hier würde eine Blender-Brücke aufgerufen
         if self.sculpt_tools:
             self.sculpt_tools.launch()
 
@@ -66,22 +84,21 @@ class CharacterSystem:
             self.sculpt_tools.run_script(script_name)
 
     def export_fbx(self):
-    output_path = Path("exports/character.fbx").resolve()
-    export_script = Path("blender_embedded/scripts/export_fbx.py").resolve()
+        output_path = Path("exports/character.fbx").resolve()
+        export_script = Path("blender_embedded/scripts/export_fbx.py").resolve()
 
-    if not export_script.exists():
-        print("❌ Export-Skript fehlt!")
-        return
+        if not export_script.exists():
+            print("❌ Export-Skript fehlt!")
+            return
 
-    cmd = [
-        str(self.sculpt_tools.blender_path),
-        "--background",
-        str(self.sculpt_tools.blend_file),
-        "--python", str(export_script)
-    ]
+        cmd = [
+            str(self.sculpt_tools.blender_path),
+            "--background",
+            str(self.sculpt_tools.blend_file),
+            "--python", str(export_script)
+        ]
 
-    # Export-Ziel via Umgebungsvariable setzen
-    env = dict(**os.environ, FBX_EXPORT_PATH=str(output_path))
+        env = dict(**os.environ, FBX_EXPORT_PATH=str(output_path))
 
-    print(f"📦 Starte FBX-Export nach: {output_path}")
-    subprocess.run(cmd, env=env)
+        print(f"📦 Starte FBX-Export nach: {output_path}")
+        subprocess.run(cmd, env=env)
