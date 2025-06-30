@@ -28,3 +28,7 @@ class AnatomyViewer(QWidget):
     def set_layer(self, name, state):
         active = (state == Qt.Checked)
         self.character_system.update_anatomy_layer(name, active)
+
+        # → Viewport benachrichtigen
+        if hasattr(self.character_system, "viewport"):
+            self.character_system.viewport.refresh_layers()
