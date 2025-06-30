@@ -1,20 +1,12 @@
 # ai_backend/fauxpilot/handler.py
-import requests
+
+import os
+from ai_backend.fauxpilot.codegen_model import CodegenModel
 
 class FauxPilotHandler:
-    def __init__(self, host="http://localhost:5000"):
-        self.url = f"{host}/v1/engines/codegen/completions"
+    def __init__(self):
+        model_dir = os.path.join(os.path.dirname(__file__), "model")
+        self.model = CodegenModel(model_dir)
 
-    def complete(self, prompt: str, max_tokens=128) -> str:
-        payload = {
-            "prompt": prompt,
-            "max_tokens": max_tokens,
-            "temperature": 0.2,
-            "stop": ["\n\n"]
-        }
-        try:
-            response = requests.post(self.url, json=payload)
-            result = response.json()
-            return result.get("choices", [{}])[0].get("text", "").strip()
-        except Exception as e:
-            return f"[Fehler bei FauxPilot]: {str(e)}"
+    def complete(self, prompt: str, max_tokens: int = 128) -> str:
+        return self.model.complete(prompt, max_tokens)
