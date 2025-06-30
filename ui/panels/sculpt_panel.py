@@ -26,7 +26,6 @@ class SculptPanel(QWidget):
         self.sym_box.addItems(["X", "Y", "Z"])
         sym_btn = QPushButton("🔁 Anwenden")
         sym_btn.clicked.connect(self.apply_symmetry)
-
         sym_layout.addWidget(sym_label)
         sym_layout.addWidget(self.sym_box)
         sym_layout.addWidget(sym_btn)
