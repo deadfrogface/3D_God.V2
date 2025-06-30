@@ -43,7 +43,5 @@ class CharacterEditorPanel(QWidget):
     def update_value(self, key, value):
         self.character_system.sculpt_data[key] = value
         print(f"🔧 {key}: {value}")
-
-        # 🔁 Viewport aktualisieren
         if hasattr(self.character_system, "viewport"):
             self.character_system.viewport.update_view()
