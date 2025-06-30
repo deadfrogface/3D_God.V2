@@ -107,3 +107,14 @@ if hasattr(self, "anatomy_panel"):
     self.anatomy_panel.update_checkboxes()
 if hasattr(self, "slider_panel"):
     self.slider_panel.update_sliders()
+def test_sculpting_system(self):
+    print("🧪 Teste Sculpting-System...")
+    if self.sculpt_tools:
+        print("✅ Sculpting-Bridge vorhanden")
+        self.sculpt_tools.launch()
+    else:
+        print("❌ SculptTools nicht initialisiert!")
+
+def test_export(self):
+    print("🧪 Starte Test-Export...")
+    self.export_fbx()
