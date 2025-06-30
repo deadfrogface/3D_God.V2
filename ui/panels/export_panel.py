@@ -55,6 +55,7 @@ class ExportPanel(QWidget):
     def load_preset(self):
         name = self.load_input.text().strip()
         if name and self.character_system.load_preset(name):
+            self.character_system.apply_loaded_state()  # Neu in Block 63
             self.status.setText(f"📂 Geladen: {name}")
         else:
             self.status.setText("❌ Fehler beim Laden")
