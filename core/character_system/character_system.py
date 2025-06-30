@@ -1,5 +1,9 @@
 from .nsfw_manager import NSFWManager
 from .preset_handler import PresetHandler
+from core.rigging.auto_rigger import AutoRigger
+from core.rigging.metahuman_skeleton import MetahumanSkeleton
+from core.rigging.extra_bones import ExtraBoneHandler
+
 
 class CharacterSystem:
     def __init__(self):
