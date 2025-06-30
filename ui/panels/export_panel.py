@@ -1,31 +1,39 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit
+from PySide6.QtCore import Qt
 
 class ExportPanel(QWidget):
     def __init__(self, character_system):
         super().__init__()
         self.character_system = character_system
+        self.init_ui()
+
+    def init_ui(self):
         layout = QVBoxLayout()
 
-        self.label = QLabel("📤 Exportieren")
-        layout.addWidget(self.label)
+        title = QLabel("📤 Export zu Unreal Engine 5.6")
+        title.setAlignment(Qt.AlignCenter)
+        layout.addWidget(title)
 
-        export_btn = QPushButton("💾 FBX Exportieren")
+        # Preset speichern
+        self.name_input = QLineEdit()
+        self.name_input.setPlaceholderText("Name für Preset...")
+        layout.addWidget(self.name_input)
+
+        save_btn = QPushButton("💾 Preset speichern")
+        save_btn.clicked.connect(self.save_preset)
+        layout.addWidget(save_btn)
+
+        # FBX Export
+        export_btn = QPushButton("📦 FBX exportieren")
         export_btn.clicked.connect(self.export_fbx)
         layout.addWidget(export_btn)
 
-        preset_btn = QPushButton("📝 Preset speichern")
-        preset_btn.clicked.connect(self.save_preset)
-        layout.addWidget(preset_btn)
-
-        self.status = QLabel("")
-        layout.addWidget(self.status)
-
+        layout.addStretch()
         self.setLayout(layout)
 
-    def export_fbx(self):
-        path = self.character_system.export_to_file()
-        self.status.setText(f"✅ Exportiert: {path}")
-
     def save_preset(self):
-        path = self.character_system.save_current_as_preset()
-        self.status.setText(f"💾 Preset gespeichert: {path}")
+        name = self.name_input.text().strip() or "custom"
+        self.character_system.save_preset(name)
+
+    def export_fbx(self):
+        self.character_system.export_fbx()
