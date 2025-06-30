@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QLineEdit, QComboBox
+    QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout,
+    QLineEdit, QComboBox, QTextEdit
 )
 from PySide6.QtCore import Qt
 
@@ -41,24 +42,36 @@ class ExportPanel(QWidget):
         export_btn.clicked.connect(self.export)
         layout.addWidget(export_btn)
 
+        # Status & Logs
+        self.status = QLabel("⏳ Bereit für Export")
+        layout.addWidget(self.status)
+
+        self.log_output = QTextEdit()
+        self.log_output.setReadOnly(True)
+        self.log_output.setMaximumHeight(120)
+        layout.addWidget(self.log_output)
+
         layout.addStretch()
         self.setLayout(layout)
 
     def save_preset(self):
         name = self.save_name.text().strip()
         if not name:
-            print("⚠️ Kein Name eingegeben.")
+            self.log("⚠️ Kein Name eingegeben.")
             return
         path = self.character_system.save_preset(name)
-        print(f"✅ Preset gespeichert: {path}")
+        self.log(f"✅ Preset gespeichert: {path}")
         self.update_preset_list()
+        self.status.setText("✅ Preset gespeichert")
 
     def load_preset(self):
         name = self.load_box.currentText()
         if self.character_system.load_preset(name):
-            print(f"✅ Preset geladen: {name}")
+            self.log(f"✅ Preset geladen: {name}")
+            self.status.setText("✅ Preset geladen")
         else:
-            print(f"❌ Fehler beim Laden von: {name}")
+            self.log(f"❌ Fehler beim Laden von: {name}")
+            self.status.setText("❌ Fehler beim Laden")
 
     def update_preset_list(self):
         self.load_box.clear()
@@ -68,4 +81,10 @@ class ExportPanel(QWidget):
             self.load_box.addItems(presets)
 
     def export(self):
+        self.status.setText("📦 Export läuft...")
         self.character_system.export_fbx()
+        self.status.setText("✅ Export abgeschlossen")
+        self.log("📁 FBX-Export abgeschlossen")
+
+    def log(self, message):
+        self.log_output.append(message)
