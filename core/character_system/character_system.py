@@ -4,11 +4,14 @@ from core.rigging.auto_rigger import AutoRigger
 from core.rigging.metahuman_skeleton import MetahumanSkeleton
 from core.rigging.extra_bones import ExtraBoneHandler
 
-
 class CharacterSystem:
     def __init__(self):
         self.nsfw_manager = NSFWManager()
         self.preset_handler = PresetHandler()
+        self.auto_rigger = AutoRigger()
+        self.meta_skeleton = MetahumanSkeleton()
+        self.extra_bones = ExtraBoneHandler()
+
         self.current_data = {
             "name": "Unbenannt",
             "gender": "unknown",
@@ -38,3 +41,13 @@ class CharacterSystem:
 
     def set_current_data(self, data: dict):
         self.current_data = data
+
+    def rig_character(self):
+        return self.auto_rigger.apply_auto_rig(self.current_data)
+
+    def add_nsfw_bones(self):
+        return self.extra_bones.add_extra_bones({}, self.is_nsfw())
+
+    def convert_to_ue5(self):
+        return self.meta_skeleton.convert_to_metahuman({})
+
