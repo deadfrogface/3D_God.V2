@@ -4,6 +4,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 from ui.panels.nsfw_panel import NSFWPanel
+from ui.panels.export_panel import ExportPanel
 
 class MainWindow(QMainWindow):
     def __init__(self, character_system):
@@ -53,7 +54,10 @@ class MainWindow(QMainWindow):
         self.create_tab("Kleidung")
         self.create_tab("KI")
         self.create_tab("Rigging")
-        self.create_tab("Export")
+
+        # NEU: Export-Tab mit Panel
+        export_tab = ExportPanel(self.character_system)
+        self.tabs.addTab(export_tab, "📤 Export")
 
     def create_tab(self, name):
         tab = QWidget()
@@ -89,4 +93,3 @@ if __name__ == "__main__":
     window = MainWindow(character_system)
     window.show()
     sys.exit(app.exec())
-
