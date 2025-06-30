@@ -33,7 +33,7 @@ class CharacterEditorPanel(QWidget):
         label = QLabel(name)
         slider = QSlider(Qt.Horizontal)
         slider.setRange(50, 150)
-        slider.setValue(100)
+        slider.setValue(int(self.character_system.sculpt_data.get(key, 1.0) * 100))
         slider.valueChanged.connect(lambda val, k=key: self.update_value(k, val / 100))
         layout.addWidget(label)
         layout.addWidget(slider)
@@ -43,3 +43,7 @@ class CharacterEditorPanel(QWidget):
     def update_value(self, key, value):
         self.character_system.sculpt_data[key] = value
         print(f"🔧 {key}: {value}")
+
+        # 🔁 Viewport aktualisieren
+        if hasattr(self.character_system, "viewport"):
+            self.character_system.viewport.update_view()
