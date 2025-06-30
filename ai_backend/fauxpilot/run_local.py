@@ -3,8 +3,8 @@
 from handler import FauxPilotHandler
 
 if __name__ == "__main__":
-    prompt = "def hello():"
     handler = FauxPilotHandler()
+    prompt = "def say_hello():\n    "
     result = handler.complete(prompt)
-    print("🔁 Prompt:\n", prompt)
-    print("✅ Ergebnis:\n", result)
+    print(f"Prompt:\n{prompt}")
+    print(f"\nAntwort:\n{result}")
