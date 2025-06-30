@@ -39,6 +39,7 @@ class AnatomyViewer(QWidget):
     def set_layer(self, name, state):
         active = (state == Qt.Checked)
         self.character_system.anatomy_state[name.lower()] = active
+        self.character_system.refresh_layers()
         print(f"🧠 Anatomie-Layer '{name}': {'Ein' if active else 'Aus'}")
 
     def log(self, message):
