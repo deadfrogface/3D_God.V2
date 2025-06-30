@@ -6,23 +6,24 @@ class Viewport3D(QWidget):
     def __init__(self, character_system):
         super().__init__()
         self.character_system = character_system
+        self.character_system.viewport = self  # Rückkanal zur Anzeige
+
         self.init_ui()
 
     def init_ui(self):
         layout = QVBoxLayout()
 
-        # Titel
-        label = QLabel("🖼️ 3D Vorschau")
-        label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(label)
+        title = QLabel("🖼️ 3D Vorschau")
+        title.setAlignment(Qt.AlignCenter)
+        layout.addWidget(title)
 
-        # Placeholder für späteren 3D Viewport
+        # Placeholder Frame (z. B. für OpenGL- oder Blender-Integration später)
         self.frame = QFrame()
         self.frame.setStyleSheet("background-color: #222; border: 2px dashed #00ff88;")
         self.frame.setMinimumHeight(400)
         layout.addWidget(self.frame)
 
-        # Platzhalterbild
+        # Optional: Bildvorschau
         self.preview = QLabel()
         self.preview.setAlignment(Qt.AlignCenter)
         pixmap = QPixmap(300, 300)
@@ -34,5 +35,4 @@ class Viewport3D(QWidget):
         self.setLayout(layout)
 
     def update_view(self):
-        # Diese Methode wird später echte Daten darstellen
-        print("🔄 Viewport aktualisieren (Stub)")
+        print("🔄 Viewport aktualisieren – Placeholder bleibt")
