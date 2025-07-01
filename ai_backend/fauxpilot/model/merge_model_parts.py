@@ -1,9 +1,7 @@
-# ai_backend/fauxpilot/model/merge_model_parts.py
-
 import os
 
 def merge_model():
-    parts = [f"pytorch_model.bin.part{i}" for i in range(1, 10) if os.path.exists(f"pytorch_model.bin.part{i}")]
+    parts = [f"pytorch_model.bin.part{i:03d}" for i in range(1, 100) if os.path.exists(f"pytorch_model.bin.part{i:03d}")]
     if not os.path.exists("pytorch_model.bin") and parts:
         with open("pytorch_model.bin", "wb") as f_out:
             for part in parts:
