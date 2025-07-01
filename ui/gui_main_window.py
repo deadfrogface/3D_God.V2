@@ -12,6 +12,7 @@ from ui.panels.preset_browser import PresetBrowser
 from ui.panels.clothing_panel import ClothingPanel
 from ui.viewport.viewport_3d import Viewport3D
 from core.controller.controller_input import ControllerInput
+from core.character_system.character_system import CharacterSystem
 from ui.style_manager import StyleManager
 
 class MainWindow(QMainWindow):
@@ -43,6 +44,8 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.BottomDockWidgetArea, self.debug_console)
 
         self.viewport = Viewport3D()
+        CharacterSystem().bind_viewport(self.viewport)
+
         splitter = QSplitter(Qt.Horizontal)
         splitter.addWidget(self.tab_widget)
         splitter.addWidget(self.viewport)
