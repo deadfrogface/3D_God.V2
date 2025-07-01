@@ -62,7 +62,10 @@ class CharacterSystem:
     def refresh_layers(self):
         print("[Anatomie] Aktueller Zustand:", self.anatomy_state)
         if hasattr(self, "viewport_ref") and self.viewport_ref:
-            self.viewport_ref.update_preview(self.anatomy_state)
+            self.viewport_ref.update_preview(
+                self.anatomy_state,
+                self.asset_state
+            )
 
     def bind_viewport(self, viewport):
         self.viewport_ref = viewport
