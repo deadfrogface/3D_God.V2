@@ -1,26 +1,21 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton
+from core.character_system.character_system import CharacterSystem
 
 class RiggingPanel(QWidget):
-    def __init__(self, character_system):
+    def __init__(self):
         super().__init__()
-        self.character_system = character_system
-        self.init_ui()
-
-    def init_ui(self):
+        self.character_system = CharacterSystem()
         layout = QVBoxLayout()
 
-        title = QLabel("🦴 Rigging & Skeleton Setup")
-        title.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title)
+        self.btn_autorig = QPushButton("Auto-Rigging (Standard)")
+        self.btn_metahuman = QPushButton("Metahuman-Rig vorbereiten")
+        self.btn_custom = QPushButton("Manuelles Rigging-Skript ausführen")
 
-        auto_btn = QPushButton("⚡ Auto-Rigging starten")
-        meta_btn = QPushButton("🎭 Metahuman kompatibel machen")
-        manual_btn = QPushButton("🔧 Manuelles Rigging")
+        self.btn_autorig.clicked.connect(lambda: self.character_system.run_blender_script("autorig_basic.py"))
+        self.btn_metahuman.clicked.connect(lambda: self.character_system.run_blender_script("metahuman_rig.py"))
+        self.btn_custom.clicked.connect(lambda: self.character_system.run_blender_script("custom_rig.py"))
 
-        layout.addWidget(auto_btn)
-        layout.addWidget(meta_btn)
-        layout.addWidget(manual_btn)
-
-        layout.addStretch()
+        layout.addWidget(self.btn_autorig)
+        layout.addWidget(self.btn_metahuman)
+        layout.addWidget(self.btn_custom)
         self.setLayout(layout)
