@@ -28,7 +28,7 @@ class ExportPanel(QWidget):
         layout.addWidget(QLabel("📦 Export nach Unreal-Projekt"))
 
         self.unreal_path = QLineEdit("")
-        self.unreal_path.setPlaceholderText("Pfad zum Unreal Content-Ordner (z. B. .../YourGame/Content/Characters)")
+        self.unreal_path.setPlaceholderText("Pfad zu /YourGame/Content/Characters")
         layout.addWidget(self.unreal_path)
 
         btn_browse = QPushButton("📁 Ziel auswählen")
@@ -79,5 +79,8 @@ class ExportPanel(QWidget):
             return
 
         dst_fbx = os.path.join(dst_dir, f"{name}.fbx")
-        shutil.copy(src_fbx, dst_fbx)
-        self.log(f"✅ FBX kopiert nach Unreal: {dst_fbx}")
+        try:
+            shutil.copy(src_fbx, dst_fbx)
+            self.log(f"✅ FBX kopiert nach Unreal: {dst_fbx}")
+        except Exception as e:
+            self.log(f"❌ Kopierfehler: {e}")
