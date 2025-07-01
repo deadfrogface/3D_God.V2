@@ -1,38 +1,25 @@
 import subprocess
 import os
-from pathlib import Path
 
 class SculptTools:
     def __init__(self):
-        self.blender_path = Path("blender_embedded/blender_3.6_portable/blender.exe").resolve()
-        self.blend_file = Path("assets/base_bodies/female_base.blend").resolve()
+        self.blender_path = "blender_embedded/blender_3.6_portable/blender.exe"
+        self.blend_file = "assets/base_bodies/female_base.blend"
 
     def launch(self):
-        """Starte Blender manuell"""
-        if not self.blender_path.exists() or not self.blend_file.exists():
-            print("❌ Blender oder .blend-Datei nicht gefunden!")
+        if not os.path.exists(self.blender_path):
+            print("[Blender] Blender nicht gefunden!")
             return
+        subprocess.Popen([self.blender_path, self.blend_file])
 
-        print("🚀 Starte Blender...")
-        subprocess.Popen([str(self.blender_path), str(self.blend_file)])
-
-    def run_script(self, script_name: str):
-        """Starte Blender-Skript im Hintergrund"""
-        script_path = Path("blender_embedded/scripts") / script_name
-        if not script_path.exists():
-            print(f"❌ Skript fehlt: {script_path}")
+    def run_script(self, script_name):
+        script_path = f"blender_embed/scripts/{script_name}"
+        if not os.path.exists(script_path):
+            print(f"[Blender] Skript nicht gefunden: {script_path}")
             return
-
-        cmd = [
-            str(self.blender_path),
+        subprocess.run([
+            self.blender_path,
             "--background",
-            str(self.blend_file),
-            "--python", str(script_path.resolve())
-        ]
-
-        print(f"🧠 Führe Skript aus: {script_path.name}")
-        subprocess.run(cmd)
-
-    def apply_symmetry(self, axis: str = "X"):
-        """Placeholder für spätere Blender-Symmetrie"""
-        print(f"🔁 Symmetrie anwenden (Stub): Achse {axis}")
+            self.blend_file,
+            "--python", script_path
+        ])
