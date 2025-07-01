@@ -11,7 +11,7 @@ from ui.panels.ai_prompt_panel import AIPromptPanel
 from ui.panels.clothing_panel import ClothingPanel
 from ui.panels.debug_console import DebugConsole
 from ui.viewport.viewport_3d import Viewport3D
-
+from ui.panels.preset_browser import PresetBrowser
 from ui.style_manager import StyleManager
 
 class MainWindow(QMainWindow):
@@ -28,6 +28,8 @@ class MainWindow(QMainWindow):
 
     def launch_main_gui(self):
         self.tab_widget = QTabWidget()
+
+self.tab_widget.addTab(PresetBrowser(), "Presets")
         self.tab_widget.addTab(CharacterEditor(), "Körper")
         self.tab_widget.addTab(SculptPanel(), "Sculpting")
         self.tab_widget.addTab(AnatomyViewer(), "Anatomie")
