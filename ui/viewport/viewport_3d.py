@@ -49,3 +49,8 @@ class Viewport3D(QWidget):
         painter.end()
         self.label.setPixmap(base)
         self.label.setText("")
+
+def update_preview_from_image(self, image_path):
+        pixmap = QPixmap(image_path).scaled(800, 800, Qt.KeepAspectRatio)
+        self.label.setPixmap(pixmap)
+        self.label.setText("")
