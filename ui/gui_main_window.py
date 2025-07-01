@@ -13,6 +13,7 @@ from ui.panels.clothing_panel import ClothingPanel
 from ui.panels.material_editor import MaterialEditor
 from ui.panels.physics_panel import PhysicsPanel
 from ui.panels.rig_viewer import RigViewer
+from ui.panels.animation_preview_panel import AnimationPreviewPanel
 from ui.viewport.viewport_3d import Viewport3D
 from core.controller.controller_input import ControllerInput
 from ui.style_manager import StyleManager
@@ -42,6 +43,7 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(MaterialEditor(), "Material")
         self.tab_widget.addTab(PhysicsPanel(), "Physik")
         self.tab_widget.addTab(RigViewer(), "Rig-Viewer")
+        self.tab_widget.addTab(AnimationPreviewPanel(), "Animation")
         self.tab_widget.addTab(PresetBrowser(), "Presets")
         self.tab_widget.addTab(SettingsPanel(), "Einstellungen")
 
