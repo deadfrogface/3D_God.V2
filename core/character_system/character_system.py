@@ -70,6 +70,7 @@ class CharacterSystem:
     def update_anatomy_layer(self, layer_name, state):
         self.anatomy_state[layer_name] = state
         print(f"[Anatomie] Layer {layer_name} → {'On' if state else 'Off'}")
+        self.refresh_layers()
 
     def add_asset(self, category):
         if category not in self.asset_state:
@@ -108,10 +109,10 @@ class CharacterSystem:
         if os.path.exists(path):
             with open(path, "r") as f:
                 data = json.load(f)
-                self.sculpt_data = data.get("sculpt_data", {})
-                self.nsfw_enabled = data.get("nsfw", True)
-                self.anatomy_state = data.get("anatomy", {})
-                self.asset_state = data.get("assets", {})
+                self.sculpt_data = data.get("sculpt_data", self.sculpt_data)
+                self.nsfw_enabled = data.get("nsfw", self.nsfw_enabled)
+                self.anatomy_state = data.get("anatomy", self.anatomy_state)
+                self.asset_state = data.get("assets", self.asset_state)
                 self.physics_flags = data.get("physics", self.physics_flags)
                 self.materials = data.get("materials", self.materials)
             self.apply_loaded_state()
@@ -119,15 +120,16 @@ class CharacterSystem:
             print(f"[Preset] Fehler: {path} nicht gefunden")
 
     def apply_loaded_state(self):
-        print("[Preset] Werte übernommen:", self.sculpt_data)
-        print("[Preset] Assets:", self.asset_state)
+        print("[Preset] Zustand übernommen.")
+        print(" - Sculpt:", self.sculpt_data)
+        print(" - Anatomy:", self.anatomy_state)
+        print(" - Assets:", self.asset_state)
         self.refresh_layers()
 
     def export_fbx(self, filename="exported_character"):
-    self.run_blender_script("export_fbx.py")
-    if self.viewport_ref:
-        self.viewport_ref.reload_model()
-        self.run_blender_script(script_name + f" {filename}")
+        self.run_blender_script("export_fbx.py")
+        if self.viewport_ref:
+            self.viewport_ref.reload_model()
 
     def set_material_color(self, mat, hex_color):
         if mat in self.materials:
