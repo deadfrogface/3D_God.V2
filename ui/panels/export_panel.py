@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButt
 from core.character_system.character_system import CharacterSystem
 import os
 import shutil
+import datetime
 
 class ExportPanel(QWidget):
     def __init__(self):
@@ -47,8 +48,12 @@ class ExportPanel(QWidget):
         self.setLayout(layout)
 
     def log(self, msg):
-        self.logbox.append(msg)
-        print("[ExportPanel]", msg)
+        timestamp = datetime.datetime.now().strftime("[%H:%M:%S]")
+        full_msg = f"{timestamp} {msg}"
+        self.logbox.append(full_msg)
+        print(full_msg)
+        with open("logfile.txt", "a", encoding="utf-8") as f:
+            f.write(full_msg + "\n")
 
     def save_preset(self):
         name = self.name_input.text()
@@ -57,9 +62,10 @@ class ExportPanel(QWidget):
 
     def export_fbx(self):
         name = self.name_input.text()
+        self.log("📤 Starte Export...")
         self.character_system.save_preset(name)
         self.character_system.export_fbx(name)
-        self.log(f"📤 Exportiere FBX: {name}.fbx")
+        self.log(f"✅ FBX exportiert: exports/{name}.fbx")
 
     def choose_unreal_folder(self):
         path = QFileDialog.getExistingDirectory(self, "Unreal Content-Ordner wählen")
