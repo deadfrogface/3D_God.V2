@@ -28,6 +28,12 @@ class CharacterSystem:
             "piercings": [],
             "tattoos": []
         }
+        self.materials = {
+            "skin": {"color": "#f5cba7", "roughness": 0.5, "metallic": 0.0},
+            "clothes": {"color": "#cccccc", "roughness": 0.7, "metallic": 0.0},
+            "piercings": {"color": "#aaaaaa", "roughness": 0.1, "metallic": 1.0},
+            "tattoos": {"color": "#000000", "roughness": 0.9, "metallic": 0.0}
+        }
         self.config = self.load_config()
         self.sculpt_tools = SculptTools()
         self.nsfw_enabled = self.config.get("nsfw_enabled", True)
@@ -59,17 +65,6 @@ class CharacterSystem:
         self.anatomy_state[layer_name] = state
         print(f"[Anatomie] Layer {layer_name} → {'On' if state else 'Off'}")
 
-    def refresh_layers(self):
-        print("[Anatomie] Aktueller Zustand:", self.anatomy_state)
-        if hasattr(self, "viewport_ref") and self.viewport_ref:
-            self.viewport_ref.update_preview(
-                self.anatomy_state,
-                self.asset_state
-            )
-
-    def bind_viewport(self, viewport):
-        self.viewport_ref = viewport
-
     def add_asset(self, category):
         if category not in self.asset_state:
             print(f"[Asset] Ungültige Kategorie: {category}")
@@ -77,6 +72,15 @@ class CharacterSystem:
         example_asset = f"{category}_demo_asset"
         self.asset_state[category].append(example_asset)
         print(f"[Asset] {category}: {example_asset} hinzugefügt")
+        self.refresh_layers()
+
+    def refresh_layers(self):
+        print("[Anatomie] Aktueller Zustand:", self.anatomy_state)
+        if self.viewport_ref:
+            self.viewport_ref.update_preview(self.anatomy_state, self.asset_state)
+
+    def bind_viewport(self, viewport):
+        self.viewport_ref = viewport
 
     def save_preset(self, name="default"):
         if not os.path.exists(self.preset_path):
@@ -87,7 +91,8 @@ class CharacterSystem:
                 "sculpt_data": self.sculpt_data,
                 "nsfw": self.nsfw_enabled,
                 "anatomy": self.anatomy_state,
-                "assets": self.asset_state
+                "assets": self.asset_state,
+                "materials": self.materials
             }, f, indent=4)
         print(f"[Preset] Gespeichert: {path}")
 
@@ -100,6 +105,7 @@ class CharacterSystem:
                 self.nsfw_enabled = data.get("nsfw", True)
                 self.anatomy_state = data.get("anatomy", {})
                 self.asset_state = data.get("assets", {})
+                self.materials = data.get("materials", self.materials)
             self.apply_loaded_state()
         else:
             print(f"[Preset] Fehler: {path} nicht gefunden")
@@ -112,3 +118,13 @@ class CharacterSystem:
     def export_fbx(self, filename="exported_character"):
         script_name = "export_fbx.py"
         self.run_blender_script(script_name + f" {filename}")
+
+    def set_material_color(self, mat, hex_color):
+        if mat in self.materials:
+            self.materials[mat]["color"] = hex_color
+            print(f"[Material] {mat} → Farbe = {hex_color}")
+
+    def set_material_value(self, mat, key, value):
+        if mat in self.materials:
+            self.materials[mat][key] = value
+            print(f"[Material] {mat} → {key} = {value}")
