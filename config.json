@@ -1,5 +1,6 @@
 {
   "theme": "dark",
   "nsfw_enabled": true,
-  "controller_enabled": true
+  "controller_enabled": true,
+  "debug_enabled": true
 }
