@@ -46,7 +46,7 @@ class CharacterSystem:
 
     def load_config(self):
         if not os.path.exists(self.config_path):
-            return {"theme": "dark", "nsfw_enabled": True, "controller_enabled": True}
+            return {"theme": "dark", "nsfw_enabled": True, "controller_enabled": True, "debug_enabled": True}
         with open(self.config_path, "r") as f:
             return json.load(f)
 
@@ -60,6 +60,7 @@ class CharacterSystem:
 
     def sculpt(self):
         print("[Sculpt] Blender Sculpting wird gestartet...")
+        self.sculpt_tools.send_data(self.sculpt_data)
         self.sculpt_tools.launch()
 
     def run_blender_script(self, script_name):
