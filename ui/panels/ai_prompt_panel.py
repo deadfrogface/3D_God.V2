@@ -9,7 +9,7 @@ class AIPromptPanel(QWidget):
 
         layout.addWidget(QLabel("🧠 Text → Code (FauxPilot)"))
         self.text_input = QTextEdit()
-        self.text_input.setPlaceholderText("Was soll die KI schreiben? (z. B. Blender-Skript, Material, Rig...)")
+        self.text_input.setPlaceholderText("Was soll die KI schreiben? (z. B. Blender-Skript, Material...)")
         layout.addWidget(self.text_input)
 
         self.text_output = QTextEdit()
@@ -33,6 +33,15 @@ class AIPromptPanel(QWidget):
         btn_mesh.clicked.connect(self.handle_mesh)
         layout.addWidget(btn_mesh)
 
+        layout.addWidget(QLabel("💪 AI-Körperform (CharMorph):"))
+        self.charmorph_input = QTextEdit()
+        self.charmorph_input.setPlaceholderText("z. B. 'slim tall male', 'muscular orc woman'")
+        layout.addWidget(self.charmorph_input)
+
+        btn_shape = QPushButton("Körperform generieren")
+        btn_shape.clicked.connect(self.handle_shape)
+        layout.addWidget(btn_shape)
+
         self.setLayout(layout)
 
     def handle_generate(self):
@@ -48,3 +57,10 @@ class AIPromptPanel(QWidget):
 
     def handle_mesh(self):
         self.generator.generate_mesh_from_image()
+
+    def handle_shape(self):
+        prompt = self.charmorph_input.toPlainText()
+        shape = self.generator.generate_shape_from_prompt(prompt)
+        if shape:
+            for key, value in shape.items():
+                self.generator.character_system.update_sculpt_value(key, value)
