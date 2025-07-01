@@ -1,66 +1,39 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLineEdit, QLabel, QTextEdit
+from core.character_system.character_system import CharacterSystem
 
 class ExportPanel(QWidget):
-    def __init__(self, character_system):
+    def __init__(self):
         super().__init__()
-        self.character_system = character_system
-        self.init_ui()
-
-    def init_ui(self):
+        self.character_system = CharacterSystem()
         layout = QVBoxLayout()
 
-        title = QLabel("📤 Export")
-        title.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title)
+        self.name_input = QLineEdit()
+        self.name_input.setPlaceholderText("Preset-/Export-Name eingeben")
+        self.export_log = QTextEdit()
+        self.export_log.setReadOnly(True)
 
-        # Preset speichern
-        self.save_input = QLineEdit()
-        self.save_input.setPlaceholderText("🔖 Name für Preset eingeben")
-        layout.addWidget(self.save_input)
+        btn_save = QPushButton("Preset speichern")
+        btn_export = QPushButton("Exportiere .FBX")
 
-        save_btn = QPushButton("💾 Preset speichern")
-        save_btn.clicked.connect(self.save_preset)
-        layout.addWidget(save_btn)
+        btn_save.clicked.connect(self.save_preset)
+        btn_export.clicked.connect(self.export_fbx)
 
-        # Preset laden
-        self.load_input = QLineEdit()
-        self.load_input.setPlaceholderText("📂 Name für Preset laden")
-        layout.addWidget(self.load_input)
+        layout.addWidget(QLabel("Export & Presets"))
+        layout.addWidget(self.name_input)
+        layout.addWidget(btn_save)
+        layout.addWidget(btn_export)
+        layout.addWidget(QLabel("Status / Log:"))
+        layout.addWidget(self.export_log)
 
-        load_btn = QPushButton("📂 Preset laden")
-        load_btn.clicked.connect(self.load_preset)
-        layout.addWidget(load_btn)
-
-        # Export FBX
-        export_btn = QPushButton("📦 FBX exportieren")
-        export_btn.clicked.connect(self.export)
-        layout.addWidget(export_btn)
-
-        # Statusanzeige
-        self.status = QLabel("⏳ Bereit")
-        layout.addWidget(self.status)
-
-        layout.addStretch()
         self.setLayout(layout)
 
     def save_preset(self):
-        name = self.save_input.text().strip()
-        if name:
-            path = self.character_system.save_preset(name)
-            self.status.setText(f"💾 Gespeichert: {path.name}")
-        else:
-            self.status.setText("⚠️ Kein Presetname angegeben")
+        name = self.name_input.text() or "default"
+        self.character_system.save_preset(name)
+        self.export_log.append(f"[Preset] Gespeichert als: {name}.json")
 
-    def load_preset(self):
-        name = self.load_input.text().strip()
-        if name and self.character_system.load_preset(name):
-            self.character_system.apply_loaded_state()  # Neu in Block 63
-            self.status.setText(f"📂 Geladen: {name}")
-        else:
-            self.status.setText("❌ Fehler beim Laden")
-
-    def export(self):
-        self.status.setText("📦 Export läuft...")
-        self.character_system.export_fbx()
-        self.status.setText("✅ Export abgeschlossen")
+    def export_fbx(self):
+        name = self.name_input.text() or "exported_character"
+        self.export_log.append(f"[Export] Starte FBX-Export: {name}.fbx")
+        self.character_system.export_fbx(name)
+        self.export_log.append(f"[Export] Erfolgreich exportiert.")
