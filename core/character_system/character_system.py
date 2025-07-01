@@ -60,6 +60,9 @@ class CharacterSystem:
 
     def refresh_layers(self):
         print("[Anatomie] Aktueller Zustand:", self.anatomy_state)
+        # Viewport aktualisieren, wenn verfügbar
+        if hasattr(self, "viewport_ref") and self.viewport_ref:
+            self.viewport_ref.update_preview(self.anatomy_state)
 
     def add_asset(self, category):
         if category not in self.asset_state:
