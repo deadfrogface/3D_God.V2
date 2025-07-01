@@ -10,10 +10,11 @@ from ui.panels.settings_panel import SettingsPanel
 from ui.panels.debug_console import DebugConsole
 from ui.panels.preset_browser import PresetBrowser
 from ui.panels.clothing_panel import ClothingPanel
+from ui.panels.material_editor import MaterialEditor
 from ui.viewport.viewport_3d import Viewport3D
 from core.controller.controller_input import ControllerInput
-from core.character_system.character_system import CharacterSystem
 from ui.style_manager import StyleManager
+from core.character_system.character_system import CharacterSystem
 
 class MainWindow(QMainWindow):
     def __init__(self, config):
@@ -24,7 +25,6 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 1600, 900)
         self.status = QStatusBar()
         self.setStatusBar(self.status)
-
         self.controller_enabled = config.get("controller_enabled", True)
         self.controller = None
 
@@ -37,6 +37,7 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(ExportPanel(), "Export")
         self.tab_widget.addTab(AIPromptPanel(), "KI")
         self.tab_widget.addTab(ClothingPanel(), "Assets")
+        self.tab_widget.addTab(MaterialEditor(), "Material")
         self.tab_widget.addTab(PresetBrowser(), "Presets")
         self.tab_widget.addTab(SettingsPanel(), "Einstellungen")
 
@@ -44,12 +45,13 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.BottomDockWidgetArea, self.debug_console)
 
         self.viewport = Viewport3D()
-        CharacterSystem().bind_viewport(self.viewport)
-
         splitter = QSplitter(Qt.Horizontal)
         splitter.addWidget(self.tab_widget)
         splitter.addWidget(self.viewport)
         self.setCentralWidget(splitter)
+
+        cs = CharacterSystem()
+        cs.bind_viewport(self.viewport)
 
         self.status.showMessage("3D God bereit")
 
