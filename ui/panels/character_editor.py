@@ -1,51 +1,34 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider, QHBoxLayout
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider
+from core.character_system.character_system import CharacterSystem
 
-class CharacterEditorPanel(QWidget):
-    def __init__(self, character_system):
+class CharacterEditor(QWidget):
+    def __init__(self):
         super().__init__()
-        self.character_system = character_system
-        self.character_system.slider_panel = self
-        self.sliders = {}
-        self.init_ui()
-
-    def init_ui(self):
+        self.character_system = CharacterSystem()
         layout = QVBoxLayout()
-        title = QLabel("🧍 Körperform & Proportionen")
-        title.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title)
 
-        for label, key in [
-            ("Größe", "height"),
-            ("Brustgröße", "chest_size"),
-            ("Hüfte", "hip_width"),
-            ("Armlänge", "arm_length"),
-            ("Beinlänge", "leg_length")
-        ]:
-            box = self.create_slider(label, key)
-            layout.addLayout(box)
+        self.sliders = {
+            "height": self.create_slider("Größe", "height"),
+            "breast_size": self.create_slider("Brustgröße", "breast_size"),
+            "hip_width": self.create_slider("Hüfte", "hip_width"),
+            "arm_length": self.create_slider("Armlänge", "arm_length"),
+            "leg_length": self.create_slider("Beinlänge", "leg_length")
+        }
 
-        layout.addStretch()
+        for slider in self.sliders.values():
+            layout.addLayout(slider["layout"])
+
         self.setLayout(layout)
 
-    def create_slider(self, name, key):
-        layout = QHBoxLayout()
-        label = QLabel(name)
-        slider = QSlider(Qt.Horizontal)
-        slider.setRange(50, 150)
-        slider.setValue(int(self.character_system.sculpt_data.get(key, 1.0) * 100))
-        slider.valueChanged.connect(lambda val, k=key: self.update_value(k, val / 100))
+    def create_slider(self, label_text, key):
+        label = QLabel(label_text)
+        slider = QSlider()
+        slider.setMinimum(0)
+        slider.setMaximum(100)
+        slider.setValue(int(self.character_system.sculpt_data.get(key, 50)))
+        slider.valueChanged.connect(lambda val, k=key: self.character_system.update_sculpt_value(k, val))
+
+        layout = QVBoxLayout()
         layout.addWidget(label)
         layout.addWidget(slider)
-        self.sliders[key] = slider
-        return layout
-
-    def update_value(self, key, value):
-        self.character_system.sculpt_data[key] = value
-        if hasattr(self.character_system, "viewport"):
-            self.character_system.viewport.update_view()
-
-    def update_sliders(self):
-        for key, slider in self.sliders.items():
-            val = self.character_system.sculpt_data.get(key, 1.0)
-            slider.setValue(int(val * 100))
+        return {"layout": layout, "slider": slider}
