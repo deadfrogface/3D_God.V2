@@ -118,3 +118,7 @@ def test_sculpting_system(self):
 def test_export(self):
     print("🧪 Starte Test-Export...")
     self.export_fbx()
+    
+def save_config(self):
+        with open("config.json", "w") as f:
+            json.dump(self.config, f, indent=4)
