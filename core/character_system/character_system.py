@@ -18,7 +18,10 @@ class CharacterSystem:
             "fat": True,
             "muscle": False,
             "bone": False,
-            "organs": False
+            "organs": False,
+            "breasts": True,
+            "genitals": True,
+            "bodyhair": False
         }
         self.config = self.load_config()
         self.sculpt_tools = SculptTools()
@@ -37,7 +40,6 @@ class CharacterSystem:
     def update_sculpt_value(self, key, value):
         self.sculpt_data[key] = value
         print(f"[Sculpt] {key}: {value}")
-        # Optional: hier Viewport oder Blender live ansprechen
 
     def sculpt(self):
         print("[Sculpt] Blender Sculpting wird gestartet...")
@@ -46,6 +48,13 @@ class CharacterSystem:
     def run_blender_script(self, script_name):
         print(f"[Sculpt] Führe Blender-Skript aus: {script_name}")
         self.sculpt_tools.run_script(script_name)
+
+    def update_anatomy_layer(self, layer_name, state):
+        self.anatomy_state[layer_name] = state
+        print(f"[Anatomie] Layer {layer_name} → {'On' if state else 'Off'}")
+
+    def refresh_layers(self):
+        print("[Anatomie] Aktueller Zustand:", self.anatomy_state)
 
     def save_preset(self, name="default"):
         if not os.path.exists(self.preset_path):
@@ -73,6 +82,4 @@ class CharacterSystem:
 
     def apply_loaded_state(self):
         print("[Preset] Werte übernommen:", self.sculpt_data)
-
-    def refresh_layers(self):
-        print("[Anatomie] Aktueller Zustand:", self.anatomy_state)
+        self.refresh_layers()
