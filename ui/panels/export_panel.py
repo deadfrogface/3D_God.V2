@@ -17,25 +17,25 @@ class ExportPanel(QWidget):
         name_layout.addWidget(self.name_input)
         layout.addLayout(name_layout)
 
-        btn_save = QPushButton("Preset speichern")
+        btn_save = QPushButton("💾 Preset speichern")
         btn_save.clicked.connect(self.save_preset)
         layout.addWidget(btn_save)
 
-        btn_export = QPushButton("Exportiere als .fbx")
+        btn_export = QPushButton("📤 Exportiere als .fbx")
         btn_export.clicked.connect(self.export_fbx)
         layout.addWidget(btn_export)
 
         layout.addWidget(QLabel("📦 Export nach Unreal-Projekt"))
 
         self.unreal_path = QLineEdit("")
-        self.unreal_path.setPlaceholderText("Pfad zum Unreal Content-Ordner (z. B. .../YourProject/Content/Characters)")
+        self.unreal_path.setPlaceholderText("Pfad zum Unreal Content-Ordner (z. B. .../YourGame/Content/Characters)")
         layout.addWidget(self.unreal_path)
 
-        btn_browse = QPushButton("Ziel auswählen")
+        btn_browse = QPushButton("📁 Ziel auswählen")
         btn_browse.clicked.connect(self.choose_unreal_folder)
         layout.addWidget(btn_browse)
 
-        btn_unreal = QPushButton("Exportiere direkt nach Unreal")
+        btn_unreal = QPushButton("🚀 Exportiere direkt nach Unreal")
         btn_unreal.clicked.connect(self.export_to_unreal)
         layout.addWidget(btn_unreal)
 
