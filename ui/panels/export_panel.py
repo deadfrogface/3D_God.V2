@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QHBoxLayout, QTextEdit
 from core.character_system.character_system import CharacterSystem
 import os
 import shutil
@@ -39,21 +39,33 @@ class ExportPanel(QWidget):
         btn_unreal.clicked.connect(self.export_to_unreal)
         layout.addWidget(btn_unreal)
 
+        layout.addWidget(QLabel("📋 Export-Log:"))
+        self.logbox = QTextEdit()
+        self.logbox.setReadOnly(True)
+        layout.addWidget(self.logbox)
+
         self.setLayout(layout)
+
+    def log(self, msg):
+        self.logbox.append(msg)
+        print("[ExportPanel]", msg)
 
     def save_preset(self):
         name = self.name_input.text()
         self.character_system.save_preset(name)
+        self.log(f"✔ Preset gespeichert: {name}")
 
     def export_fbx(self):
         name = self.name_input.text()
         self.character_system.save_preset(name)
         self.character_system.export_fbx(name)
+        self.log(f"📤 Exportiere FBX: {name}.fbx")
 
     def choose_unreal_folder(self):
         path = QFileDialog.getExistingDirectory(self, "Unreal Content-Ordner wählen")
         if path:
             self.unreal_path.setText(path)
+            self.log(f"📁 Ziel ausgewählt: {path}")
 
     def export_to_unreal(self):
         name = self.name_input.text()
@@ -63,9 +75,9 @@ class ExportPanel(QWidget):
         src_fbx = os.path.join("exports", f"{name}.fbx")
         dst_dir = self.unreal_path.text().strip()
         if not dst_dir or not os.path.exists(dst_dir):
-            print("[Export] Ungültiger Unreal-Pfad")
+            self.log("❌ Fehler: Unreal-Zielpfad ungültig.")
             return
 
         dst_fbx = os.path.join(dst_dir, f"{name}.fbx")
         shutil.copy(src_fbx, dst_fbx)
-        print(f"[Export → Unreal] Datei kopiert nach: {dst_fbx}")
+        self.log(f"✅ FBX kopiert nach Unreal: {dst_fbx}")
