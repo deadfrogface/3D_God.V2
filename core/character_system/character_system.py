@@ -124,7 +124,9 @@ class CharacterSystem:
         self.refresh_layers()
 
     def export_fbx(self, filename="exported_character"):
-        script_name = "export_fbx.py"
+    self.run_blender_script("export_fbx.py")
+    if self.viewport_ref:
+        self.viewport_ref.reload_model()
         self.run_blender_script(script_name + f" {filename}")
 
     def set_material_color(self, mat, hex_color):
