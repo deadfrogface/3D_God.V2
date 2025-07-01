@@ -1,4 +1,5 @@
 {
-  "blender_path": "C:/Program Files/Blender Foundation/Blender 3.6/blender.exe"
+  "theme": "dark",
+  "nsfw_enabled": true,
+  "controller_enabled": true
 }
-
