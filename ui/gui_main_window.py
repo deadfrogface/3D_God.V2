@@ -2,6 +2,10 @@ from PySide6.QtWidgets import QMainWindow, QTabWidget, QSplitter, QStatusBar
 from ui.panels.settings_panel import SettingsPanel
 from ui.style_manager import StyleManager
 from PySide6.QtCore import Qt
+from ui.panels.debug_console import DebugConsole
+...
+self.debug_console = DebugConsole()
+self.addDockWidget(Qt.BottomDockWidgetArea, self.debug_console)
 
 class MainWindow(QMainWindow):
     def __init__(self, config):
