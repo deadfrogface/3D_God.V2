@@ -29,10 +29,10 @@ class CharacterSystem:
             "tattoos": []
         }
         self.materials = {
-            "skin": {"color": "#f5cba7", "roughness": 0.5, "metallic": 0.0},
-            "clothes": {"color": "#cccccc", "roughness": 0.7, "metallic": 0.0},
-            "piercings": {"color": "#aaaaaa", "roughness": 0.1, "metallic": 1.0},
-            "tattoos": {"color": "#000000", "roughness": 0.9, "metallic": 0.0}
+            "skin": {"color": "#f5cba7", "roughness": 0.5, "metallic": 0.0, "texture": ""},
+            "clothes": {"color": "#cccccc", "roughness": 0.7, "metallic": 0.0, "texture": ""},
+            "piercings": {"color": "#aaaaaa", "roughness": 0.1, "metallic": 1.0, "texture": ""},
+            "tattoos": {"color": "#000000", "roughness": 0.9, "metallic": 0.0, "texture": ""}
         }
         self.config = self.load_config()
         self.sculpt_tools = SculptTools()
@@ -128,3 +128,8 @@ class CharacterSystem:
         if mat in self.materials:
             self.materials[mat][key] = value
             print(f"[Material] {mat} → {key} = {value}")
+
+    def set_material_texture(self, mat, texture_path):
+        if mat in self.materials:
+            self.materials[mat]["texture"] = texture_path
+            print(f"[Material] {mat} → Textur = {texture_path}")
