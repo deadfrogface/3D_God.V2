@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>3D Preview</title>
-  <style> body { margin: 0; background: #111; } </style>
+  <title>3D Vorschau</title>
+  <style>
+    body { margin: 0; background: #111; overflow: hidden; }
+    canvas { display: block; }
+  </style>
 </head>
 <body>
 <script type="module">
@@ -15,7 +18,7 @@
 
   function init() {
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 1.5, 3);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -41,7 +44,7 @@
       currentModel.scale.set(1, 1, 1);
       scene.add(currentModel);
     }, undefined, function (err) {
-      console.error("GLB Fehler:", err);
+      console.error("Fehler beim Laden des Modells:", err);
     });
   }
 
@@ -56,7 +59,7 @@
   };
 
   window.addEventListener("resize", () => {
-    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
