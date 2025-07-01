@@ -23,6 +23,11 @@ class CharacterSystem:
             "genitals": True,
             "bodyhair": False
         }
+        self.asset_state = {
+            "clothes": [],
+            "piercings": [],
+            "tattoos": []
+        }
         self.config = self.load_config()
         self.sculpt_tools = SculptTools()
         self.nsfw_enabled = self.config.get("nsfw_enabled", True)
@@ -56,6 +61,14 @@ class CharacterSystem:
     def refresh_layers(self):
         print("[Anatomie] Aktueller Zustand:", self.anatomy_state)
 
+    def add_asset(self, category):
+        if category not in self.asset_state:
+            print(f"[Asset] Ungültige Kategorie: {category}")
+            return
+        example_asset = f"{category}_demo_asset"
+        self.asset_state[category].append(example_asset)
+        print(f"[Asset] {category}: {example_asset} hinzugefügt")
+
     def save_preset(self, name="default"):
         if not os.path.exists(self.preset_path):
             os.makedirs(self.preset_path)
@@ -64,7 +77,8 @@ class CharacterSystem:
             json.dump({
                 "sculpt_data": self.sculpt_data,
                 "nsfw": self.nsfw_enabled,
-                "anatomy": self.anatomy_state
+                "anatomy": self.anatomy_state,
+                "assets": self.asset_state
             }, f, indent=4)
         print(f"[Preset] Gespeichert: {path}")
 
@@ -76,10 +90,12 @@ class CharacterSystem:
                 self.sculpt_data = data.get("sculpt_data", {})
                 self.nsfw_enabled = data.get("nsfw", True)
                 self.anatomy_state = data.get("anatomy", {})
+                self.asset_state = data.get("assets", {})
             self.apply_loaded_state()
         else:
             print(f"[Preset] Fehler: {path} nicht gefunden")
 
     def apply_loaded_state(self):
         print("[Preset] Werte übernommen:", self.sculpt_data)
+        print("[Preset] Assets:", self.asset_state)
         self.refresh_layers()
