@@ -4,9 +4,9 @@ class Viewport3D(QWidget):
     def __init__(self):
         super().__init__()
         layout = QVBoxLayout()
-        self.info_label = QLabel("🔲 [3D Vorschau hier – Placeholder]")
-        self.info_label.setStyleSheet("background-color: #222; color: white; padding: 40px;")
-        layout.addWidget(self.info_label)
+        self.label = QLabel("🔲 [3D Vorschau hier – Placeholder]")
+        self.label.setStyleSheet("background-color: #222; color: white; padding: 40px;")
+        layout.addWidget(self.label)
         self.setLayout(layout)
 
     def update_preview(self, anatomy_state, asset_state):
@@ -16,8 +16,13 @@ class Viewport3D(QWidget):
 
     def load_animation(self, name):
         print(f"[Viewport3D] Animation geladen: {name} (simuliert)")
-        self.info_label.setText(f"▶ Animation: {name}")
+        self.label.setText(f"▶ Animation: {name}")
 
     def stop_animation(self):
         print("[Viewport3D] Animation gestoppt.")
-        self.info_label.setText("🔲 [3D Vorschau hier – Placeholder]")
+        self.label.setText("🔲 [3D Vorschau hier – Placeholder]")
+
+    def show_materials(self, materials):
+        self.label.setText("🎨 Materialien aktiv:\n")
+        for name, mat in materials.items():
+            self.label.setText(self.label.text() + f"• {name} → {mat['color']}\n")
