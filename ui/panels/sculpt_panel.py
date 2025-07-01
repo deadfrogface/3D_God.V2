@@ -6,29 +6,25 @@ class SculptPanel(QWidget):
         super().__init__()
         self.character_system = CharacterSystem()
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("🪓 Sculpting-Modus"))
+        layout.addWidget(QLabel("🗿 Sculpting-Modus"))
 
-        self.symmetry_x = QCheckBox("Symmetrie X")
-        self.symmetry_y = QCheckBox("Symmetrie Y")
-        self.symmetry_z = QCheckBox("Symmetrie Z")
-        layout.addWidget(self.symmetry_x)
-        layout.addWidget(self.symmetry_y)
-        layout.addWidget(self.symmetry_z)
+        # Symmetrie-Option
+        self.symmetry_toggle = QCheckBox("🔁 X-Achsensymmetrie aktivieren")
+        self.symmetry_toggle.setChecked(True)
+        layout.addWidget(self.symmetry_toggle)
 
-        btn_start = QPushButton("Sculpting starten")
-        btn_start.clicked.connect(self.start_sculpting)
-        layout.addWidget(btn_start)
+        # Sculpt starten
+        self.btn_start = QPushButton("🎨 Starte Sculpting")
+        self.btn_start.clicked.connect(self.start_sculpt)
+        layout.addWidget(self.btn_start)
 
-        self.status_label = QLabel("Bereit")
+        # Status-Anzeige
+        self.status_label = QLabel("⏹ Nicht aktiv")
         layout.addWidget(self.status_label)
 
         self.setLayout(layout)
 
-    def start_sculpting(self):
-        x = self.symmetry_x.isChecked()
-        y = self.symmetry_y.isChecked()
-        z = self.symmetry_z.isChecked()
-        print(f"[Sculpt] Symmetrie → X:{x} Y:{y} Z:{z}")
-        self.status_label.setText("Starte Blender...")
+    def start_sculpt(self):
+        self.status_label.setText("⏳ Sculpting wird geladen...")
         self.character_system.sculpt()
-        self.status_label.setText("Sculpting aktiv (in Blender)")
+        self.status_label.setText("✅ Sculpting-Modus aktiv (in Blender)")
