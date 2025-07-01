@@ -141,5 +141,5 @@ class CharacterSystem:
             self.materials[mat]["texture"] = texture_path
             print(f"[Material] {mat} → Textur = {texture_path}")
 
-def create_autorig(self):
+    def create_autorig(self):
         self.run_blender_script("auto_rigify.py")
