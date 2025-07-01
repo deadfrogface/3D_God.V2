@@ -64,6 +64,9 @@ class CharacterSystem:
         if hasattr(self, "viewport_ref") and self.viewport_ref:
             self.viewport_ref.update_preview(self.anatomy_state)
 
+    def bind_viewport(self, viewport):
+        self.viewport_ref = viewport
+
     def add_asset(self, category):
         if category not in self.asset_state:
             print(f"[Asset] Ungültige Kategorie: {category}")
