@@ -1,29 +1,27 @@
-import subprocess
 import json
 import os
+import subprocess
 
 class SculptTools:
     def __init__(self):
-        self.blender_path = "blender"  # ggf. absoluter Pfad
-        self.script_path = "blender_embed/scripts/sculpt_apply.py"
-        self.data_path = "blender_embed/sculpt_input.json"
-
-    def launch(self):
-        print("[Sculpt] Starte Blender-Sculpt-Modus...")
-        subprocess.Popen([
-            self.blender_path,
-            "--python", self.script_path
-        ])
-
-    def run_script(self, script_name):
-        print(f"[BlenderBridge] Starte Blender-Skript: {script_name}")
-        subprocess.call([
-            self.blender_path,
-            "--background",
-            "--python", f"blender_embed/scripts/{script_name}"
-        ])
+        self.input_path = "blender_embed/sculpt_input.json"
+        self.script_path = "blender_embed/sculpt_main.py"
+        self.blender_path = "blender_embed/blender.exe"  # ⬅ Optional: anpassbar
 
     def send_data(self, sculpt_data):
-        with open(self.data_path, "w") as f:
+        with open(self.input_path, "w") as f:
             json.dump(sculpt_data, f, indent=4)
-        print(f"[Sculpt] Daten geschrieben → {self.data_path}")
+        print(f"[SculptBridge] Daten geschrieben → {self.input_path}")
+
+    def launch(self):
+        if not os.path.exists(self.blender_path):
+            print("[SculptBridge] Fehler: Blender.exe nicht gefunden!")
+            return
+
+        cmd = [
+            self.blender_path,
+            "--background",
+            "--python", self.script_path
+        ]
+        print(f"[SculptBridge] Starte Blender-Script...\n{' '.join(cmd)}")
+        subprocess.Popen(cmd)
