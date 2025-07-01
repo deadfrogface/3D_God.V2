@@ -1,48 +1,42 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QComboBox, QCheckBox
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QCheckBox, QPushButton
 from core.character_system.character_system import CharacterSystem
 from ui.style_manager import StyleManager
-import json
 
 class SettingsPanel(QWidget):
     def __init__(self):
         super().__init__()
-        layout = QVBoxLayout()
         self.character_system = CharacterSystem()
+        self.config = self.character_system.config
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel("⚙️ Einstellungen"))
 
-        # Design-Thema
-        self.theme_label = QLabel("🎨 Design-Thema:")
-        self.theme_combo = QComboBox()
-        self.theme_combo.addItems(["dark", "light"])
-        self.theme_combo.setCurrentText(self.character_system.config.get("theme", "dark"))
-        self.theme_combo.currentTextChanged.connect(self.change_theme)
+        self.theme_toggle = QCheckBox("🌙 Dunkles Theme aktivieren")
+        self.theme_toggle.setChecked(self.config.get("theme", "dark") == "dark")
+        layout.addWidget(self.theme_toggle)
 
-        # NSFW
-        self.nsfw_checkbox = QCheckBox("🔞 NSFW-Modus aktiviert")
-        self.nsfw_checkbox.setChecked(self.character_system.config.get("nsfw_enabled", True))
-        self.nsfw_checkbox.stateChanged.connect(self.toggle_nsfw)
+        self.nsfw_toggle = QCheckBox("🔞 NSFW-Inhalte anzeigen")
+        self.nsfw_toggle.setChecked(self.config.get("nsfw_enabled", True))
+        layout.addWidget(self.nsfw_toggle)
 
-        # Controller-Support
-        self.controller_checkbox = QCheckBox("🎮 Controller-Unterstützung")
-        self.controller_checkbox.setChecked(self.character_system.config.get("controller_enabled", True))
-        self.controller_checkbox.stateChanged.connect(self.toggle_controller)
+        self.controller_toggle = QCheckBox("🎮 Controller-Unterstützung aktivieren")
+        self.controller_toggle.setChecked(self.config.get("controller_enabled", True))
+        layout.addWidget(self.controller_toggle)
 
-        layout.addWidget(self.theme_label)
-        layout.addWidget(self.theme_combo)
-        layout.addWidget(self.nsfw_checkbox)
-        layout.addWidget(self.controller_checkbox)
+        self.debug_toggle = QCheckBox("🛠 Debug-Konsole anzeigen")
+        self.debug_toggle.setChecked(self.config.get("debug_enabled", True))
+        layout.addWidget(self.debug_toggle)
+
+        btn_apply = QPushButton("💾 Anwenden & Speichern")
+        btn_apply.clicked.connect(self.apply_settings)
+        layout.addWidget(btn_apply)
 
         self.setLayout(layout)
 
-    def change_theme(self, theme_name):
-        self.character_system.config["theme"] = theme_name
-        StyleManager.apply_theme(theme_name)
+    def apply_settings(self):
+        self.config["theme"] = "dark" if self.theme_toggle.isChecked() else "light"
+        self.config["nsfw_enabled"] = self.nsfw_toggle.isChecked()
+        self.config["controller_enabled"] = self.controller_toggle.isChecked()
+        self.config["debug_enabled"] = self.debug_toggle.isChecked()
         self.character_system.save_config()
-
-    def toggle_nsfw(self, state):
-        self.character_system.config["nsfw_enabled"] = state == 2
-        self.character_system.nsfw_enabled = state == 2
-        self.character_system.save_config()
-
-    def toggle_controller(self, state):
-        self.character_system.config["controller_enabled"] = state == 2
-        self.character_system.save_config()
+        StyleManager.apply_theme(self.config["theme"])
+        print("[Settings] Einstellungen angewendet:", self.config)
