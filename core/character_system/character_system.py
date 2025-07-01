@@ -28,6 +28,11 @@ class CharacterSystem:
             "piercings": [],
             "tattoos": []
         }
+        self.physics_flags = {
+            "breasts": True,
+            "cloth": True,
+            "piercings": True
+        }
         self.materials = {
             "skin": {"color": "#f5cba7", "roughness": 0.5, "metallic": 0.0, "texture": ""},
             "clothes": {"color": "#cccccc", "roughness": 0.7, "metallic": 0.0, "texture": ""},
@@ -92,6 +97,7 @@ class CharacterSystem:
                 "nsfw": self.nsfw_enabled,
                 "anatomy": self.anatomy_state,
                 "assets": self.asset_state,
+                "physics": self.physics_flags,
                 "materials": self.materials
             }, f, indent=4)
         print(f"[Preset] Gespeichert: {path}")
@@ -105,6 +111,7 @@ class CharacterSystem:
                 self.nsfw_enabled = data.get("nsfw", True)
                 self.anatomy_state = data.get("anatomy", {})
                 self.asset_state = data.get("assets", {})
+                self.physics_flags = data.get("physics", self.physics_flags)
                 self.materials = data.get("materials", self.materials)
             self.apply_loaded_state()
         else:
