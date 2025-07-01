@@ -99,3 +99,6 @@ class CharacterSystem:
         print("[Preset] Werte übernommen:", self.sculpt_data)
         print("[Preset] Assets:", self.asset_state)
         self.refresh_layers()
+def export_fbx(self, filename="exported_character"):
+        script_name = "export_fbx.py"
+        self.run_blender_script(script_name + f" {filename}")
