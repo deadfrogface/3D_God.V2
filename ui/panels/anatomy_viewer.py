@@ -6,7 +6,7 @@ class AnatomyViewer(QWidget):
         super().__init__()
         self.character_system = CharacterSystem()
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("🧬 Anatomie-Layer"))
+        layout.addWidget(QLabel("🧬 Anatomie-Layer anzeigen"))
 
         self.checkboxes = {}
         for layer in ["skin", "fat", "muscle", "bone", "organs"]:
