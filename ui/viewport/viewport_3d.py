@@ -1,31 +1,29 @@
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
+from PySide6.QtWidgets import QWidget, QVBoxLayout
+from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtCore import QUrl
+import os
 
 class Viewport3D(QWidget):
     def __init__(self):
         super().__init__()
         layout = QVBoxLayout()
-        self.label = QLabel("🔲 [3D Vorschau hier – Platzhalter]")
-        self.label.setStyleSheet("background-color: #222; color: white; padding: 30px;")
-        layout.addWidget(self.label)
+        self.view = QWebEngineView()
+
+        html_path = os.path.abspath("ui/viewport/preview.html")
+        self.view.load(QUrl.fromLocalFile(html_path))
+
+        layout.addWidget(self.view)
         self.setLayout(layout)
 
     def update_preview(self, anatomy_state, asset_state):
-        text = "🔎 Live-Vorschau:\n"
-        text += "\n🧬 Anatomie:\n"
-        for k, v in anatomy_state.items():
-            if v:
-                text += f" ✅ {k}\n"
-        text += "\n🧩 Assets:\n"
-        for k, items in asset_state.items():
-            for i in items:
-                text += f" • {k}: {i}\n"
-        self.label.setText(text)
+        print("[Viewport3D] Preview aktualisiert.")
 
     def load_animation(self, name):
-        self.label.setText(f"▶ Animation: {name}")
+        print(f"[Viewport3D] Animation geladen: {name}")
 
     def stop_animation(self):
-        self.label.setText("🔲 [3D Vorschau hier – Platzhalter]")
+        print("[Viewport3D] Animation gestoppt.")
 
     def reload_model(self):
-        print("[Viewport] Model-Reload requested (GLTF/FBX)")
+        print("[Viewport3D] Modell-Reload aus GUI")
+        self.view.page().runJavaScript("reloadModel('exports/preview.glb')")
