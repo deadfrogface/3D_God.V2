@@ -12,11 +12,11 @@ from ui.panels.preset_browser import PresetBrowser
 from ui.panels.clothing_panel import ClothingPanel
 from ui.panels.material_editor import MaterialEditor
 from ui.panels.physics_panel import PhysicsPanel
+from ui.panels.rig_viewer import RigViewer
 from ui.viewport.viewport_3d import Viewport3D
 from core.controller.controller_input import ControllerInput
 from ui.style_manager import StyleManager
 from core.character_system.character_system import CharacterSystem
-from ui.panels.rig_viewer import RigViewer
 
 class MainWindow(QMainWindow):
     def __init__(self, config):
@@ -41,9 +41,8 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(ClothingPanel(), "Assets")
         self.tab_widget.addTab(MaterialEditor(), "Material")
         self.tab_widget.addTab(PhysicsPanel(), "Physik")
+        self.tab_widget.addTab(RigViewer(), "Rig-Viewer")
         self.tab_widget.addTab(PresetBrowser(), "Presets")
-
-self.tab_widget.addTab(RigViewer(), "Rig-Viewer")
         self.tab_widget.addTab(SettingsPanel(), "Einstellungen")
 
         self.debug_console = DebugConsole()
