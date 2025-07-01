@@ -82,7 +82,9 @@ class CharacterSystem:
         self.refresh_layers()
 
     def refresh_layers(self):
-        print("[Anatomie] Aktueller Zustand:", self.anatomy_state)
+        print("[System] Viewport-Refresh wird ausgeführt...")
+        print(" - Anatomie:", self.anatomy_state)
+        print(" - Assets:", self.asset_state)
         if self.viewport_ref:
             self.viewport_ref.update_preview(self.anatomy_state, self.asset_state)
 
