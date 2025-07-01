@@ -2,6 +2,8 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QListWi
 import os
 import json
 from core.character_system.character_system import CharacterSystem
+from PySide6.QtGui import QPixmap, QScreen
+from PySide6.QtWidgets import QApplication
 
 class PresetBrowser(QWidget):
     def __init__(self):
@@ -17,6 +19,10 @@ class PresetBrowser(QWidget):
         btn_refresh = QPushButton("🔄 Liste aktualisieren")
         btn_refresh.clicked.connect(self.refresh_list)
         layout.addWidget(btn_refresh)
+
+        btn_screenshot = QPushButton("📸 Screenshot für ausgewähltes Preset speichern")
+        btn_screenshot.clicked.connect(self.save_thumbnail)
+        layout.addWidget(btn_screenshot)
 
         self.setLayout(layout)
         self.refresh_list()
@@ -45,3 +51,19 @@ class PresetBrowser(QWidget):
         raw_text = item.text()
         name = raw_text.replace("🔞", "").replace("🟢", "").strip()
         self.character_system.load_preset(name)
+
+    def save_thumbnail(self):
+        selected = self.preset_list.currentItem()
+        if not selected:
+            print("[Screenshot] Kein Preset ausgewählt.")
+            return
+
+        raw_text = selected.text()
+        name = raw_text.replace("🔞", "").replace("🟢", "").strip()
+        target_path = os.path.join("presets", f"{name}.jpg")
+
+        screen = QApplication.primaryScreen()
+        if screen:
+            pixmap = screen.grabWindow(self.window().winId())
+            pixmap.save(target_path, "jpg")
+            print(f"[Screenshot] Gespeichert als: {target_path}")
