@@ -143,3 +143,6 @@ class CharacterSystem:
 
     def create_autorig(self):
         self.run_blender_script("auto_rigify.py")
+
+    def export_bone_list(self):
+        self.run_blender_script("export_bones.py")
