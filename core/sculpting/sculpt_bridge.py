@@ -1,25 +1,29 @@
 import subprocess
+import json
 import os
 
 class SculptTools:
     def __init__(self):
-        self.blender_path = "blender_embedded/blender_3.6_portable/blender.exe"
-        self.blend_file = "assets/base_bodies/female_base.blend"
+        self.blender_path = "blender"  # ggf. absoluter Pfad
+        self.script_path = "blender_embed/scripts/sculpt_apply.py"
+        self.data_path = "blender_embed/sculpt_input.json"
 
     def launch(self):
-        if not os.path.exists(self.blender_path):
-            print("[Blender] Blender nicht gefunden!")
-            return
-        subprocess.Popen([self.blender_path, self.blend_file])
+        print("[Sculpt] Starte Blender-Sculpt-Modus...")
+        subprocess.Popen([
+            self.blender_path,
+            "--python", self.script_path
+        ])
 
     def run_script(self, script_name):
-        script_path = f"blender_embed/scripts/{script_name}"
-        if not os.path.exists(script_path):
-            print(f"[Blender] Skript nicht gefunden: {script_path}")
-            return
-        subprocess.run([
+        print(f"[BlenderBridge] Starte Blender-Skript: {script_name}")
+        subprocess.call([
             self.blender_path,
             "--background",
-            self.blend_file,
-            "--python", script_path
+            "--python", f"blender_embed/scripts/{script_name}"
         ])
+
+    def send_data(self, sculpt_data):
+        with open(self.data_path, "w") as f:
+            json.dump(sculpt_data, f, indent=4)
+        print(f"[Sculpt] Daten geschrieben → {self.data_path}")
