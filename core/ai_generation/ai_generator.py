@@ -1,28 +1,16 @@
-from ai_modules.triposr.triposr_handler import TripoSRHandler
-from ai_modules.juggernaut.juggernaut_handler import JuggernautHandler
-from pathlib import Path
-import os
+from core.ai_generation.fauxpilot_handler import FauxPilotHandler
+from core.ai_generation.triposr_handler import TripoSRHandler
 
 class AIGenerator:
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
+        self.fauxpilot = FauxPilotHandler()
         self.triposr = TripoSRHandler()
-        self.juggernaut = JuggernautHandler()
-        self.export_dir = Path("exports/generated")
-        self.export_dir.mkdir(parents=True, exist_ok=True)
 
-    def generate(self, text_prompt: str, image_path: str, asset_type: str):
-        if image_path:
-            print("🖼️ Starte Bild → 3D via TripoSR...")
-            return self.triposr.generate_from_image(image_path)
+    def generate_code(self, prompt):
+        return self.fauxpilot.generate(prompt)
 
-        elif text_prompt:
-            print(f"✏️ Starte Text → Bild für '{text_prompt}'...")
-            temp_img_path = self.export_dir / "temp_ref.png"
-            ref_path = self.juggernaut.generate_reference_image(text_prompt, str(temp_img_path))
+    def set_image_path(self, path):
+        self.triposr.set_input_image(path)
 
-            print(f"🧊 Starte TripoSR mit Referenzbild...")
-            return self.triposr.generate_from_image(ref_path)
-
-        else:
-            raise ValueError("Kein Text oder Bild angegeben zur Generierung.")
+    def generate_mesh_from_image(self):
+        self.triposr.generate_mesh()
