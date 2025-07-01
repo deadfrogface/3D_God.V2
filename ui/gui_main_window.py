@@ -11,6 +11,7 @@ from ui.panels.debug_console import DebugConsole
 from ui.panels.preset_browser import PresetBrowser
 from ui.panels.clothing_panel import ClothingPanel
 from ui.panels.material_editor import MaterialEditor
+from ui.panels.physics_panel import PhysicsPanel
 from ui.viewport.viewport_3d import Viewport3D
 from core.controller.controller_input import ControllerInput
 from ui.style_manager import StyleManager
@@ -38,6 +39,7 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(AIPromptPanel(), "KI")
         self.tab_widget.addTab(ClothingPanel(), "Assets")
         self.tab_widget.addTab(MaterialEditor(), "Material")
+        self.tab_widget.addTab(PhysicsPanel(), "Physik")
         self.tab_widget.addTab(PresetBrowser(), "Presets")
         self.tab_widget.addTab(SettingsPanel(), "Einstellungen")
 
