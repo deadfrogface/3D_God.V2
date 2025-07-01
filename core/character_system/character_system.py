@@ -146,3 +146,13 @@ class CharacterSystem:
 
     def export_bone_list(self):
         self.run_blender_script("export_bones.py")
+
+    def play_animation(self, name):
+        print(f"[Animation] Starte Vorschau: {name}")
+        if self.viewport_ref:
+            self.viewport_ref.load_animation(name)
+
+    def stop_animation(self):
+        print("[Animation] Vorschau gestoppt.")
+        if self.viewport_ref:
+            self.viewport_ref.stop_animation()
