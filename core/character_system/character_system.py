@@ -31,6 +31,7 @@ class CharacterSystem:
         self.config = self.load_config()
         self.sculpt_tools = SculptTools()
         self.nsfw_enabled = self.config.get("nsfw_enabled", True)
+        self.viewport_ref = None
 
     def load_config(self):
         if not os.path.exists(self.config_path):
@@ -60,7 +61,6 @@ class CharacterSystem:
 
     def refresh_layers(self):
         print("[Anatomie] Aktueller Zustand:", self.anatomy_state)
-        # Viewport aktualisieren, wenn verfügbar
         if hasattr(self, "viewport_ref") and self.viewport_ref:
             self.viewport_ref.update_preview(self.anatomy_state)
 
@@ -105,6 +105,7 @@ class CharacterSystem:
         print("[Preset] Werte übernommen:", self.sculpt_data)
         print("[Preset] Assets:", self.asset_state)
         self.refresh_layers()
-def export_fbx(self, filename="exported_character"):
+
+    def export_fbx(self, filename="exported_character"):
         script_name = "export_fbx.py"
         self.run_blender_script(script_name + f" {filename}")
