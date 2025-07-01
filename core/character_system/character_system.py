@@ -11,7 +11,7 @@ class CharacterSystem:
         self.preset_path = Path("assets/character_presets/")
         self.preset_path.mkdir(parents=True, exist_ok=True)
         self.controller_enabled = False
-        self.config_data = {}
+        self.config = {}
 
         try:
             from core.sculpting.sculpt_bridge import SculptTools
@@ -103,22 +103,23 @@ class CharacterSystem:
         print("🔁 Lade Preset-Zustand in GUI...")
         if hasattr(self, "viewport"):
             self.viewport.refresh_layers()
-if hasattr(self, "anatomy_panel"):
-    self.anatomy_panel.update_checkboxes()
-if hasattr(self, "slider_panel"):
-    self.slider_panel.update_sliders()
-def test_sculpting_system(self):
-    print("🧪 Teste Sculpting-System...")
-    if self.sculpt_tools:
-        print("✅ Sculpting-Bridge vorhanden")
-        self.sculpt_tools.launch()
-    else:
-        print("❌ SculptTools nicht initialisiert!")
+        if hasattr(self, "anatomy_panel"):
+            self.anatomy_panel.update_checkboxes()
+        if hasattr(self, "slider_panel"):
+            self.slider_panel.update_sliders()
 
-def test_export(self):
-    print("🧪 Starte Test-Export...")
-    self.export_fbx()
-    
-def save_config(self):
+    def test_sculpting_system(self):
+        print("🧪 Teste Sculpting-System...")
+        if self.sculpt_tools:
+            print("✅ Sculpting-Bridge vorhanden")
+            self.sculpt_tools.launch()
+        else:
+            print("❌ SculptTools nicht initialisiert!")
+
+    def test_export(self):
+        print("🧪 Starte Test-Export...")
+        self.export_fbx()
+
+    def save_config(self):
         with open("config.json", "w") as f:
             json.dump(self.config, f, indent=4)
