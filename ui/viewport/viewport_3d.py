@@ -1,29 +1,38 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout
-from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtCore import QUrl
-import os
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QFrame
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 
 class Viewport3D(QWidget):
-    def __init__(self):
+    def __init__(self, character_system):
         super().__init__()
+        self.character_system = character_system
+        self.character_system.viewport = self  # Rückkanal zur Anzeige
+
+        self.init_ui()
+
+    def init_ui(self):
         layout = QVBoxLayout()
-        self.view = QWebEngineView()
 
-        html_path = os.path.abspath("ui/viewport/preview.html")
-        self.view.load(QUrl.fromLocalFile(html_path))
+        title = QLabel("🖼️ 3D Vorschau")
+        title.setAlignment(Qt.AlignCenter)
+        layout.addWidget(title)
 
-        layout.addWidget(self.view)
+        # Placeholder Frame (z. B. für OpenGL- oder Blender-Integration später)
+        self.frame = QFrame()
+        self.frame.setStyleSheet("background-color: #222; border: 2px dashed #00ff88;")
+        self.frame.setMinimumHeight(400)
+        layout.addWidget(self.frame)
+
+        # Optional: Bildvorschau
+        self.preview = QLabel()
+        self.preview.setAlignment(Qt.AlignCenter)
+        pixmap = QPixmap(300, 300)
+        pixmap.fill(Qt.black)
+        self.preview.setPixmap(pixmap)
+        layout.addWidget(self.preview)
+
+        layout.addStretch()
         self.setLayout(layout)
 
-    def update_preview(self, anatomy_state, asset_state):
-        print("[Viewport3D] Preview aktualisiert.")
-
-    def load_animation(self, name):
-        print(f"[Viewport3D] Animation geladen: {name}")
-
-    def stop_animation(self):
-        print("[Viewport3D] Animation gestoppt.")
-
-    def reload_model(self):
-        print("[Viewport3D] Modell-Reload aus GUI")
-        self.view.page().runJavaScript("reloadModel('exports/preview.glb')")
+    def update_view(self):
+        print("🔄 Viewport aktualisieren – Placeholder bleibt")
