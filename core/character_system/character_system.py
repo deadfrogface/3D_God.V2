@@ -1,6 +1,7 @@
 import os
 import json
-from core.sculpting.sculpt_bridge import SculptTools
+from core.sculpting.sculpt_tool_bridge import SculptTools
+from blender_embed.export_fbx import export_fbx  # ✅ Wichtig für FBX-Export
 
 class CharacterSystem:
     def __init__(self):
@@ -128,38 +129,6 @@ class CharacterSystem:
         print(" - Assets:", self.asset_state)
         self.refresh_layers()
 
-    def export_fbx(self, filename="exported_character"):
-        self.run_blender_script("export_fbx.py")
-        if self.viewport_ref:
-            self.viewport_ref.reload_model()
-
-    def set_material_color(self, mat, hex_color):
-        if mat in self.materials:
-            self.materials[mat]["color"] = hex_color
-            print(f"[Material] {mat} → Farbe = {hex_color}")
-
-    def set_material_value(self, mat, key, value):
-        if mat in self.materials:
-            self.materials[mat][key] = value
-            print(f"[Material] {mat} → {key} = {value}")
-
-    def set_material_texture(self, mat, texture_path):
-        if mat in self.materials:
-            self.materials[mat]["texture"] = texture_path
-            print(f"[Material] {mat} → Textur = {texture_path}")
-
-    def create_autorig(self):
-        self.run_blender_script("auto_rigify.py")
-
-    def export_bone_list(self):
-        self.run_blender_script("export_bones.py")
-
-    def play_animation(self, name):
-        print(f"[Animation] Starte Vorschau: {name}")
-        if self.viewport_ref:
-            self.viewport_ref.load_animation(name)
-
-    def stop_animation(self):
-        print("[Animation] Vorschau gestoppt.")
-        if self.viewport_ref:
-            self.viewport_ref.stop_animation()
+    def export_model(self):
+        print("[CharSystem] Exportiere Modell als FBX...")
+        export_fbx()
