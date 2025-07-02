@@ -11,16 +11,15 @@ class CharacterEditor(QWidget):
 
         self.sliders = {}
 
-        # Definiere alle Sculpt-Parameter mit Name, Bereich, Startwert
-        fields = {
-            "height":        ("Größe",       0, 100),
-            "breast_size":   ("Brustgröße",  0, 100),
-            "hip_width":     ("Hüften",      0, 100),
-            "arm_length":    ("Armlänge",    0, 100),
-            "leg_length":    ("Beinlänge",   0, 100),
+        self.fields = {
+            "height":      ("Größe",       0, 100),
+            "breast_size": ("Brustgröße",  0, 100),
+            "hip_width":   ("Hüften",      0, 100),
+            "arm_length":  ("Armlänge",    0, 100),
+            "leg_length":  ("Beinlänge",   0, 100),
         }
 
-        for key, (label, min_val, max_val) in fields.items():
+        for key, (label, min_val, max_val) in self.fields.items():
             row = QHBoxLayout()
             row.addWidget(QLabel(label))
             slider = QSlider(Qt.Horizontal)
@@ -32,6 +31,12 @@ class CharacterEditor(QWidget):
             layout.addLayout(row)
 
         self.setLayout(layout)
+        self.character_system.slider_sync_callback = self.refresh_sliders  # ← Hook für Preset-Sync
 
     def update_value(self, key, value):
         self.character_system.update_sculpt_value(key, value)
+
+    def refresh_sliders(self):
+        for key, slider in self.sliders.items():
+            new_value = self.character_system.sculpt_data.get(key, 50)
+            slider.setValue(new_value)
