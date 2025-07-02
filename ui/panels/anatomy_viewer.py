@@ -6,19 +6,21 @@ class AnatomyViewer(QWidget):
         super().__init__()
         self.character_system = CharacterSystem()
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("🧬 Anatomie-Layer anzeigen"))
+
+        layout.addWidget(QLabel("🧬 Anatomie-Viewer"))
 
         self.checkboxes = {}
+
         for layer in ["skin", "fat", "muscle", "bone", "organs"]:
-            cb = QCheckBox(f"{layer.capitalize()} anzeigen")
-            cb.setChecked(self.character_system.anatomy_state.get(layer, False))
-            cb.stateChanged.connect(self.on_checkbox_toggle)
-            layout.addWidget(cb)
-            self.checkboxes[layer] = cb
+            checkbox = QCheckBox(layer.capitalize())
+            checkbox.setChecked(self.character_system.anatomy_state.get(layer, False))
+            checkbox.stateChanged.connect(lambda state, l=layer: self.toggle_layer(l, state))
+            layout.addWidget(checkbox)
+            self.checkboxes[layer] = checkbox
 
         self.setLayout(layout)
 
-    def on_checkbox_toggle(self):
-        for layer, cb in self.checkboxes.items():
-            state = cb.isChecked()
-            self.character_system.update_anatomy_layer(layer, state)
+    def toggle_layer(self, layer, state):
+        self.character_system.anatomy_state[layer] = bool(state)
+        print(f"[Anatomie] {layer}: {'Aktiv' if state else 'Deaktiviert'}")
+        self.character_system.refresh_layers()
