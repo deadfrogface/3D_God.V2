@@ -7,6 +7,7 @@ base_dir = os.path.dirname(__file__)
 input_path = os.path.join(base_dir, "sculpt_input.json")
 blend_path = os.path.join(base_dir, "base_model.blend")
 glb_output = os.path.abspath("exports/preview.glb")
+preview_img_path = os.path.abspath("exports/preview.png")
 
 # 📥 JSON laden
 print("[Blender] Lade Eingabedaten...")
@@ -58,8 +59,14 @@ if data.get("symmetry", True):
 else:
     bpy.context.tool_settings.use_mesh_mirror_x = False
 
-# 💾 Vorschau speichern
+# 💾 Vorschau als GLB
 print(f"[Blender] Exportiere Vorschau als GLB → {glb_output}")
 bpy.ops.export_scene.gltf(filepath=glb_output, export_format='GLB')
+
+# 📸 Vorschau-Bild rendern
+bpy.context.scene.render.filepath = preview_img_path
+bpy.context.scene.render.image_settings.file_format = 'PNG'
+bpy.ops.render.render(write_still=True)
+print(f"[Blender] Vorschau-Bild gespeichert → {preview_img_path}")
 
 print("[Blender] Fertig.")
