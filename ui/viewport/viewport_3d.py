@@ -36,12 +36,10 @@ class Viewport3D(QWidget):
         self.setLayout(layout)
 
     def update_view(self):
-        print("🔄 Viewport aktualisieren – Placeholder bleibt")
-
-    def load_preview(self, image_path):
-        if os.path.exists(image_path):
-            image = QImage(image_path)
-            self.preview.setPixmap(QPixmap.fromImage(image))
-            print(f"🖼️ Vorschau geladen: {image_path}")
+        preview_path = "exports/preview.png"
+        if os.path.exists(preview_path):
+            image = QImage(preview_path)
+            self.preview.setPixmap(QPixmap.fromImage(image).scaled(400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            print(f"🖼️ Vorschau geladen: {preview_path}")
         else:
-            print(f"❌ Keine Vorschau gefunden: {image_path}")
+            print(f"❌ Keine Vorschau gefunden: {preview_path}")
