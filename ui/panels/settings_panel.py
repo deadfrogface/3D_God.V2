@@ -1,92 +1,59 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog, QHBoxLayout, QTextEdit
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QCheckBox
 from core.character_system.character_system import CharacterSystem
-import os
-import shutil
-import datetime
+from ui.debug_console import DebugConsole
 
-class ExportPanel(QWidget):
+class SettingsPanel(QWidget):
     def __init__(self):
         super().__init__()
         self.character_system = CharacterSystem()
+        self.debug_console = None
+
         layout = QVBoxLayout()
+        layout.addWidget(QLabel("⚙ Einstellungen"))
 
-        layout.addWidget(QLabel("💾 Export-Optionen"))
+        # 🔲 Theme
+        self.theme_checkbox = QCheckBox("🌙 Dunkles Design aktivieren")
+        self.theme_checkbox.setChecked(self.character_system.config.get("theme", "dark") == "dark")
+        self.theme_checkbox.stateChanged.connect(self.toggle_theme)
+        layout.addWidget(self.theme_checkbox)
 
-        name_layout = QHBoxLayout()
-        name_layout.addWidget(QLabel("Dateiname:"))
-        self.name_input = QLineEdit("my_character")
-        name_layout.addWidget(self.name_input)
-        layout.addLayout(name_layout)
+        # 🔞 NSFW
+        self.nsfw_checkbox = QCheckBox("🔞 NSFW-Modus aktivieren")
+        self.nsfw_checkbox.setChecked(self.character_system.nsfw_enabled)
+        self.nsfw_checkbox.stateChanged.connect(self.toggle_nsfw)
+        layout.addWidget(self.nsfw_checkbox)
 
-        btn_save = QPushButton("💾 Preset speichern")
-        btn_save.clicked.connect(self.save_preset)
-        layout.addWidget(btn_save)
+        # 🎮 Controller
+        self.controller_checkbox = QCheckBox("🎮 Controller-Unterstützung")
+        self.controller_checkbox.setChecked(self.character_system.config.get("controller_enabled", True))
+        self.controller_checkbox.stateChanged.connect(self.toggle_controller)
+        layout.addWidget(self.controller_checkbox)
 
-        btn_export = QPushButton("📤 Exportiere als .fbx")
-        btn_export.clicked.connect(self.export_fbx)
-        layout.addWidget(btn_export)
-
-        layout.addWidget(QLabel("📦 Export nach Unreal-Projekt"))
-
-        self.unreal_path = QLineEdit("")
-        self.unreal_path.setPlaceholderText("Pfad zu /YourGame/Content/Characters")
-        layout.addWidget(self.unreal_path)
-
-        btn_browse = QPushButton("📁 Ziel auswählen")
-        btn_browse.clicked.connect(self.choose_unreal_folder)
-        layout.addWidget(btn_browse)
-
-        btn_unreal = QPushButton("🚀 Exportiere direkt nach Unreal")
-        btn_unreal.clicked.connect(self.export_to_unreal)
-        layout.addWidget(btn_unreal)
-
-        layout.addWidget(QLabel("📋 Export-Log:"))
-        self.logbox = QTextEdit()
-        self.logbox.setReadOnly(True)
-        layout.addWidget(self.logbox)
+        # 🐞 Debug-Konsole
+        btn_debug = QPushButton("🐞 Debug-Konsole anzeigen")
+        btn_debug.clicked.connect(self.toggle_debug_console)
+        layout.addWidget(btn_debug)
 
         self.setLayout(layout)
 
-    def log(self, msg):
-        timestamp = datetime.datetime.now().strftime("[%H:%M:%S]")
-        full_msg = f"{timestamp} {msg}"
-        self.logbox.append(full_msg)
-        print(full_msg)
-        with open("logfile.txt", "a", encoding="utf-8") as f:
-            f.write(full_msg + "\n")
+    def toggle_theme(self, state):
+        theme = "dark" if state else "light"
+        self.character_system.config["theme"] = theme
+        self.character_system.save_config()
+        print(f"[Settings] Theme gesetzt auf: {theme}")
 
-    def save_preset(self):
-        name = self.name_input.text()
-        self.character_system.save_preset(name)
-        self.log(f"✔ Preset gespeichert: {name}")
+    def toggle_nsfw(self, state):
+        self.character_system.nsfw_enabled = bool(state)
+        self.character_system.config["nsfw_enabled"] = bool(state)
+        self.character_system.save_config()
+        print(f"[Settings] NSFW: {'An' if state else 'Aus'}")
 
-    def export_fbx(self):
-        name = self.name_input.text()
-        self.log("📤 Starte Export...")
-        self.character_system.save_preset(name)
-        self.character_system.export_fbx(name)
-        self.log(f"✅ FBX exportiert: exports/{name}.fbx")
+    def toggle_controller(self, state):
+        self.character_system.config["controller_enabled"] = bool(state)
+        self.character_system.save_config()
+        print(f"[Settings] Controller: {'Aktiviert' if state else 'Deaktiviert'}")
 
-    def choose_unreal_folder(self):
-        path = QFileDialog.getExistingDirectory(self, "Unreal Content-Ordner wählen")
-        if path:
-            self.unreal_path.setText(path)
-            self.log(f"📁 Ziel ausgewählt: {path}")
-
-    def export_to_unreal(self):
-        name = self.name_input.text()
-        self.character_system.save_preset(name)
-        self.character_system.export_fbx(name)
-
-        src_fbx = os.path.join("exports", f"{name}.fbx")
-        dst_dir = self.unreal_path.text().strip()
-        if not dst_dir or not os.path.exists(dst_dir):
-            self.log("❌ Fehler: Unreal-Zielpfad ungültig.")
-            return
-
-        dst_fbx = os.path.join(dst_dir, f"{name}.fbx")
-        try:
-            shutil.copy(src_fbx, dst_fbx)
-            self.log(f"✅ FBX kopiert nach Unreal: {dst_fbx}")
-        except Exception as e:
-            self.log(f"❌ Kopierfehler: {e}")
+    def toggle_debug_console(self):
+        if self.debug_console is None:
+            self.debug_console = DebugConsole()
+        self.debug_console.show()
