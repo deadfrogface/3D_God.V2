@@ -11,7 +11,7 @@ class SettingsPanel(QWidget):
         layout = QVBoxLayout()
         layout.addWidget(QLabel("⚙ Einstellungen"))
 
-        # 🔲 Theme
+        # 🌙 Theme
         self.theme_checkbox = QCheckBox("🌙 Dunkles Design aktivieren")
         self.theme_checkbox.setChecked(self.character_system.config.get("theme", "dark") == "dark")
         self.theme_checkbox.stateChanged.connect(self.toggle_theme)
@@ -40,18 +40,18 @@ class SettingsPanel(QWidget):
         theme = "dark" if state else "light"
         self.character_system.config["theme"] = theme
         self.character_system.save_config()
-        print(f"[Settings] Theme gesetzt auf: {theme}")
+        print(f"[Settings] Theme geändert zu: {theme}")
 
     def toggle_nsfw(self, state):
         self.character_system.nsfw_enabled = bool(state)
         self.character_system.config["nsfw_enabled"] = bool(state)
         self.character_system.save_config()
-        print(f"[Settings] NSFW: {'An' if state else 'Aus'}")
+        print(f"[Settings] NSFW-Modus: {'Aktiv' if state else 'Deaktiviert'}")
 
     def toggle_controller(self, state):
         self.character_system.config["controller_enabled"] = bool(state)
         self.character_system.save_config()
-        print(f"[Settings] Controller: {'Aktiviert' if state else 'Deaktiviert'}")
+        print(f"[Settings] Controller: {'Aktiv' if state else 'Deaktiviert'}")
 
     def toggle_debug_console(self):
         if self.debug_console is None:
