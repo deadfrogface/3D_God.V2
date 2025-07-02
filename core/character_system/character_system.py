@@ -12,7 +12,8 @@ class CharacterSystem:
             "breast_size": 50,
             "hip_width": 50,
             "arm_length": 50,
-            "leg_length": 50
+            "leg_length": 50,
+            "symmetry": True
         }
         self.anatomy_state = {
             "skin": True,
@@ -145,6 +146,7 @@ class CharacterSystem:
         print(" - Sculpt:", self.sculpt_data)
         print(" - Anatomy:", self.anatomy_state)
         print(" - Assets:", self.asset_state)
+
         self.refresh_layers()
 
         if self.slider_sync_callback:
@@ -153,3 +155,5 @@ class CharacterSystem:
             self.anatomy_sync_callback()
         if self.nsfw_sync_callback:
             self.nsfw_sync_callback()
+        if self.viewport_ref:
+            self.viewport_ref.update_view()
