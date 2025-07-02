@@ -51,6 +51,13 @@ apply_sculpt("height", data.get("height", 50), axis='Z')
 apply_sculpt("breast_size", data.get("breast_size", 50), axis='Y')
 apply_sculpt("hip_width", data.get("hip_width", 50), axis='X')
 
+# 🔁 Symmetrie aktivieren?
+if data.get("symmetry", True):
+    print("[Blender] Wende X-Symmetrie an")
+    bpy.context.tool_settings.use_mesh_mirror_x = True
+else:
+    bpy.context.tool_settings.use_mesh_mirror_x = False
+
 # 💾 Vorschau speichern
 print(f"[Blender] Exportiere Vorschau als GLB → {glb_output}")
 bpy.ops.export_scene.gltf(filepath=glb_output, export_format='GLB')
