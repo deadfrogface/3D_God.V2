@@ -1,134 +1,85 @@
-import os
 import json
-from core.sculpting.sculpt_tool_bridge import SculptTools
-from blender_embed.export_fbx import export_fbx  # ✅ Wichtig für FBX-Export
+import os
+import subprocess
 
 class CharacterSystem:
     def __init__(self):
-        self.config_path = "config.json"
-        self.preset_path = "presets/"
+        self.anatomy_state = {
+            "skin": True,
+            "fat": True,
+            "muscles": True,
+            "bones": False,
+            "organs": False,
+        }
+
         self.sculpt_data = {
             "height": 50,
             "breast_size": 50,
             "hip_width": 50,
             "arm_length": 50,
-            "leg_length": 50
+            "leg_length": 50,
         }
-        self.anatomy_state = {
-            "skin": True,
-            "fat": True,
-            "muscle": False,
-            "bone": False,
-            "organs": False,
-            "breasts": True,
-            "genitals": True,
-            "bodyhair": False
-        }
-        self.asset_state = {
-            "clothes": [],
-            "piercings": [],
-            "tattoos": []
-        }
-        self.physics_flags = {
-            "breasts": True,
-            "cloth": True,
-            "piercings": True
-        }
-        self.materials = {
-            "skin": {"color": "#f5cba7", "roughness": 0.5, "metallic": 0.0, "texture": ""},
-            "clothes": {"color": "#cccccc", "roughness": 0.7, "metallic": 0.0, "texture": ""},
-            "piercings": {"color": "#aaaaaa", "roughness": 0.1, "metallic": 1.0, "texture": ""},
-            "tattoos": {"color": "#000000", "roughness": 0.9, "metallic": 0.0, "texture": ""}
-        }
-        self.config = self.load_config()
-        self.sculpt_tools = SculptTools()
-        self.nsfw_enabled = self.config.get("nsfw_enabled", True)
-        self.viewport_ref = None
 
-    def load_config(self):
-        if not os.path.exists(self.config_path):
-            return {"theme": "dark", "nsfw_enabled": True, "controller_enabled": True, "debug_enabled": True}
-        with open(self.config_path, "r") as f:
-            return json.load(f)
+        self.symmetry = True
+        self.slider_sync_callback = None  # ← für Block 57
 
-    def save_config(self):
-        with open(self.config_path, "w") as f:
-            json.dump(self.config, f, indent=4)
+    def update_anatomy_state(self, layer, state):
+        self.anatomy_state[layer] = state
 
     def update_sculpt_value(self, key, value):
         self.sculpt_data[key] = value
-        print(f"[Sculpt] {key}: {value}")
 
-    def sculpt(self):
-        print("[Sculpt] Blender Sculpting wird gestartet...")
-        self.sculpt_tools.send_data(self.sculpt_data)
-        self.sculpt_tools.launch()
+    def start_sculpting(self):
+        print("🔧 Sculpting gestartet...")
+        with open("config.json") as f:
+            config = json.load(f)
+        blender_exe = config.get("blender_path", "blender")
+        script_path = os.path.join("blender_embed", "sculpt_tool_bridge.py")
 
-    def run_blender_script(self, script_name):
-        print(f"[Sculpt] Führe Blender-Skript aus: {script_name}")
-        self.sculpt_tools.run_script(script_name)
+        try:
+            subprocess.run([blender_exe, "--background", "--python", script_path])
+            print("✅ Sculpting abgeschlossen.")
+        except Exception as e:
+            print(f"❌ Fehler beim Sculpting: {e}")
 
-    def update_anatomy_layer(self, layer_name, state):
-        self.anatomy_state[layer_name] = state
-        print(f"[Anatomie] Layer {layer_name} → {'On' if state else 'Off'}")
-        self.refresh_layers()
+    def export_fbx(self, filename):
+        print(f"📤 Exportiere {filename}.fbx ...")
+        with open("config.json") as f:
+            config = json.load(f)
+        blender_exe = config.get("blender_path", "blender")
+        script_path = os.path.join("blender_embed", "export_fbx.py")
 
-    def add_asset(self, category):
-        if category not in self.asset_state:
-            print(f"[Asset] Ungültige Kategorie: {category}")
+        try:
+            subprocess.run([
+                blender_exe,
+                "--background",
+                "--python", script_path,
+                "--", filename
+            ])
+            print("✅ FBX exportiert.")
+        except Exception as e:
+            print(f"❌ Fehler beim Export: {e}")
+
+    def save_preset(self, name):
+        preset = {
+            "anatomy": self.anatomy_state,
+            "sculpt": self.sculpt_data,
+        }
+        os.makedirs("presets", exist_ok=True)
+        with open(f"presets/{name}.json", "w") as f:
+            json.dump(preset, f, indent=4)
+
+    def load_preset(self, name):
+        path = f"presets/{name}.json"
+        if not os.path.exists(path):
+            print(f"❌ Preset {name} nicht gefunden.")
             return
-        example_asset = f"{category}_demo_asset"
-        self.asset_state[category].append(example_asset)
-        print(f"[Asset] {category}: {example_asset} hinzugefügt")
-        self.refresh_layers()
+        with open(path, "r") as f:
+            preset = json.load(f)
+        self.apply_loaded_state(preset)
 
-    def refresh_layers(self):
-        print("[System] Viewport-Refresh wird ausgeführt...")
-        print(" - Anatomie:", self.anatomy_state)
-        print(" - Assets:", self.asset_state)
-        if self.viewport_ref:
-            self.viewport_ref.update_preview(self.anatomy_state, self.asset_state)
-
-    def bind_viewport(self, viewport):
-        self.viewport_ref = viewport
-
-    def save_preset(self, name="default"):
-        if not os.path.exists(self.preset_path):
-            os.makedirs(self.preset_path)
-        path = os.path.join(self.preset_path, f"{name}.json")
-        with open(path, "w") as f:
-            json.dump({
-                "sculpt_data": self.sculpt_data,
-                "nsfw": self.nsfw_enabled,
-                "anatomy": self.anatomy_state,
-                "assets": self.asset_state,
-                "physics": self.physics_flags,
-                "materials": self.materials
-            }, f, indent=4)
-        print(f"[Preset] Gespeichert: {path}")
-
-    def load_preset(self, name="default"):
-        path = os.path.join(self.preset_path, f"{name}.json")
-        if os.path.exists(path):
-            with open(path, "r") as f:
-                data = json.load(f)
-                self.sculpt_data = data.get("sculpt_data", self.sculpt_data)
-                self.nsfw_enabled = data.get("nsfw", self.nsfw_enabled)
-                self.anatomy_state = data.get("anatomy", self.anatomy_state)
-                self.asset_state = data.get("assets", self.asset_state)
-                self.physics_flags = data.get("physics", self.physics_flags)
-                self.materials = data.get("materials", self.materials)
-            self.apply_loaded_state()
-        else:
-            print(f"[Preset] Fehler: {path} nicht gefunden")
-
-    def apply_loaded_state(self):
-        print("[Preset] Zustand übernommen.")
-        print(" - Sculpt:", self.sculpt_data)
-        print(" - Anatomy:", self.anatomy_state)
-        print(" - Assets:", self.asset_state)
-        self.refresh_layers()
-
-    def export_model(self):
-        print("[CharSystem] Exportiere Modell als FBX...")
-        export_fbx()
+    def apply_loaded_state(self, preset):
+        self.anatomy_state = preset.get("anatomy", self.anatomy_state)
+        self.sculpt_data = preset.get("sculpt", self.sculpt_data)
+        if self.slider_sync_callback:
+            self.slider_sync_callback()
