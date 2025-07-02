@@ -1,11 +1,10 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider, QHBoxLayout
 from PySide6.QtCore import Qt
-from core.character_system.character_system import CharacterSystem
 
 class CharacterEditor(QWidget):
-    def __init__(self):
+    def __init__(self, character_system):
         super().__init__()
-        self.character_system = CharacterSystem()
+        self.character_system = character_system
         layout = QVBoxLayout()
         layout.addWidget(QLabel("🧍‍♂️ Körperform-Editor"))
 
@@ -31,7 +30,7 @@ class CharacterEditor(QWidget):
             layout.addLayout(row)
 
         self.setLayout(layout)
-        self.character_system.slider_sync_callback = self.refresh_sliders  # ← Hook für Preset-Sync
+        self.character_system.slider_sync_callback = self.refresh_sliders
 
     def update_value(self, key, value):
         self.character_system.update_sculpt_value(key, value)
