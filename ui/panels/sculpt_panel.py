@@ -1,10 +1,9 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QCheckBox
-from core.character_system.character_system import CharacterSystem
 
 class SculptPanel(QWidget):
-    def __init__(self):
+    def __init__(self, character_system):
         super().__init__()
-        self.character_system = CharacterSystem()
+        self.character_system = character_system
         layout = QVBoxLayout()
         layout.addWidget(QLabel("🗿 Sculpting-Modus"))
 
@@ -26,7 +25,7 @@ class SculptPanel(QWidget):
         self.setLayout(layout)
 
     def set_symmetry(self, state):
-        self.character_system.sculpt_data["symmetry"] = bool(state)
+        self.character_system.sculpt_data["symmetry"] = (state == 2)
         print(f"[Sculpt] Symmetrie: {'Aktiv' if state else 'Aus'}")
 
     def start_sculpt(self):
