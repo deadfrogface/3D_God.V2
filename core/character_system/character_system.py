@@ -44,7 +44,11 @@ class CharacterSystem:
         self.sculpt_tools = SculptTools()
         self.nsfw_enabled = self.config.get("nsfw_enabled", True)
         self.viewport_ref = None
+
+        # UI-Kontroll-Rückbindungen
         self.slider_sync_callback = None
+        self.anatomy_sync_callback = None
+        self.nsfw_sync_callback = None
 
     def load_config(self):
         if not os.path.exists(self.config_path):
@@ -142,5 +146,10 @@ class CharacterSystem:
         print(" - Anatomy:", self.anatomy_state)
         print(" - Assets:", self.asset_state)
         self.refresh_layers()
+
         if self.slider_sync_callback:
             self.slider_sync_callback()
+        if self.anatomy_sync_callback:
+            self.anatomy_sync_callback()
+        if self.nsfw_sync_callback:
+            self.nsfw_sync_callback()
