@@ -1,7 +1,25 @@
-import shutil, os
+import bpy
+import os
 
-def export_to_ue(model_path):
-    export_dir = "exports/ue_models"
-    os.makedirs(export_dir, exist_ok=True)
-    shutil.copy(model_path, export_dir)
-    print(f"Exportiert nach {export_dir}")
+def export_fbx(output_path="exports/final_model.fbx"):
+    print("[Export] Starte FBX-Export...")
+    
+    # Wähle alle sichtbaren Objekte
+    bpy.ops.object.select_all(action='DESELECT')
+    for obj in bpy.data.objects:
+        if obj.type in ['MESH', 'ARMATURE']:
+            obj.select_set(True)
+    
+    # Exportiere alles
+    bpy.ops.export_scene.fbx(
+        filepath=output_path,
+        use_selection=True,
+        apply_unit_scale=True,
+        bake_space_transform=True,
+        object_types={'MESH', 'ARMATURE'},
+        add_leaf_bones=False,
+        path_mode='COPY',
+        embed_textures=True
+    )
+    
+    print(f"[Export] FBX erfolgreich gespeichert unter: {output_path}")
