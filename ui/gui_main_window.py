@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import (
     QMainWindow, QTabWidget, QSplitter, QStatusBar, QShortcut
 )
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence
 
 from ui.panels.settings_panel import SettingsPanel
@@ -15,6 +15,8 @@ from ui.viewport.viewport_3d import Viewport3D
 from ui.style_manager import StyleManager
 from ui.debug_console import DebugConsole
 from core.character_system.character_system import CharacterSystem
+
+import os
 
 class MainWindow(QMainWindow):
     def __init__(self, config):
@@ -41,8 +43,13 @@ class MainWindow(QMainWindow):
         self.shortcut_debug = QShortcut(QKeySequence("F12"), self)
         self.shortcut_debug.activated.connect(self.debug_console.toggle)
 
+        # Gemeinsames CharacterSystem
         self.character_system = CharacterSystem()
         self.character_system.bind_viewport(self.viewport)
+
+        # Preset beim Start laden, falls vorhanden
+        if os.path.exists("presets/default.json"):
+            self.character_system.load_preset("default")
 
         self.launch_main_gui()
 
