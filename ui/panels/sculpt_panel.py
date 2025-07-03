@@ -1,7 +1,8 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QCheckBox
+from core.character_system.character_system import CharacterSystem
 
 class SculptPanel(QWidget):
-    def __init__(self, character_system):
+    def __init__(self, character_system: CharacterSystem):
         super().__init__()
         self.character_system = character_system
         layout = QVBoxLayout()
@@ -9,7 +10,7 @@ class SculptPanel(QWidget):
 
         # 🔁 Symmetrie-Option
         self.symmetry_toggle = QCheckBox("🔁 X-Achsensymmetrie aktivieren")
-        self.symmetry_toggle.setChecked(True)
+        self.symmetry_toggle.setChecked(self.character_system.sculpt_data.get("symmetry", True))
         self.symmetry_toggle.stateChanged.connect(self.set_symmetry)
         layout.addWidget(self.symmetry_toggle)
 
@@ -26,7 +27,7 @@ class SculptPanel(QWidget):
 
     def set_symmetry(self, state):
         self.character_system.sculpt_data["symmetry"] = (state == 2)
-        print(f"[Sculpt] Symmetrie: {'Aktiv' if state else 'Aus'}")
+        print(f"[Sculpt] Symmetrie: {'Aktiv' if state == 2 else 'Aus'}")
 
     def start_sculpt(self):
         self.status_label.setText("⏳ Sculpting wird geladen...")
