@@ -16,7 +16,14 @@
 
   let scene, camera, renderer, controls, currentModel;
 
+  function log(msg) {
+    const timestamp = new Date().toLocaleTimeString();
+    console.log(`[Viewer][${timestamp}] ${msg}`);
+  }
+
   function init() {
+    log("▶️ Initialisiere Szene...");
+
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 1.5, 3);
@@ -34,17 +41,24 @@
 
     loadModel("exports/preview.glb");
     animate();
+
+    log("✅ Initialisierung abgeschlossen.");
   }
 
   function loadModel(path) {
+    log(`📦 Lade Modell: ${path}`);
     const loader = new GLTFLoader();
     loader.load(path, function (gltf) {
-      if (currentModel) scene.remove(currentModel);
+      if (currentModel) {
+        scene.remove(currentModel);
+        log("🔁 Vorheriges Modell entfernt.");
+      }
       currentModel = gltf.scene;
       currentModel.scale.set(1, 1, 1);
       scene.add(currentModel);
+      log("✅ Modell geladen und zur Szene hinzugefügt.");
     }, undefined, function (err) {
-      console.error("Fehler beim Laden des Modells:", err);
+      log(`❌ Fehler beim Laden des Modells: ${err.message || err}`);
     });
   }
 
@@ -54,11 +68,12 @@
   }
 
   window.reloadModel = (path) => {
-    console.log("[Viewer] Re-Loading:", path);
+    log(`🔄 Re-Loading Modell: ${path}`);
     loadModel(path);
   };
 
   window.addEventListener("resize", () => {
+    log("📐 Fenstergröße geändert – aktualisiere Kamera & Renderer.");
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
