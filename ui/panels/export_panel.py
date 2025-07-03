@@ -8,9 +8,9 @@ import shutil
 import datetime
 
 class ExportPanel(QWidget):
-    def __init__(self):
+    def __init__(self, character_system: CharacterSystem):
         super().__init__()
-        self.character_system = CharacterSystem()
+        self.character_system = character_system
 
         layout = QVBoxLayout()
         layout.addWidget(QLabel("📦 Modell-Export"))
