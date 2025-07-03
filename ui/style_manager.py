@@ -44,5 +44,10 @@ class StyleManager:
 
     @staticmethod
     def apply_theme(theme_name: str):
-        theme = StyleManager.THEMES.get(theme_name, StyleManager.THEMES["dark"])
-        QApplication.instance().setStyleSheet(theme["stylesheet"])
+        print(f"[StyleManager][apply_theme] ▶️ Eingabe: theme = {theme_name}")
+        try:
+            theme = StyleManager.THEMES.get(theme_name, StyleManager.THEMES["dark"])
+            QApplication.instance().setStyleSheet(theme["stylesheet"])
+            print(f"[StyleManager][apply_theme] ✅ Erfolg: Theme '{theme_name}' angewendet")
+        except Exception as e:
+            print(f"[StyleManager][apply_theme] ❌ Fehler: {e}")
