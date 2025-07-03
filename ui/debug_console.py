@@ -1,12 +1,15 @@
 import sys
 from PySide6.QtWidgets import QWidget, QTextEdit, QVBoxLayout
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QTextCursor
 
 class DebugConsole(QWidget):
     def __init__(self):
+        print("[DebugConsole][__init__] ▶️ Initialisiere Debug-Konsole...")
         super().__init__()
         self.setWindowTitle("🐞 Debug-Konsole")
         self.resize(800, 400)
+
         layout = QVBoxLayout()
         self.output = QTextEdit()
         self.output.setReadOnly(True)
@@ -16,10 +19,14 @@ class DebugConsole(QWidget):
 
         sys.stdout = self
         sys.stderr = self
+        print("[DebugConsole][__init__] ✅ stdout und stderr umgeleitet")
 
     def write(self, msg):
-        self.output.moveCursor(Qt.TextCursor.End)
+        if not msg.strip():
+            return
+        self.output.moveCursor(QTextCursor.End)
         self.output.insertPlainText(msg)
+        self.output.moveCursor(QTextCursor.End)
 
     def flush(self):
-        pass  # nötig für stdout-kompatibilität
+        pass  # notwendig für stdout-kompatibilität
