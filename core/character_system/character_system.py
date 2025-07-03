@@ -46,7 +46,7 @@ class CharacterSystem:
         self.nsfw_enabled = self.config.get("nsfw_enabled", True)
         self.viewport_ref = None
 
-        # UI-Kontroll-Rückbindungen
+        # UI-Rückbindungen
         self.slider_sync_callback = None
         self.anatomy_sync_callback = None
         self.nsfw_sync_callback = None
@@ -146,9 +146,7 @@ class CharacterSystem:
         print(" - Sculpt:", self.sculpt_data)
         print(" - Anatomy:", self.anatomy_state)
         print(" - Assets:", self.asset_state)
-
         self.refresh_layers()
-
         if self.slider_sync_callback:
             self.slider_sync_callback()
         if self.anatomy_sync_callback:
@@ -157,3 +155,20 @@ class CharacterSystem:
             self.nsfw_sync_callback()
         if self.viewport_ref:
             self.viewport_ref.update_view()
+
+    def generate_ai_morph(self, prompt=None):
+        from ai_backend.char_morph.charmorph_runner import run_charmorph
+        print(f"[AI] Generiere Morph mit Prompt: {prompt or '–'}")
+        result = run_charmorph(prompt)
+
+        if not result:
+            print("[AI] Kein Ergebnis erhalten.")
+            return
+
+        for key in self.sculpt_data:
+            if key in result:
+                self.sculpt_data[key] = result[key]
+                print(f"[AI→Sculpt] {key} → {result[key]}")
+
+        if self.slider_sync_callback:
+            self.slider_sync_callback()
