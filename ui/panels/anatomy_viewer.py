@@ -1,10 +1,11 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QCheckBox
+from core.character_system.character_system import CharacterSystem
 
 class AnatomyViewer(QWidget):
-    def __init__(self, character_system):
+    def __init__(self, character_system: CharacterSystem):
         super().__init__()
         self.character_system = character_system
-        self.character_system.anatomy_sync_callback = self.update_checkboxes
+        self.character_system.anatomy_sync_callback = self.sync_checkboxes
 
         layout = QVBoxLayout()
         layout.addWidget(QLabel("🧬 Anatomie-Viewer"))
@@ -21,9 +22,9 @@ class AnatomyViewer(QWidget):
         self.setLayout(layout)
 
     def toggle_layer(self, layer, state):
-        self.character_system.anatomy_state[layer] = bool(state)
-        self.character_system.refresh_layers()
+        value = state == 2
+        self.character_system.update_anatomy_layer(layer, value)
 
-    def update_checkboxes(self):
+    def sync_checkboxes(self):
         for layer, checkbox in self.checkboxes.items():
             checkbox.setChecked(self.character_system.anatomy_state.get(layer, False))
