@@ -11,6 +11,7 @@ from ui.panels.nsfw_panel import NSFWPanel
 from ui.panels.export_panel import ExportPanel
 from ui.panels.rigging_panel import RiggingPanel
 from ui.panels.clothing_panel import ClothingPanel
+from ui.panels.ai_panel import AIPanel
 from ui.viewport.viewport_3d import Viewport3D
 from ui.style_manager import StyleManager
 from ui.debug_console import DebugConsole
@@ -41,17 +42,21 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.splitter)
 
         self.shortcut_debug = QShortcut(QKeySequence("F12"), self)
-        self.shortcut_debug.activated.connect(self.debug_console.toggle)
+        self.shortcut_debug.activated.connect(self.toggle_debug_console)
 
-        # Gemeinsames CharacterSystem
         self.character_system = CharacterSystem()
         self.character_system.bind_viewport(self.viewport)
 
-        # Preset beim Start laden, falls vorhanden
         if os.path.exists("presets/default.json"):
             self.character_system.load_preset("default")
 
         self.launch_main_gui()
+
+    def toggle_debug_console(self):
+        if self.debug_console.isVisible():
+            self.debug_console.hide()
+        else:
+            self.debug_console.show()
 
     def launch_main_gui(self):
         self.tabs.addTab(CharacterEditorPanel(self.character_system), "🧍 Form")
@@ -61,5 +66,6 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(RiggingPanel(self.character_system), "🦴 Rigging")
         self.tabs.addTab(ExportPanel(), "📤 Export")
         self.tabs.addTab(SettingsPanel(), "⚙️ Einstellungen")
+        self.tabs.addTab(AIPanel(self.character_system), "🧠 KI")
 
         self.addDockWidget(Qt.BottomDockWidgetArea, self.debug_console)
