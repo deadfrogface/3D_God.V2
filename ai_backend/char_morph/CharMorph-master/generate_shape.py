@@ -3,7 +3,7 @@ import json
 import random
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--prompt", type=str, required=True)
+parser.add_argument("prompt", type=str, nargs="?", default="")
 args = parser.parse_args()
 
 prompt = args.prompt.lower()
@@ -28,7 +28,9 @@ output = {
     "leg_length": random.randint(30, 70)
 }
 
+# Speichern (optional)
 with open("CharMorph-master/output_shape.json", "w") as f:
     json.dump(output, f, indent=4)
 
-print("[CharMorph] Shape erzeugt.")
+# WICHTIG: Als Rückgabe für Python-Bridge
+print(json.dumps(output))
