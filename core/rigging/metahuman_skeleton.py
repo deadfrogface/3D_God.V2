@@ -1,8 +1,10 @@
 class MetahumanSkeleton:
     def __init__(self):
-        print("📐 MetahumanSkeleton geladen")
+        print("[MetahumanSkeleton][__init__] ▶️ Initialisierung...")
+        print("[MetahumanSkeleton][__init__] ✅ MetahumanSkeleton geladen")
 
     def convert_to_metahuman(self, mesh_data):
-        print("🧬 Konvertierung zu UE5 Skeleton läuft...")
+        print("[MetahumanSkeleton][convert_to_metahuman] ▶️ Starte Konvertierung mit Mesh-Daten...")
         # Stub – simuliert Konvertierung
+        print("[MetahumanSkeleton][convert_to_metahuman] ✅ Konvertierung abgeschlossen (simuliert)")
         return True
