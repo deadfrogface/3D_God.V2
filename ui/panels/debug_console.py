@@ -5,6 +5,7 @@ import datetime
 class DebugConsole(QWidget):
     def __init__(self):
         super().__init__()
+        print("[DebugConsole][__init__] ▶️ Initialisiere Debug-Konsole...")
         self.setWindowTitle("🛠 Debug-Konsole")
         layout = QVBoxLayout()
 
@@ -49,6 +50,7 @@ class DebugConsole(QWidget):
 
         self.full_log = []
         sys.stdout = self
+        print("[DebugConsole][__init__] ✅ Debug-Konsole bereit.")
 
     def write(self, message):
         msg = message.strip()
@@ -59,14 +61,17 @@ class DebugConsole(QWidget):
             self.apply_filter()
 
     def flush(self):
-        pass
+        pass  # notwendig für Kompatibilität mit stdout
 
     def apply_filter(self):
         self.output.clear()
         search = self.search_box.text().lower()
+        filtered_count = 0
         for line in self.full_log:
             if self._passes_filter(line) and search in line.lower():
                 self.output.append(line)
+                filtered_count += 1
+        print(f"[DebugConsole][apply_filter] ✅ {filtered_count} Zeilen gefiltert")
 
     def _passes_filter(self, msg):
         if self.filters["All"].isChecked():
@@ -79,9 +84,13 @@ class DebugConsole(QWidget):
     def clear_console(self):
         self.full_log.clear()
         self.output.clear()
+        print("[DebugConsole][clear_console] ✅ Konsole geleert")
 
     def export_log(self):
         path, _ = QFileDialog.getSaveFileName(self, "Speichere Log als", "debug_log.txt", "Textdateien (*.txt)")
         if path:
             with open(path, "w", encoding="utf-8") as f:
                 f.write("\n".join(self.full_log))
+            print(f"[DebugConsole][export_log] ✅ Log exportiert nach: {path}")
+        else:
+            print("[DebugConsole][export_log] ❌ Kein Pfad gewählt")
