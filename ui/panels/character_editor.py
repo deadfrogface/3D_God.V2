@@ -5,17 +5,18 @@ class CharacterEditor(QWidget):
     def __init__(self, character_system):
         super().__init__()
         self.character_system = character_system
+        self.character_system.slider_sync_callback = self.refresh_sliders
+
         layout = QVBoxLayout()
         layout.addWidget(QLabel("🧍‍♂️ Körperform-Editor"))
 
         self.sliders = {}
-
         self.fields = {
             "height":      ("Größe",       0, 100),
             "breast_size": ("Brustgröße",  0, 100),
             "hip_width":   ("Hüften",      0, 100),
             "arm_length":  ("Armlänge",    0, 100),
-            "leg_length":  ("Beinlänge",   0, 100),
+            "leg_length":  ("Beinlänge",   0, 100)
         }
 
         for key, (label, min_val, max_val) in self.fields.items():
@@ -30,12 +31,12 @@ class CharacterEditor(QWidget):
             layout.addLayout(row)
 
         self.setLayout(layout)
-        self.character_system.slider_sync_callback = self.refresh_sliders
 
     def update_value(self, key, value):
         self.character_system.update_sculpt_value(key, value)
 
     def refresh_sliders(self):
         for key, slider in self.sliders.items():
-            new_value = self.character_system.sculpt_data.get(key, 50)
-            slider.setValue(new_value)
+            new_val = self.character_system.sculpt_data.get(key, 50)
+            if slider.value() != new_val:
+                slider.setValue(new_val)
