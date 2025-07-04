@@ -1,12 +1,12 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QCheckBox
 from core.character_system.character_system import CharacterSystem
-import datetime
+from core.logger import log
 
 class PhysicsPanel(QWidget):
     def __init__(self):
         super().__init__()
         self.character_system = CharacterSystem()
-        self.log("[PhysicsPanel][__init__] ▶️ Initialisiere Panel...")
+        log("[PhysicsPanel][__init__] ▶️ Initialisiere Panel...", "INFO")
 
         layout = QVBoxLayout()
         layout.addWidget(QLabel("⚙️ Physikoptionen"))
@@ -27,13 +27,9 @@ class PhysicsPanel(QWidget):
         layout.addWidget(self.check_piercing)
 
         self.setLayout(layout)
-        self.log("[PhysicsPanel][__init__] ✅ Panel bereit.")
+        log("[PhysicsPanel][__init__] ✅ Panel bereit.", "SUCCESS")
 
     def toggle(self, key, state):
         new_value = (state == 2)
         self.character_system.physics_flags[key] = new_value
-        self.log(f"[PhysicsPanel][toggle] ▶️ {key} = {new_value}")
-
-    def log(self, msg):
-        timestamp = datetime.datetime.now().strftime("[%H:%M:%S]")
-        print(f"{timestamp} {msg}")
+        log(f"[PhysicsPanel][toggle] ▶️ {key} = {new_value}", "INFO")
