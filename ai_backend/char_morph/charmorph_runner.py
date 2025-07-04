@@ -2,14 +2,15 @@ import os
 import sys
 import subprocess
 import json
+from core.logger import log
 
 CHARMORPH_PATH = os.path.join(os.path.dirname(__file__), "../../CharMorph-master/generate_shape.py")
 
 def run_charmorph(prompt=None):
-    print(f"[CharMorph][run_charmorph] ▶️ Eingabe: prompt = {prompt}")
+    log.info(f"[CharMorph][run_charmorph] ▶️ Eingabe: prompt = {prompt}")
     try:
         prompt_arg = prompt if prompt else ""
-        print("[CharMorph][run_charmorph] ⚡ Starte Morph-Generierung...")
+        log.info("[CharMorph][run_charmorph] ⚡ Starte Morph-Generierung...")
 
         result = subprocess.run(
             [sys.executable, CHARMORPH_PATH, prompt_arg],
@@ -19,13 +20,13 @@ def run_charmorph(prompt=None):
         )
 
         if result.returncode != 0:
-            print(f"[CharMorph][run_charmorph] ❌ Fehler: {result.stderr.strip()}")
+            log.error(f"[CharMorph][run_charmorph] ❌ Fehler: {result.stderr.strip()}")
             return None
 
         data = json.loads(result.stdout.strip())
-        print(f"[CharMorph][run_charmorph] ✅ Erfolg: Daten erhalten – {data}")
+        log.success(f"[CharMorph][run_charmorph] ✅ Erfolg: Daten erhalten – {data}")
         return data
 
     except Exception as e:
-        print(f"[CharMorph][run_charmorph] ❌ Ausnahme: {e}")
+        log.error(f"[CharMorph][run_charmorph] ❌ Ausnahme: {e}")
         return None
