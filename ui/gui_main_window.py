@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import (
-    QMainWindow, QTabWidget, QSplitter, QStatusBar, QShortcut
+    QMainWindow, QTabWidget, QSplitter, QStatusBar
 )
+from PySide6.QtGui import QShortcut
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence
 
