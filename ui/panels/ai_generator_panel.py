@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTextEdit, QPushButton, QFileDialog, QHBoxLayout
 from core.ai_generation.ai_generator import AIGenerator
+from core.logger import log
 
 class AIPromptPanel(QWidget):
     def __init__(self):
@@ -34,17 +35,24 @@ class AIPromptPanel(QWidget):
         layout.addWidget(btn_mesh)
 
         self.setLayout(layout)
+        log.info("[AIPromptPanel][__init__] ✅ Panel initialisiert.")
 
     def handle_generate(self):
-        prompt = self.text_input.toPlainText()
+        prompt = self.text_input.toPlainText().strip()
+        log.info(f"[AIPromptPanel][handle_generate] ▶️ Prompt empfangen: {prompt}")
         result = self.generator.generate_code(prompt)
         self.text_output.setPlainText(result)
+        log.info("[AIPromptPanel][handle_generate] ✅ Code generiert und angezeigt.")
 
     def handle_image(self):
         path, _ = QFileDialog.getOpenFileName(self, "Bild auswählen", "", "Bilder (*.png *.jpg *.jpeg)")
         if path:
             self.image_path_label.setText(path)
             self.generator.set_image_path(path)
+            log.info(f"[AIPromptPanel][handle_image] ✅ Bild geladen: {path}")
+        else:
+            log.warning("[AIPromptPanel][handle_image] ❌ Kein Bild ausgewählt.")
 
     def handle_mesh(self):
+        log.info("[AIPromptPanel][handle_mesh] ▶️ Starte Mesh-Erzeugung aus Bild...")
         self.generator.generate_mesh_from_image()
