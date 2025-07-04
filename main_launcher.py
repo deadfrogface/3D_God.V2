@@ -1,32 +1,26 @@
 import subprocess
 import sys
 import os
-import datetime
-
-def log(msg, level="INFO"):
-    timestamp = datetime.datetime.now().strftime("[%H:%M:%S]")
-    prefix = {
-        "INFO": "▶️",
-        "SUCCESS": "✅",
-        "ERROR": "❌"
-    }.get(level, "▶️")
-    print(f"[Launcher][main] {timestamp} {prefix} {msg}")
+from core.logger import log
 
 def main():
-    log("Starte Launcher...", level="INFO")
+    log.info("Starte Launcher...")
     script = os.path.join(os.path.dirname(__file__), "main.py")
 
     if not os.path.isfile(script):
-        log("main.py nicht gefunden! Stelle sicher, dass die Datei im selben Verzeichnis liegt.", level="ERROR")
+        log.error("main.py nicht gefunden! Stelle sicher, dass die Datei im selben Verzeichnis liegt.")
         sys.exit(1)
 
     try:
-        log(f"Führe {script} mit Python aus...", level="INFO")
+        log.info(f"Führe {script} mit Python aus...")
         result = subprocess.run([sys.executable, script] + sys.argv[1:])
-        log(f"main.py beendet mit Code {result.returncode}", level="SUCCESS" if result.returncode == 0 else "ERROR")
+        if result.returncode == 0:
+            log.success(f"main.py beendet mit Code {result.returncode}")
+        else:
+            log.error(f"main.py beendet mit Code {result.returncode}")
         sys.exit(result.returncode)
     except Exception as e:
-        log(f"Ausnahme beim Ausführen von main.py: {e}", level="ERROR")
+        log.error(f"Ausnahme beim Ausführen von main.py: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
