@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QListWidget
 import os
 import json
-import datetime
+from core.logger import log  # ← Verwende das zentrale Logging
 
 class RigViewer(QWidget):
     def __init__(self):
@@ -17,16 +17,12 @@ class RigViewer(QWidget):
         layout.addWidget(self.refresh_btn)
 
         self.setLayout(layout)
-        self.log("[RigViewer][__init__] ✅ Panel initialisiert.")
-
-    def log(self, msg):
-        timestamp = datetime.datetime.now().strftime("[%H:%M:%S]")
-        print(f"{timestamp} {msg}")
+        log("[RigViewer][__init__] ✅ Panel initialisiert", "INFO")
 
     def load_bones(self):
         bone_path = os.path.join("exports", "last_bone_export.json")
         self.bone_list.clear()
-        self.log(f"[RigViewer][load_bones] ▶️ Lade Datei: {bone_path}")
+        log(f"[RigViewer][load_bones] ▶️ Lade Datei: {bone_path}", "INFO")
 
         if os.path.exists(bone_path):
             try:
@@ -34,10 +30,10 @@ class RigViewer(QWidget):
                     bones = json.load(f)
                     for bone in bones:
                         self.bone_list.addItem(bone)
-                self.log(f"[RigViewer][load_bones] ✅ {len(bones)} Bones geladen.")
+                log(f"[RigViewer][load_bones] ✅ {len(bones)} Bones geladen.", "SUCCESS")
             except Exception as e:
                 self.bone_list.addItem("❌ Fehler beim Lesen der Datei.")
-                self.log(f"[RigViewer][load_bones] ❌ JSON-Lesefehler: {e}")
+                log(f"[RigViewer][load_bones] ❌ JSON-Lesefehler: {e}", "ERROR")
         else:
             self.bone_list.addItem("Keine Rig-Daten gefunden.")
-            self.log(f"[RigViewer][load_bones] ❌ Datei nicht gefunden: {bone_path}")
+            log(f"[RigViewer][load_bones] ❌ Datei nicht gefunden: {bone_path}", "ERROR")
