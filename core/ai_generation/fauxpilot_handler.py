@@ -1,12 +1,12 @@
-import datetime
+from core.logger import log
 
 class FauxPilotHandler:
     def generate(self, prompt):
-        print(f"[AI][FauxPilotHandler.generate] ▶️ Eingabe: {prompt}")
+        log.info(f"[AI][FauxPilotHandler.generate] ▶️ Eingabe: {prompt}")
         try:
             code = f"# Blender-Skript-Stub für: {prompt}\nprint('FauxPilot sagt hallo.')"
-            print(f"[AI][FauxPilotHandler.generate] ✅ Erfolg: Code erzeugt")
+            log.success("[AI][FauxPilotHandler.generate] ✅ Erfolg: Code erzeugt")
             return code
         except Exception as e:
-            print(f"[AI][FauxPilotHandler.generate] ❌ Fehler: {e}")
+            log.error(f"[AI][FauxPilotHandler.generate] ❌ Fehler: {e}")
             return None
