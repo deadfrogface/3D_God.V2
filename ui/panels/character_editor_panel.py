@@ -2,13 +2,13 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider, QHBoxLayout
 from PySide6.QtCore import Qt
 from core.logger import log
 
-class CharacterEditor(QWidget):
+class CharacterEditorPanel(QWidget):
     def __init__(self, character_system):
         super().__init__()
         self.character_system = character_system
         self.character_system.slider_sync_callback = self.refresh_sliders
 
-        log.info("[CharacterEditor][__init__] ▶️ Initialisiere Körperform-Editor")
+        log.info("[CharacterEditorPanel][__init__] ▶️ Initialisiere Körperform-Editor")
         layout = QVBoxLayout()
         layout.addWidget(QLabel("🧍‍♂️ Körperform-Editor"))
 
@@ -33,14 +33,14 @@ class CharacterEditor(QWidget):
             layout.addLayout(row)
 
         self.setLayout(layout)
-        log.info("[CharacterEditor][__init__] ✅ Initialisierung abgeschlossen")
+        log.info("[CharacterEditorPanel][__init__] ✅ Initialisierung abgeschlossen")
 
     def update_value(self, key, value):
-        log.debug(f"[CharacterEditor][update_value] 🔧 {key} → {value}")
+        log.debug(f"[CharacterEditorPanel][update_value] 🔧 {key} → {value}")
         self.character_system.update_sculpt_value(key, value)
 
     def refresh_sliders(self):
-        log.debug("[CharacterEditor][refresh_sliders] 🔄 Synchronisiere Slider")
+        log.debug("[CharacterEditorPanel][refresh_sliders] 🔄 Synchronisiere Slider")
         for key, slider in self.sliders.items():
             new_val = self.character_system.sculpt_data.get(key, 50)
             if slider.value() != new_val:
