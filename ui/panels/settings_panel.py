@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (
     QCheckBox, QComboBox
 )
 from core.character_system.character_system import CharacterSystem
-from ui.debug_console import DebugConsole
+from ui.panels.debug_console import DebugConsole
 from core.logger import log
 
 class SettingsPanel(QWidget):
