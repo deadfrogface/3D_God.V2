@@ -9,7 +9,7 @@ def main():
 
     if not os.path.isfile(script):
         log.error("main.py nicht gefunden! Stelle sicher, dass die Datei im selben Verzeichnis liegt.")
-        sys.exit(1)
+        return  # NICHT sys.exit()
 
     try:
         log.info(f"Führe {script} mit Python aus...")
@@ -18,9 +18,10 @@ def main():
             log.success(f"main.py beendet mit Code {result.returncode}")
         else:
             log.error(f"main.py beendet mit Code {result.returncode}")
-        sys.exit(result.returncode)
     except Exception as e:
         log.error(f"Ausnahme beim Ausführen von main.py: {e}")
-input("\n[🔚] Drücke Enter zum Beenden...")
+
 if __name__ == "__main__":
     main()
+    input("\n[🔚] Drücke Enter zum Beenden...")
+
