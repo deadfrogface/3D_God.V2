@@ -2,8 +2,8 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QListWi
 from PySide6.QtGui import QPixmap, QScreen
 import os
 import json
-import datetime
 from core.character_system.character_system import CharacterSystem
+from core.logger import log
 
 class PresetBrowser(QWidget):
     def __init__(self):
@@ -26,20 +26,16 @@ class PresetBrowser(QWidget):
 
         self.setLayout(layout)
         self.refresh_list()
-        self.log("[PresetBrowser][__init__] ✅ Preset-Browser initialisiert.")
-
-    def log(self, msg):
-        timestamp = datetime.datetime.now().strftime("[%H:%M:%S]")
-        print(f"{timestamp} {msg}")
+        log("[PresetBrowser][__init__] ✅ Preset-Browser initialisiert.", "INFO")
 
     def refresh_list(self):
         self.preset_list.clear()
         preset_folder = "presets/"
-        self.log("[PresetBrowser][refresh_list] ▶️ Lese Presets aus Ordner...")
+        log("[PresetBrowser][refresh_list] ▶️ Lese Presets aus Ordner...", "INFO")
 
         if not os.path.exists(preset_folder):
             os.makedirs(preset_folder)
-            self.log(f"[PresetBrowser][refresh_list] 📂 Ordner erstellt: {preset_folder}")
+            log(f"[PresetBrowser][refresh_list] 📂 Ordner erstellt: {preset_folder}", "INFO")
 
         for file in os.listdir(preset_folder):
             if file.endswith(".json"):
@@ -52,20 +48,20 @@ class PresetBrowser(QWidget):
                         icon = "🔞" if nsfw else "🟢"
                         item = QListWidgetItem(f"{icon} {name}")
                         self.preset_list.addItem(item)
-                        self.log(f"[PresetBrowser][refresh_list] ✅ Hinzugefügt: {name}")
+                        log(f"[PresetBrowser][refresh_list] ✅ Hinzugefügt: {name}", "SUCCESS")
                 except Exception as e:
-                    self.log(f"[PresetBrowser][refresh_list] ❌ Fehler beim Laden von {file}: {e}")
+                    log(f"[PresetBrowser][refresh_list] ❌ Fehler beim Laden von {file}: {e}", "ERROR")
 
     def load_selected_preset(self, item):
         raw_text = item.text()
         name = raw_text.replace("🔞", "").replace("🟢", "").strip()
-        self.log(f"[PresetBrowser][load_selected_preset] ▶️ Lade Preset: {name}")
+        log(f"[PresetBrowser][load_selected_preset] ▶️ Lade Preset: {name}", "INFO")
         self.character_system.load_preset(name)
 
     def save_thumbnail(self):
         selected = self.preset_list.currentItem()
         if not selected:
-            self.log("[PresetBrowser][save_thumbnail] ❌ Kein Preset ausgewählt.")
+            log("[PresetBrowser][save_thumbnail] ❌ Kein Preset ausgewählt.", "ERROR")
             return
 
         raw_text = selected.text()
@@ -76,6 +72,6 @@ class PresetBrowser(QWidget):
         if screen:
             pixmap = screen.grabWindow(self.window().winId())
             pixmap.save(target_path, "jpg")
-            self.log(f"[PresetBrowser][save_thumbnail] ✅ Screenshot gespeichert als: {target_path}")
+            log(f"[PresetBrowser][save_thumbnail] ✅ Screenshot gespeichert als: {target_path}", "SUCCESS")
         else:
-            self.log("[PresetBrowser][save_thumbnail] ❌ Kein Bildschirm verfügbar für Screenshot.")
+            log("[PresetBrowser][save_thumbnail] ❌ Kein Bildschirm verfügbar für Screenshot.", "ERROR")
