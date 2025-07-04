@@ -1,21 +1,12 @@
 import sys
 import os
 import json
-import datetime
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QTimer
 from ui.gui_main_window import MainWindow
+from core.logger import log  # ← Logging aus zentralem Modul
 
 CONFIG_PATH = "config.json"
-
-def log(msg, level="INFO"):
-    timestamp = datetime.datetime.now().strftime("[%H:%M:%S]")
-    prefix = {
-        "INFO": "▶️",
-        "SUCCESS": "✅",
-        "ERROR": "❌"
-    }.get(level, "▶️")
-    print(f"[Launcher][main.py] {timestamp} {prefix} {msg}")
 
 def load_config():
     log("Lade Konfiguration...", "INFO")
