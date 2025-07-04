@@ -21,7 +21,6 @@ def main():
         sys.exit(result.returncode)
     except Exception as e:
         log.error(f"Ausnahme beim Ausführen von main.py: {e}")
-
+input("\n[🔚] Drücke Enter zum Beenden...")
 if __name__ == "__main__":
     main()
-input("\n[🔚] Drücke Enter zum Beenden...")
