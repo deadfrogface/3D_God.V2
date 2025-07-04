@@ -2,8 +2,9 @@ import bpy
 import sys
 import json
 import os
+from core.logger import log
 
-print("[Export][FBX] ▶️ Starte Export-Prozess")
+log.info("[Export][FBX] ▶️ Starte Export-Prozess")
 
 args = sys.argv
 output_name = "exported_character"
@@ -15,17 +16,17 @@ if "--" in args:
 export_path = os.path.join("exports", f"{output_name}.fbx")
 preset_path = os.path.join("presets", f"{output_name}.json")
 
-print(f"[Export][FBX] 📁 Zielpfad: {export_path}")
-print(f"[Export][FBX] 📖 Lade Preset: {preset_path}")
+log.info(f"[Export][FBX] 📁 Zielpfad: {export_path}")
+log.info(f"[Export][FBX] 📖 Lade Preset: {preset_path}")
 
 materials = {}
 if os.path.exists(preset_path):
     with open(preset_path, "r") as f:
         data = json.load(f)
         materials = data.get("materials", {})
-        print("[Export][FBX] ✅ Preset geladen.")
+        log.success("[Export][FBX] ✅ Preset geladen.")
 else:
-    print("[Export][FBX] ⚠️ Kein Preset gefunden – verwende Standardfarben.")
+    log.warning("[Export][FBX] ⚠️ Kein Preset gefunden – verwende Standardfarben.")
 
 def apply_material(obj, mat_data):
     if obj.type != 'MESH':
@@ -47,11 +48,11 @@ def apply_material(obj, mat_data):
         tex_image = mat.node_tree.nodes.new("ShaderNodeTexImage")
         tex_image.image = bpy.data.images.load(tex_path)
         mat.node_tree.links.new(tex_image.outputs["Color"], bsdf.inputs["Base Color"])
-        print(f"[Export][Material] 🎨 Textur geladen: {tex_path}")
+        log.info(f"[Export][Material] 🎨 Textur geladen: {tex_path}")
 
     obj.data.materials.clear()
     obj.data.materials.append(mat)
-    print(f"[Export][Material] ✅ Material angewendet auf: {obj.name}")
+    log.success(f"[Export][Material] ✅ Material angewendet auf: {obj.name}")
 
 bpy.ops.object.select_all(action='SELECT')
 
@@ -81,7 +82,7 @@ for obj in bpy.data.objects:
     if obj.type == 'ARMATURE':
         for bone in obj.data.bones:
             if bone.name in bone_rename_map:
-                print(f"[Export][BoneMap] 🔁 {bone.name} → {bone_rename_map[bone.name]}")
+                log.info(f"[Export][BoneMap] 🔁 {bone.name} → {bone_rename_map[bone.name]}")
                 bone.name = bone_rename_map[bone.name]
 
 try:
@@ -93,6 +94,6 @@ try:
         object_types={'ARMATURE', 'MESH'},
         use_armature_deform_only=True
     )
-    print(f"[Export][FBX] ✅ Export abgeschlossen: {export_path}")
+    log.success(f"[Export][FBX] ✅ Export abgeschlossen: {export_path}")
 except Exception as e:
-    print(f"[Export][FBX] ❌ Fehler beim Export: {e}")
+    log.error(f"[Export][FBX] ❌ Fehler beim Export: {e}")
