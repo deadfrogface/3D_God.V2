@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QApplication
+from core.logger import log  # Zentrales Logging
 
 class StyleManager:
     THEMES = {
@@ -44,10 +45,10 @@ class StyleManager:
 
     @staticmethod
     def apply_theme(theme_name: str):
-        print(f"[StyleManager][apply_theme] ▶️ Eingabe: theme = {theme_name}")
+        log(f"[StyleManager][apply_theme] Eingabe: theme = {theme_name}", "INFO")
         try:
             theme = StyleManager.THEMES.get(theme_name, StyleManager.THEMES["dark"])
             QApplication.instance().setStyleSheet(theme["stylesheet"])
-            print(f"[StyleManager][apply_theme] ✅ Erfolg: Theme '{theme_name}' angewendet")
+            log(f"[StyleManager][apply_theme] Theme '{theme_name}' angewendet", "SUCCESS")
         except Exception as e:
-            print(f"[StyleManager][apply_theme] ❌ Fehler: {e}")
+            log(f"[StyleManager][apply_theme] Fehler: {e}", "ERROR")
