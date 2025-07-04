@@ -9,9 +9,9 @@ from core.logger import log  # ← Logging aus zentralem Modul
 CONFIG_PATH = "config.json"
 
 def load_config():
-    log("Lade Konfiguration...", "INFO")
+    log.info("Lade Konfiguration...", "INFO")
     if not os.path.exists(CONFIG_PATH):
-        log("Keine config.json gefunden – verwende Standardwerte", "INFO")
+        log.info("Keine config.json gefunden – verwende Standardwerte", "INFO")
         return {
             "theme": "dark",
             "nsfw_enabled": True,
@@ -20,10 +20,10 @@ def load_config():
     try:
         with open(CONFIG_PATH, "r") as f:
             config = json.load(f)
-            log("Konfiguration erfolgreich geladen.", "SUCCESS")
+            log.info("Konfiguration erfolgreich geladen.", "SUCCESS")
             return config
     except Exception as e:
-        log(f"Fehler beim Laden der Konfiguration: {e}", "ERROR")
+        log.info(f"Fehler beim Laden der Konfiguration: {e}", "ERROR")
         return {
             "theme": "dark",
             "nsfw_enabled": True,
@@ -31,13 +31,13 @@ def load_config():
         }
 
 def save_config(config):
-    log("Speichere Konfiguration...", "INFO")
+    log.info("Speichere Konfiguration...", "INFO")
     try:
         with open(CONFIG_PATH, "w") as f:
             json.dump(config, f, indent=4)
-        log("Konfiguration gespeichert.", "SUCCESS")
+        log.info("Konfiguration gespeichert.", "SUCCESS")
     except Exception as e:
-        log(f"Fehler beim Speichern der Konfiguration: {e}", "ERROR")
+        log.info(f"Fehler beim Speichern der Konfiguration: {e}", "ERROR")
 
 def start_app():
     log.info("Starte GUI-Anwendung...")
@@ -46,7 +46,7 @@ def start_app():
     splash = MainWindow(config)
     splash.show()
     QTimer.singleShot(3000, splash.launch_main_gui)
-    log("GUI bereit – Starte Event Loop", "SUCCESS")
+    log.info("GUI bereit – Starte Event Loop", "SUCCESS")
     sys.exit(app.exec())
 
 if __name__ == "__main__":
