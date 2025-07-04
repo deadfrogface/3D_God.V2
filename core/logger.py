@@ -1,21 +1,27 @@
-# core/logger.py
+import subprocess
+import sys
+import os
+from core.logger import log
 
-import logging
+def main():
+    log.info("Starte Launcher...")
+    script = os.path.join(os.path.dirname(__file__), "main.py")
 
-def setup_logger(name="3DGod", level=logging.DEBUG, logfile="debug_log.txt"):
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
+    if not os.path.isfile(script):
+        log.error("main.py nicht gefunden! Stelle sicher, dass die Datei im selben Verzeichnis liegt.")
+        sys.exit(1)
 
-    formatter = logging.Formatter('[%(asctime)s][%(levelname)s][%(name)s] %(message)s', datefmt='%H:%M:%S')
+    try:
+        log.info(f"Führe {script} mit Python aus...")
+        result = subprocess.run([sys.executable, script] + sys.argv[1:])
+        if result.returncode == 0:
+            log.success(f"main.py beendet mit Code {result.returncode}")
+        else:
+            log.error(f"main.py beendet mit Code {result.returncode}")
+        sys.exit(result.returncode)
+    except Exception as e:
+        log.error(f"Ausnahme beim Ausführen von main.py: {e}")
+        sys.exit(1)
 
-    ch = logging.StreamHandler()
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-    fh = logging.FileHandler(logfile, encoding='utf-8')
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-
-    return logger
-
-log = setup_logger()
+if __name__ == "__main__":
+    main()
