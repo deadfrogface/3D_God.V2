@@ -2,9 +2,19 @@
 
 from handler import FauxPilotHandler
 
-if __name__ == "__main__":
-    handler = FauxPilotHandler()
+def main():
     prompt = "def say_hello():\n    "
+    print("[FauxPilot][run_local] ▶️ Prompt empfangen:")
+    print(prompt)
+
+    handler = FauxPilotHandler()
     result = handler.complete(prompt)
-    print(f"Prompt:\n{prompt}")
-    print(f"\nAntwort:\n{result}")
+
+    if result:
+        print("[FauxPilot][run_local] ✅ Antwort erhalten:")
+        print(result)
+    else:
+        print("[FauxPilot][run_local] ❌ Keine Antwort generiert.")
+
+if __name__ == "__main__":
+    main()
