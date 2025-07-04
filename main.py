@@ -40,7 +40,7 @@ def save_config(config):
         log(f"Fehler beim Speichern der Konfiguration: {e}", "ERROR")
 
 def start_app():
-    log("Starte GUI-Anwendung...", "INFO")
+    log.info("Starte GUI-Anwendung...")
     config = load_config()
     app = QApplication(sys.argv)
     splash = MainWindow(config)
