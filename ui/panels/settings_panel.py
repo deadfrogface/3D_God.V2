@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
 )
 from core.character_system.character_system import CharacterSystem
 from ui.debug_console import DebugConsole
-import datetime
+from core.logger import log
 
 class SettingsPanel(QWidget):
     def __init__(self):
@@ -42,33 +42,29 @@ class SettingsPanel(QWidget):
         layout.addWidget(btn_debug)
 
         self.setLayout(layout)
-        self.log("[Settings][__init__] ✅ Panel initialisiert.")
-
-    def log(self, msg):
-        timestamp = datetime.datetime.now().strftime("[%H:%M:%S]")
-        print(f"{timestamp} {msg}")
+        log("[Settings][__init__] ✅ Panel initialisiert.", "SUCCESS")
 
     def set_theme(self, theme):
         self.config["theme"] = theme
         self.character_system.save_config()
-        self.log(f"[Settings][set_theme] 🎨 Theme gesetzt auf: {theme}")
+        log(f"[Settings][set_theme] 🎨 Theme gesetzt auf: {theme}", "INFO")
 
     def set_nsfw(self, state):
         active = state == 2
         self.character_system.nsfw_enabled = active
         self.config["nsfw_enabled"] = active
         self.character_system.save_config()
-        self.log(f"[Settings][set_nsfw] 🔞 NSFW-Modus: {'Aktiv' if active else 'Deaktiviert'}")
+        log(f"[Settings][set_nsfw] 🔞 NSFW-Modus: {'Aktiv' if active else 'Deaktiviert'}", "INFO")
 
     def set_controller(self, state):
         active = state == 2
         self.config["controller_enabled"] = active
         self.character_system.save_config()
-        self.log(f"[Settings][set_controller] 🎮 Controller: {'Aktiv' if active else 'Deaktiviert'}")
+        log(f"[Settings][set_controller] 🎮 Controller: {'Aktiv' if active else 'Deaktiviert'}", "INFO")
 
     def toggle_debug_console(self):
         if self.debug_console is None:
             self.debug_console = DebugConsole()
-            self.log("[Settings][toggle_debug_console] 🧱 Debug-Konsole initialisiert.")
+            log("[Settings][toggle_debug_console] 🧱 Debug-Konsole initialisiert.", "INFO")
         self.debug_console.show()
-        self.log("[Settings][toggle_debug_console] 🐞 Debug-Konsole angezeigt.")
+        log("[Settings][toggle_debug_console] 🐞 Debug-Konsole angezeigt.", "INFO")
