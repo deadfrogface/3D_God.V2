@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit
 from core.character_system.character_system import CharacterSystem
+from core.logger import log
 
 class AIPanel(QWidget):
     def __init__(self, character_system: CharacterSystem):
@@ -18,7 +19,9 @@ class AIPanel(QWidget):
         layout.addWidget(btn)
 
         self.setLayout(layout)
+        log.info("[AIPanel][__init__] ✅ Initialisiert")
 
     def generate(self):
         prompt = self.prompt_input.text().strip()
+        log.info(f"[AIPanel][generate] ▶️ Starte Morph mit Prompt: '{prompt or '–'}'")
         self.character_system.generate_ai_morph(prompt if prompt else None)
