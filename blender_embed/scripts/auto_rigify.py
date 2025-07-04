@@ -1,6 +1,7 @@
 import bpy
+from core.logger import log
 
-print("[Rig][AutoRig] ▶️ Starte Auto-Rig-Prozess")
+log.info("[Rig][AutoRig] ▶️ Starte Auto-Rig-Prozess")
 
 try:
     # Existierende Armatures entfernen
@@ -22,7 +23,7 @@ try:
         bone = edit_bones.new(name)
         bone.head = head
         bone.tail = tail
-        print(f"[Rig][AutoRig] ➕ Knochen erstellt: {name}")
+        log.debug(f"[Rig][AutoRig] ➕ Knochen erstellt: {name}")
         return bone
 
     # Basisknochen
@@ -37,7 +38,7 @@ try:
     create_bone("piercing_nose", (0, 0.1, 2.1), (0, 0.1, 2.15))
 
     bpy.ops.object.mode_set(mode='OBJECT')
-    print("[Rig][AutoRig] ✅ Rig erstellt: AutoRig")
+    log.success("[Rig][AutoRig] ✅ Rig erstellt: AutoRig")
 
 except Exception as e:
-    print(f"[Rig][AutoRig] ❌ Fehler beim Auto-Rigging: {e}")
+    log.error(f"[Rig][AutoRig] ❌ Fehler beim Auto-Rigging: {e}")
