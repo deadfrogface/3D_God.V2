@@ -15,7 +15,7 @@ from ui.panels.clothing_panel import ClothingPanel
 from ui.panels.ai_panel import AIPanel
 from ui.viewport.viewport_3d import Viewport3D
 from ui.style_manager import StyleManager
-from ui.debug_console import DebugConsole
+from ui.panels.debug_console import DebugConsole
 from core.character_system.character_system import CharacterSystem
 from core.logger import log  # ⬅️ Logging importieren
 
