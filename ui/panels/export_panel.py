@@ -3,15 +3,15 @@ from PySide6.QtWidgets import (
     QLineEdit, QTextEdit, QFileDialog, QHBoxLayout
 )
 from core.character_system.character_system import CharacterSystem
+from core.logger import log
 import os
 import shutil
-import datetime
 
 class ExportPanel(QWidget):
     def __init__(self, character_system: CharacterSystem):
         super().__init__()
         self.character_system = character_system
-        self.log("[ExportPanel][__init__] ▶️ Initialisierung gestartet")
+        log("[ExportPanel][__init__] ▶️ Initialisierung gestartet", "INFO")
 
         layout = QVBoxLayout()
         layout.addWidget(QLabel("📦 Modell-Export"))
@@ -50,60 +50,54 @@ class ExportPanel(QWidget):
         layout.addWidget(self.logbox)
 
         self.setLayout(layout)
+        log("[ExportPanel][__init__] ✅ Initialisierung abgeschlossen", "SUCCESS")
 
-        self.log("[ExportPanel][__init__] ✅ Initialisierung abgeschlossen")
-
-    def log(self, message: str):
-        timestamp = datetime.datetime.now().strftime("[%H:%M:%S]")
-        entry = f"{timestamp} {message}"
-        self.logbox.append(entry)
-        print(entry)
-        with open("logfile.txt", "a", encoding="utf-8") as f:
-            f.write(entry + "\n")
+    def write_log(self, message: str, level="INFO"):
+        log(message, level)
+        self.logbox.append(message)
 
     def save_preset(self):
         name = self.name_input.text()
-        self.log(f"[ExportPanel][save_preset] ▶️ Speichere Preset: {name}")
+        self.write_log(f"[ExportPanel][save_preset] ▶️ Speichere Preset: {name}")
         self.character_system.save_preset(name)
-        self.log(f"[ExportPanel][save_preset] ✅ Preset gespeichert: {name}")
+        self.write_log(f"[ExportPanel][save_preset] ✅ Preset gespeichert: {name}", "SUCCESS")
 
     def export_fbx(self):
         name = self.name_input.text()
-        self.log("[ExportPanel][export_fbx] ▶️ Starte FBX-Export")
+        self.write_log("[ExportPanel][export_fbx] ▶️ Starte FBX-Export")
         try:
             self.character_system.save_preset(name)
             self.character_system.export_model()
-            self.log(f"[ExportPanel][export_fbx] ✅ FBX-Export abgeschlossen: exports/{name}.fbx")
+            self.write_log(f"[ExportPanel][export_fbx] ✅ FBX-Export abgeschlossen: exports/{name}.fbx", "SUCCESS")
 
-            # Vorschau aktualisieren (falls vorhanden)
             if self.character_system.viewport_ref:
                 self.character_system.viewport_ref.load_preview("exports/preview.glb")
-                self.log("[ExportPanel][export_fbx] ✅ Vorschau aktualisiert.")
+                self.write_log("[ExportPanel][export_fbx] ✅ Vorschau aktualisiert", "SUCCESS")
         except Exception as e:
-            self.log(f"[ExportPanel][export_fbx] ❌ Fehler beim Export: {e}")
+            self.write_log(f"[ExportPanel][export_fbx] ❌ Fehler beim Export: {e}", "ERROR")
 
     def choose_unreal_folder(self):
-        self.log("[ExportPanel][choose_unreal_folder] ▶️ Benutzer wählt Unreal-Zielverzeichnis")
+        self.write_log("[ExportPanel][choose_unreal_folder] ▶️ Benutzer wählt Unreal-Zielverzeichnis")
         path = QFileDialog.getExistingDirectory(self, "Unreal-Zielordner wählen")
         if path:
             self.unreal_path.setText(path)
-            self.log(f"[ExportPanel][choose_unreal_folder] ✅ Unreal-Zielordner gesetzt: {path}")
+            self.write_log(f"[ExportPanel][choose_unreal_folder] ✅ Unreal-Zielordner gesetzt: {path}", "SUCCESS")
         else:
-            self.log("[ExportPanel][choose_unreal_folder] ❌ Keine Auswahl getroffen")
+            self.write_log("[ExportPanel][choose_unreal_folder] ❌ Keine Auswahl getroffen", "ERROR")
 
     def export_to_unreal(self):
         name = self.name_input.text()
         src_fbx = os.path.join("exports", f"{name}.fbx")
         dst_dir = self.unreal_path.text().strip()
-        self.log(f"[ExportPanel][export_to_unreal] ▶️ Starte Kopiervorgang nach: {dst_dir}")
+        self.write_log(f"[ExportPanel][export_to_unreal] ▶️ Starte Kopiervorgang nach: {dst_dir}")
 
         if not dst_dir or not os.path.exists(dst_dir):
-            self.log("[ExportPanel][export_to_unreal] ❌ Fehler: Ungültiger Unreal-Zielpfad.")
+            self.write_log("[ExportPanel][export_to_unreal] ❌ Fehler: Ungültiger Unreal-Zielpfad.", "ERROR")
             return
 
         try:
             dst_fbx = os.path.join(dst_dir, f"{name}.fbx")
             shutil.copy(src_fbx, dst_fbx)
-            self.log(f"[ExportPanel][export_to_unreal] ✅ FBX kopiert nach Unreal: {dst_fbx}")
+            self.write_log(f"[ExportPanel][export_to_unreal] ✅ FBX kopiert nach Unreal: {dst_fbx}", "SUCCESS")
         except Exception as e:
-            self.log(f"[ExportPanel][export_to_unreal] ❌ Fehler beim Kopieren: {e}")
+            self.write_log(f"[ExportPanel][export_to_unreal] ❌ Fehler beim Kopieren: {e}", "ERROR")
