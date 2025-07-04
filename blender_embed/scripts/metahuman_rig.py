@@ -1,4 +1,6 @@
-print("[Rig][MetahumanExport] ▶️ Starte Metahuman-kompatibles Rigging...")
+from core.logger import log
+
+log.info("[Rig][MetahumanExport] ▶️ Starte Metahuman-kompatibles Rigging...")
 # → Vorlage mit spezifischem Metahuman-Rig-Skeleton
 # (noch nicht implementiert)
-print("[Rig][MetahumanExport] ⚠️ Platzhalter – Logik muss ergänzt werden.")
+log.warning("[Rig][MetahumanExport] ⚠️ Platzhalter – Logik muss ergänzt werden.")
