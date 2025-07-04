@@ -5,19 +5,33 @@ from core.character_system.character_system import CharacterSystem
 
 class AIGenerator:
     def __init__(self):
+        print("[AI][AIGenerator.__init__] ▶️ Initialisiere AI-Komponenten...")
         self.fauxpilot = FauxPilotHandler()
         self.triposr = TripoSRHandler()
         self.charmorph = CharMorphHandler()
         self.character_system = CharacterSystem()
+        print("[AI][AIGenerator.__init__] ✅ Initialisierung abgeschlossen")
 
     def generate_code(self, prompt):
-        return self.fauxpilot.generate(prompt)
+        print(f"[AI][AIGenerator.generate_code] ▶️ Prompt: {prompt}")
+        result = self.fauxpilot.generate(prompt)
+        print(f"[AI][AIGenerator.generate_code] ✅ Code generiert")
+        return result
 
     def set_image_path(self, path):
+        print(f"[AI][AIGenerator.set_image_path] ▶️ Bildpfad gesetzt: {path}")
         self.triposr.set_input_image(path)
 
     def generate_mesh_from_image(self):
+        print("[AI][AIGenerator.generate_mesh_from_image] ▶️ Starte Mesh-Generierung")
         self.triposr.generate_mesh()
+        print("[AI][AIGenerator.generate_mesh_from_image] ✅ Mesh-Vorgang abgeschlossen")
 
     def generate_shape_from_prompt(self, prompt):
-        return self.charmorph.generate_shape(prompt)
+        print(f"[AI][AIGenerator.generate_shape_from_prompt] ▶️ Prompt: {prompt}")
+        result = self.charmorph.generate_shape(prompt)
+        if result:
+            print(f"[AI][AIGenerator.generate_shape_from_prompt] ✅ Ergebnis: {result}")
+        else:
+            print("[AI][AIGenerator.generate_shape_from_prompt] ❌ Kein Ergebnis empfangen")
+        return result
