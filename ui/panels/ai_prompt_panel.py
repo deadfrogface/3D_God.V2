@@ -1,11 +1,14 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTextEdit, QPushButton, QFileDialog, QHBoxLayout
 from core.ai_generation.ai_generator import AIGenerator
+from core.logger import log
 
 class AIPromptPanel(QWidget):
     def __init__(self):
         super().__init__()
         self.generator = AIGenerator()
         layout = QVBoxLayout()
+
+        log.info("[AIPromptPanel][__init__] ▶️ Initialisiere AI-Prompt-Panel...")
 
         layout.addWidget(QLabel("🧠 Text → Code (FauxPilot)"))
         self.text_input = QTextEdit()
@@ -43,24 +46,37 @@ class AIPromptPanel(QWidget):
         layout.addWidget(btn_shape)
 
         self.setLayout(layout)
+        log.info("[AIPromptPanel][__init__] ✅ Panel bereit")
 
     def handle_generate(self):
         prompt = self.text_input.toPlainText()
+        log.info(f"[AIPromptPanel][handle_generate] ▶️ Prompt empfangen: {prompt}")
         result = self.generator.generate_code(prompt)
         self.text_output.setPlainText(result)
+        log.info("[AIPromptPanel][handle_generate] ✅ Code generiert")
 
     def handle_image(self):
         path, _ = QFileDialog.getOpenFileName(self, "Bild auswählen", "", "Bilder (*.png *.jpg *.jpeg)")
         if path:
             self.image_path_label.setText(path)
             self.generator.set_image_path(path)
+            log.info(f"[AIPromptPanel][handle_image] 📷 Bild gesetzt: {path}")
+        else:
+            log.warning("[AIPromptPanel][handle_image] ❌ Kein Bild gewählt")
 
     def handle_mesh(self):
+        log.info("[AIPromptPanel][handle_mesh] ▶️ Starte Mesh-Generierung via TripoSR")
         self.generator.generate_mesh_from_image()
+        log.info("[AIPromptPanel][handle_mesh] ✅ Vorgang abgeschlossen")
 
     def handle_shape(self):
         prompt = self.charmorph_input.toPlainText()
+        log.info(f"[AIPromptPanel][handle_shape] ▶️ Prompt für Morphing: {prompt}")
         shape = self.generator.generate_shape_from_prompt(prompt)
         if shape:
             for key, value in shape.items():
                 self.generator.character_system.update_sculpt_value(key, value)
+                log.info(f"[AIPromptPanel][handle_shape] 🔁 {key} = {value}")
+            log.info("[AIPromptPanel][handle_shape] ✅ Körperform übernommen")
+        else:
+            log.warning("[AIPromptPanel][handle_shape] ❌ Keine gültige Form empfangen")
