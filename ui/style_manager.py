@@ -45,10 +45,10 @@ class StyleManager:
 
     @staticmethod
     def apply_theme(theme_name: str):
-        log(f"[StyleManager][apply_theme] Eingabe: theme = {theme_name}", "INFO")
+        log.info(f"[StyleManager][apply_theme] Eingabe: theme = {theme_name}")
         try:
             theme = StyleManager.THEMES.get(theme_name, StyleManager.THEMES["dark"])
             QApplication.instance().setStyleSheet(theme["stylesheet"])
-            log(f"[StyleManager][apply_theme] Theme '{theme_name}' angewendet", "SUCCESS")
+            log.info(f"[StyleManager][apply_theme] Theme '{theme_name}' angewendet")
         except Exception as e:
-            log(f"[StyleManager][apply_theme] Fehler: {e}", "ERROR")
+            log.error(f"[StyleManager][apply_theme] Fehler: {e}")
