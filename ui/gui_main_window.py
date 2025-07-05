@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (
-    QMainWindow, QTabWidget, QSplitter, QStatusBar
+    QMainWindow, QTabWidget, QSplitter, QStatusBar, QDockWidget
 )
 from PySide6.QtGui import QShortcut
 from PySide6.QtCore import Qt
@@ -27,9 +27,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.config = config
 
-        # ✅ Erst initialisieren, dann verwenden!
         self.character_system = CharacterSystem()
-
         StyleManager.apply_theme(config.get("theme", "dark"))
 
         self.setWindowTitle("3D God Creator")
@@ -40,8 +38,13 @@ class MainWindow(QMainWindow):
 
         self.tabs = QTabWidget()
         self.viewport = Viewport3D(self.character_system)
+
         self.debug_console = DebugConsole()
-        self.debug_console.hide()
+        self.dock_debug = QDockWidget("🛠 Debug-Konsole")
+        self.dock_debug.setWidget(self.debug_console)
+        self.dock_debug.setAllowedAreas(Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
+        self.dock_debug.setFloating(False)
+        self.dock_debug.hide()
 
         self.splitter = QSplitter()
         self.splitter.addWidget(self.tabs)
@@ -61,11 +64,11 @@ class MainWindow(QMainWindow):
 
     def toggle_debug_console(self):
         log.info("[MainWindow][toggle_debug_console] Umschalten...")
-        if self.debug_console.isVisible():
-            self.debug_console.hide()
+        if self.dock_debug.isVisible():
+            self.dock_debug.hide()
             log.info("[MainWindow] 🔽 Debug-Konsole versteckt")
         else:
-            self.debug_console.show()
+            self.dock_debug.show()
             log.info("[MainWindow] 🔼 Debug-Konsole angezeigt")
 
     def launch_main_gui(self):
@@ -75,8 +78,9 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(NSFWPanel(self.character_system), "🔞 NSFW")
         self.tabs.addTab(ClothingPanel(self.character_system), "👕 Kleidung")
         self.tabs.addTab(RiggingPanel(self.character_system), "🦴 Rigging")
-        self.tabs.addTab(ExportPanel(self.character_system), "📤 Export")            # ✅ korrigiert
-        self.tabs.addTab(SettingsPanel(self.character_system), "⚙️ Einstellungen")   # ✅ korrigiert
+        self.tabs.addTab(ExportPanel(self.character_system), "📤 Export")
+        self.tabs.addTab(SettingsPanel(self.character_system), "⚙️ Einstellungen")
         self.tabs.addTab(AIPanel(self.character_system), "🧠 KI")
-        self.addDockWidget(Qt.BottomDockWidgetArea, self.debug_console)
+
+        self.addDockWidget(Qt.BottomDockWidgetArea, self.dock_debug)
         log.info("[MainWindow] ✅ GUI geladen")
