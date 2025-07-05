@@ -17,12 +17,12 @@ class RigViewer(QWidget):
         layout.addWidget(self.refresh_btn)
 
         self.setLayout(layout)
-        log("[RigViewer][__init__] ✅ Panel initialisiert", "INFO")
+        log.info("[RigViewer][__init__] ✅ Panel initialisiert")
 
     def load_bones(self):
         bone_path = os.path.join("exports", "last_bone_export.json")
         self.bone_list.clear()
-        log(f"[RigViewer][load_bones] ▶️ Lade Datei: {bone_path}", "INFO")
+        log.info(f"[RigViewer][load_bones] ▶️ Lade Datei: {bone_path}")
 
         if os.path.exists(bone_path):
             try:
@@ -30,10 +30,10 @@ class RigViewer(QWidget):
                     bones = json.load(f)
                     for bone in bones:
                         self.bone_list.addItem(bone)
-                log(f"[RigViewer][load_bones] ✅ {len(bones)} Bones geladen.", "SUCCESS")
+                log.info(f"[RigViewer][load_bones] ✅ {len(bones)} Bones geladen.")
             except Exception as e:
                 self.bone_list.addItem("❌ Fehler beim Lesen der Datei.")
-                log(f"[RigViewer][load_bones] ❌ JSON-Lesefehler: {e}", "ERROR")
+                log.error(f"[RigViewer][load_bones] ❌ JSON-Lesefehler: {e}")
         else:
             self.bone_list.addItem("Keine Rig-Daten gefunden.")
-            log(f"[RigViewer][load_bones] ❌ Datei nicht gefunden: {bone_path}", "ERROR")
+            log.error(f"[RigViewer][load_bones] ❌ Datei nicht gefunden: {bone_path}")
