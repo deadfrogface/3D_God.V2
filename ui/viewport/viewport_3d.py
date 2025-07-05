@@ -47,3 +47,18 @@ class Viewport3D(QWidget):
             log.info(f"[Viewport3D][update_view] ✅ Vorschau geladen: {preview_path}")
         else:
             log.error(f"[Viewport3D][update_view] ❌ Keine Vorschau gefunden: {preview_path}")
+
+    def update_preview(self, anatomy_state=None, asset_state=None):
+        log.info("[Viewport3D][update_preview] 🌀 Aktualisiere 3D-Vorschau (anatomy/assets)")
+        # Hier könntest du anatomy_state / asset_state auswerten, falls benötigt
+        self.update_view()
+
+    def load_preview(self, path):
+        log.info(f"[Viewport3D][load_preview] 📥 Lade Vorschau aus Pfad: {path}")
+        if os.path.exists(path):
+            image = QImage(path)
+            pixmap = QPixmap.fromImage(image).scaled(400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.preview.setPixmap(pixmap)
+            log.success(f"[Viewport3D][load_preview] ✅ Vorschau geladen")
+        else:
+            log.error(f"[Viewport3D][load_preview] ❌ Pfad nicht gefunden: {path}")
