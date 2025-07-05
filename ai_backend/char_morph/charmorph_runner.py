@@ -4,11 +4,14 @@ import subprocess
 import json
 from core.logger import log
 
-CHARMORPH_PATH = os.path.join(os.path.dirname(__file__), "../../CharMorph-master/generate_shape.py")
+CHARMORPH_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../CharMorph-master/generate_shape.py"))
 
 def run_charmorph(prompt=None):
     log.info(f"[CharMorph][run_charmorph] ▶️ Eingabe: prompt = {prompt}")
     try:
+        if not os.path.exists(CHARMORPH_PATH):
+            raise FileNotFoundError(f"[CharMorph] ❌ Script nicht gefunden: {CHARMORPH_PATH}")
+
         prompt_arg = prompt if prompt else ""
         log.info("[CharMorph][run_charmorph] ⚡ Starte Morph-Generierung...")
 
