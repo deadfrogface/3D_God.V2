@@ -19,20 +19,20 @@ class RiggingPanel(QWidget):
         layout.addWidget(btn_metahuman)
 
         self.setLayout(layout)
-        log("[RiggingPanel][__init__] ✅ Panel initialisiert.")
+        log.info("[RiggingPanel][__init__] ✅ Panel initialisiert.")
 
     def auto_rig(self):
-        log("[RiggingPanel][auto_rig] ▶️ Starte Auto-Rig...")
+        log.info("[RiggingPanel][auto_rig] ▶️ Starte Auto-Rig...")
         try:
             self.character_system.create_autorig()
-            log("[RiggingPanel][auto_rig] ✅ Auto-Rig erfolgreich erstellt.")
+            log.info("[RiggingPanel][auto_rig] ✅ Auto-Rig erfolgreich erstellt.")
         except Exception as e:
-            log(f"[RiggingPanel][auto_rig] ❌ Fehler: {e}", level="ERROR")
+            log.error(f"[RiggingPanel][auto_rig] ❌ Fehler: {e}")
 
     def export_metahuman(self):
-        log("[RiggingPanel][export_metahuman] ▶️ Exportiere Metahuman-Rig...")
+        log.info("[RiggingPanel][export_metahuman] ▶️ Exportiere Metahuman-Rig...")
         try:
             self.character_system.export_fbx("metahuman_rigged")
-            log("[RiggingPanel][export_metahuman] ✅ Export abgeschlossen.")
+            log.info("[RiggingPanel][export_metahuman] ✅ Export abgeschlossen.")
         except Exception as e:
-            log(f"[RiggingPanel][export_metahuman] ❌ Fehler: {e}", level="ERROR")
+            log.error(f"[RiggingPanel][export_metahuman] ❌ Fehler: {e}")
