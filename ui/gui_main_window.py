@@ -23,7 +23,7 @@ import os
 
 class MainWindow(QMainWindow):
     def __init__(self, config):
-        log("[MainWindow][__init__] Initialisiere mit Konfiguration...", "INFO")
+        log.info("[MainWindow][__init__] Initialisiere mit Konfiguration...")
         super().__init__()
         self.config = config
         StyleManager.apply_theme(config.get("theme", "dark"))
@@ -51,22 +51,22 @@ class MainWindow(QMainWindow):
         self.character_system.bind_viewport(self.viewport)
 
         if os.path.exists("presets/default.json"):
-            log("[MainWindow] Lade Standard-Preset...", "INFO")
+            log.info("[MainWindow] Lade Standard-Preset...")
             self.character_system.load_preset("default")
 
         self.launch_main_gui()
 
     def toggle_debug_console(self):
-        log("[MainWindow][toggle_debug_console] Umschalten...", "INFO")
+        log.info("[MainWindow][toggle_debug_console] Umschalten...")
         if self.debug_console.isVisible():
             self.debug_console.hide()
-            log("[MainWindow] 🔽 Debug-Konsole versteckt", "INFO")
+            log.info("[MainWindow] 🔽 Debug-Konsole versteckt")
         else:
             self.debug_console.show()
-            log("[MainWindow] 🔼 Debug-Konsole angezeigt", "INFO")
+            log.info("[MainWindow] 🔼 Debug-Konsole angezeigt")
 
     def launch_main_gui(self):
-        log("[MainWindow][launch_main_gui] Tabs werden geladen...", "INFO")
+        log.info("[MainWindow][launch_main_gui] Tabs werden geladen...")
         self.tabs.addTab(CharacterEditorPanel(self.character_system), "🧍 Form")
         self.tabs.addTab(SculptPanel(self.character_system), "🪨 Sculpt")
         self.tabs.addTab(NSFWPanel(self.character_system), "🔞 NSFW")
@@ -76,4 +76,4 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(SettingsPanel(), "⚙️ Einstellungen")
         self.tabs.addTab(AIPanel(self.character_system), "🧠 KI")
         self.addDockWidget(Qt.BottomDockWidgetArea, self.debug_console)
-        log("[MainWindow] ✅ GUI geladen", "SUCCESS")
+        log.info("[MainWindow] ✅ GUI geladen")
