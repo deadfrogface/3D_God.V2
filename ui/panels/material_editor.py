@@ -1,12 +1,11 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QComboBox, QColorDialog
-from core.character_system.character_system import CharacterSystem
 from core.logger import log
 
 class MaterialEditor(QWidget):
-    def __init__(self):
+    def __init__(self, character_system):
         super().__init__()
+        self.character_system = character_system
         log.info("[MaterialEditor][__init__] ▶️ Initialisierung gestartet")
-        self.character_system = CharacterSystem()
         layout = QVBoxLayout()
 
         layout.addWidget(QLabel("🎨 Materialeditor"))
