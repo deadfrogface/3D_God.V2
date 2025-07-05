@@ -6,7 +6,7 @@ class PhysicsPanel(QWidget):
     def __init__(self):
         super().__init__()
         self.character_system = CharacterSystem()
-        log("[PhysicsPanel][__init__] ▶️ Initialisiere Panel...", "INFO")
+        log.info("[PhysicsPanel][__init__] ▶️ Initialisiere Panel...")
 
         layout = QVBoxLayout()
         layout.addWidget(QLabel("⚙️ Physikoptionen"))
@@ -27,9 +27,9 @@ class PhysicsPanel(QWidget):
         layout.addWidget(self.check_piercing)
 
         self.setLayout(layout)
-        log("[PhysicsPanel][__init__] ✅ Panel bereit.", "SUCCESS")
+        log.info("[PhysicsPanel][__init__] ✅ Panel bereit.")
 
     def toggle(self, key, state):
         new_value = (state == 2)
         self.character_system.physics_flags[key] = new_value
-        log(f"[PhysicsPanel][toggle] ▶️ {key} = {new_value}", "INFO")
+        log.info(f"[PhysicsPanel][toggle] ▶️ {key} = {new_value}")
