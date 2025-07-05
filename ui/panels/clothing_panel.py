@@ -3,28 +3,33 @@ from core.logger import log
 
 class ClothingPanel(QWidget):
     def __init__(self, character_system):
-        super().__init__()
-        self.character_system = character_system
+        try:
+            super().__init__()
+            self.character_system = character_system
+            log.info("[ClothingPanel][__init__] ▶️ Initialisiere Kleidungspanel...")
 
-        layout = QVBoxLayout()
+            layout = QVBoxLayout()
 
-        layout.addWidget(QLabel("Kleidung:"))
-        btn_clothes = QPushButton("Lade Kleidung")
-        btn_clothes.clicked.connect(self.load_clothes)
-        layout.addWidget(btn_clothes)
+            layout.addWidget(QLabel("Kleidung:"))
+            btn_clothes = QPushButton("Lade Kleidung")
+            btn_clothes.clicked.connect(self.load_clothes)
+            layout.addWidget(btn_clothes)
 
-        layout.addWidget(QLabel("Piercings:"))
-        btn_piercings = QPushButton("Lade Piercings")
-        btn_piercings.clicked.connect(self.load_piercings)
-        layout.addWidget(btn_piercings)
+            layout.addWidget(QLabel("Piercings:"))
+            btn_piercings = QPushButton("Lade Piercings")
+            btn_piercings.clicked.connect(self.load_piercings)
+            layout.addWidget(btn_piercings)
 
-        layout.addWidget(QLabel("Tattoos:"))
-        btn_tattoos = QPushButton("Lade Tattoos")
-        btn_tattoos.clicked.connect(self.load_tattoos)
-        layout.addWidget(btn_tattoos)
+            layout.addWidget(QLabel("Tattoos:"))
+            btn_tattoos = QPushButton("Lade Tattoos")
+            btn_tattoos.clicked.connect(self.load_tattoos)
+            layout.addWidget(btn_tattoos)
 
-        self.setLayout(layout)
-        log.info("[ClothingPanel][__init__] ✅ Panel initialisiert")
+            self.setLayout(layout)
+            log.info("[ClothingPanel][__init__] ✅ Panel initialisiert")
+        except Exception as e:
+            log.error(f"[ClothingPanel][__init__] ❌ Fehler bei Initialisierung: {e}")
+            raise
 
     def load_clothes(self):
         log.info("[ClothingPanel][load_clothes] ▶️ Lade Kleidung")
