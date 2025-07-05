@@ -2,14 +2,15 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QPushButton,
     QCheckBox, QComboBox
 )
-from core.character_system.character_system import CharacterSystem
-from ui.panels.debug_console import DebugConsole
 from core.logger import log
+from ui.panels.debug_console import DebugConsole
 
 class SettingsPanel(QWidget):
-    def __init__(self):
+    def __init__(self, character_system):
         super().__init__()
-        self.character_system = CharacterSystem()
+        log.info("[Settings][__init__] ▶️ Initialisiere SettingsPanel...")
+
+        self.character_system = character_system
         self.debug_console = None
         self.config = self.character_system.config
 
