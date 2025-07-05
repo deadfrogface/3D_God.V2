@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QCheckBox
+from functools import partial
 from core.character_system.character_system import CharacterSystem
 from core.logger import log
 
@@ -19,7 +20,7 @@ class AnatomyViewer(QWidget):
             for layer in ["skin", "fat", "muscle", "bone", "organs"]:
                 checkbox = QCheckBox(layer.capitalize())
                 checkbox.setChecked(self.character_system.anatomy_state.get(layer, False))
-                checkbox.stateChanged.connect(lambda state, l=layer: self.toggle_layer(l, state))
+                checkbox.stateChanged.connect(partial(self.toggle_layer, layer))
                 layout.addWidget(checkbox)
                 self.checkboxes[layer] = checkbox
 
