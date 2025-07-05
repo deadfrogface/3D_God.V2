@@ -1,11 +1,10 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
-from core.character_system.character_system import CharacterSystem
 from core.logger import log
 
 class RiggingPanel(QWidget):
-    def __init__(self):
+    def __init__(self, character_system):
         super().__init__()
-        self.character_system = CharacterSystem()
+        self.character_system = character_system
         layout = QVBoxLayout()
 
         layout.addWidget(QLabel("🦴 Rigging & Skeleton Setup"))
