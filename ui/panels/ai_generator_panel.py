@@ -3,13 +3,15 @@ from core.ai_generation.ai_generator import AIGenerator
 from core.logger import log
 
 class AIPromptPanel(QWidget):
-    def __init__(self):
+    def __init__(self, character_system):
         try:
             super().__init__()
-            self.generator = AIGenerator()
-            layout = QVBoxLayout()
+            self.character_system = character_system
+            self.generator = AIGenerator(character_system=self.character_system)
 
+            layout = QVBoxLayout()
             layout.addWidget(QLabel("🧠 Text → Code (FauxPilot)"))
+
             self.text_input = QTextEdit()
             self.text_input.setPlaceholderText("Was soll die KI schreiben? (z. B. Blender-Skript, Material, Rig...)")
             layout.addWidget(self.text_input)
@@ -42,21 +44,31 @@ class AIPromptPanel(QWidget):
             raise
 
     def handle_generate(self):
-        prompt = self.text_input.toPlainText().strip()
-        log.info(f"[AIPromptPanel][handle_generate] ▶️ Prompt empfangen: {prompt}")
-        result = self.generator.generate_code(prompt)
-        self.text_output.setPlainText(result)
-        log.info("[AIPromptPanel][handle_generate] ✅ Code generiert und angezeigt.")
+        try:
+            prompt = self.text_input.toPlainText().strip()
+            log.info(f"[AIPromptPanel][handle_generate] ▶️ Prompt empfangen: {prompt}")
+            result = self.generator.generate_code(prompt)
+            self.text_output.setPlainText(result)
+            log.info("[AIPromptPanel][handle_generate] ✅ Code generiert und angezeigt.")
+        except Exception as e:
+            log.error(f"[AIPromptPanel][handle_generate] ❌ Fehler: {e}")
 
     def handle_image(self):
-        path, _ = QFileDialog.getOpenFileName(self, "Bild auswählen", "", "Bilder (*.png *.jpg *.jpeg)")
-        if path:
-            self.image_path_label.setText(path)
-            self.generator.set_image_path(path)
-            log.info(f"[AIPromptPanel][handle_image] ✅ Bild geladen: {path}")
-        else:
-            log.warning("[AIPromptPanel][handle_image] ❌ Kein Bild ausgewählt.")
+        try:
+            path, _ = QFileDialog.getOpenFileName(self, "Bild auswählen", "", "Bilder (*.png *.jpg *.jpeg)")
+            if path:
+                self.image_path_label.setText(path)
+                self.generator.set_image_path(path)
+                log.info(f"[AIPromptPanel][handle_image] ✅ Bild geladen: {path}")
+            else:
+                log.warning("[AIPromptPanel][handle_image] ❌ Kein Bild ausgewählt.")
+        except Exception as e:
+            log.error(f"[AIPromptPanel][handle_image] ❌ Fehler: {e}")
 
     def handle_mesh(self):
-        log.info("[AIPromptPanel][handle_mesh] ▶️ Starte Mesh-Erzeugung aus Bild...")
-        self.generator.generate_mesh_from_image()
+        try:
+            log.info("[AIPromptPanel][handle_mesh] ▶️ Starte Mesh-Erzeugung aus Bild...")
+            self.generator.generate_mesh_from_image()
+            log.info("[AIPromptPanel][handle_mesh] ✅ Mesh-Erzeugung abgeschlossen.")
+        except Exception as e:
+            log.error(f"[AIPromptPanel][handle_mesh] ❌ Fehler: {e}")
