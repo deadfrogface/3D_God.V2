@@ -35,7 +35,7 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.status)
 
         self.tabs = QTabWidget()
-        self.viewport = Viewport3D()
+        self.viewport = Viewport3D(self.character_system)
         self.debug_console = DebugConsole()
         self.debug_console.hide()
 
