@@ -4,36 +4,41 @@ from core.logger import log
 
 class CharacterEditorPanel(QWidget):
     def __init__(self, character_system):
-        super().__init__()
-        self.character_system = character_system
-        self.character_system.slider_sync_callback = self.refresh_sliders
+        try:
+            super().__init__()
+            self.character_system = character_system
+            self.character_system.slider_sync_callback = self.refresh_sliders
 
-        log.info("[CharacterEditorPanel][__init__] ▶️ Initialisiere Körperform-Editor")
-        layout = QVBoxLayout()
-        layout.addWidget(QLabel("🧍‍♂️ Körperform-Editor"))
+            log.info("[CharacterEditorPanel][__init__] ▶️ Initialisiere Körperform-Editor")
 
-        self.sliders = {}
-        self.fields = {
-            "height":      ("Größe",       0, 100),
-            "breast_size": ("Brustgröße",  0, 100),
-            "hip_width":   ("Hüften",      0, 100),
-            "arm_length":  ("Armlänge",    0, 100),
-            "leg_length":  ("Beinlänge",   0, 100)
-        }
+            layout = QVBoxLayout()
+            layout.addWidget(QLabel("🧍‍♂️ Körperform-Editor"))
 
-        for key, (label, min_val, max_val) in self.fields.items():
-            row = QHBoxLayout()
-            row.addWidget(QLabel(label))
-            slider = QSlider(Qt.Horizontal)
-            slider.setRange(min_val, max_val)
-            slider.setValue(self.character_system.sculpt_data.get(key, 50))
-            slider.valueChanged.connect(lambda val, k=key: self.update_value(k, val))
-            self.sliders[key] = slider
-            row.addWidget(slider)
-            layout.addLayout(row)
+            self.sliders = {}
+            self.fields = {
+                "height":      ("Größe",       0, 100),
+                "breast_size": ("Brustgröße",  0, 100),
+                "hip_width":   ("Hüften",      0, 100),
+                "arm_length":  ("Armlänge",    0, 100),
+                "leg_length":  ("Beinlänge",   0, 100)
+            }
 
-        self.setLayout(layout)
-        log.info("[CharacterEditorPanel][__init__] ✅ Initialisierung abgeschlossen")
+            for key, (label, min_val, max_val) in self.fields.items():
+                row = QHBoxLayout()
+                row.addWidget(QLabel(label))
+                slider = QSlider(Qt.Horizontal)
+                slider.setRange(min_val, max_val)
+                slider.setValue(self.character_system.sculpt_data.get(key, 50))
+                slider.valueChanged.connect(lambda val, k=key: self.update_value(k, val))
+                self.sliders[key] = slider
+                row.addWidget(slider)
+                layout.addLayout(row)
+
+            self.setLayout(layout)
+            log.info("[CharacterEditorPanel][__init__] ✅ Initialisierung abgeschlossen")
+        except Exception as e:
+            log.error(f"[CharacterEditorPanel][__init__] ❌ Fehler bei Initialisierung: {e}")
+            raise
 
     def update_value(self, key, value):
         log.debug(f"[CharacterEditorPanel][update_value] 🔧 {key} → {value}")
