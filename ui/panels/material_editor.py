@@ -5,7 +5,7 @@ from core.logger import log
 class MaterialEditor(QWidget):
     def __init__(self):
         super().__init__()
-        log("[MaterialEditor][__init__] ▶️ Initialisierung gestartet", "INFO")
+        log.info("[MaterialEditor][__init__] ▶️ Initialisierung gestartet")
         self.character_system = CharacterSystem()
         layout = QVBoxLayout()
 
@@ -24,24 +24,24 @@ class MaterialEditor(QWidget):
         layout.addWidget(btn_apply)
 
         self.setLayout(layout)
-        log("[MaterialEditor][__init__] ✅ Initialisierung abgeschlossen", "SUCCESS")
+        log.info("[MaterialEditor][__init__] ✅ Initialisierung abgeschlossen")
 
     def choose_color(self):
         current_mat = self.mat_select.currentText()
         old_hex = self.character_system.materials.get(current_mat, {}).get("color", "#cccccc")
-        log(f"[MaterialEditor][choose_color] ▶️ Aktuelles Material: {current_mat}, alte Farbe: {old_hex}", "INFO")
+        log.info(f"[MaterialEditor][choose_color] ▶️ Aktuelles Material: {current_mat}, alte Farbe: {old_hex}")
         color = QColorDialog.getColor()
         if color.isValid():
             hex_value = color.name()
             self.character_system.set_material_color(current_mat, hex_value)
-            log(f"[MaterialEditor][choose_color] ✅ Neue Farbe gesetzt für {current_mat}: {hex_value}", "SUCCESS")
+            log.info(f"[MaterialEditor][choose_color] ✅ Neue Farbe gesetzt für {current_mat}: {hex_value}")
         else:
-            log("[MaterialEditor][choose_color] ❌ Ungültige Farbauswahl", "ERROR")
+            log.error("[MaterialEditor][choose_color] ❌ Ungültige Farbauswahl")
 
     def apply_preview_material(self):
-        log("[MaterialEditor][apply_preview_material] ▶️ Anwenden auf Vorschau gestartet", "INFO")
+        log.info("[MaterialEditor][apply_preview_material] ▶️ Anwenden auf Vorschau gestartet")
         if self.character_system.viewport_ref:
             self.character_system.viewport_ref.show_materials(self.character_system.materials)
-            log("[MaterialEditor][apply_preview_material] ✅ Vorschau aktualisiert", "SUCCESS")
+            log.info("[MaterialEditor][apply_preview_material] ✅ Vorschau aktualisiert")
         else:
-            log("[MaterialEditor][apply_preview_material] ❌ Kein Viewport verbunden", "ERROR")
+            log.error("[MaterialEditor][apply_preview_material] ❌ Kein Viewport verbunden")
