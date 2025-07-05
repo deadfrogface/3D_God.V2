@@ -18,7 +18,7 @@ def load_config():
             "controller_enabled": True
         }
     try:
-        with open(CONFIG_PATH, "r") as f:
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             config = json.load(f)
             log.info("Konfiguration erfolgreich geladen.")
             return config
@@ -33,21 +33,30 @@ def load_config():
 def save_config(config):
     log.info("Speichere Konfiguration...")
     try:
-        with open(CONFIG_PATH, "w") as f:
+        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
             json.dump(config, f, indent=4)
         log.info("Konfiguration gespeichert.")
     except Exception as e:
         log.error(f"Fehler beim Speichern der Konfiguration: {e}")
 
 def start_app():
-    log.info("Starte GUI-Anwendung...")
-    config = load_config()
-    app = QApplication(sys.argv)
-    splash = MainWindow(config)
-    splash.show()
-    QTimer.singleShot(3000, splash.launch_main_gui)
-    log.info("GUI bereit – Starte Event Loop")
-    sys.exit(app.exec())
+    try:
+        log.info("Starte GUI-Anwendung...")
+        config = load_config()
+
+        app = QApplication(sys.argv)
+        splash = MainWindow(config)
+        splash.show()
+
+        # Optional: Panels mit Delay laden
+        QTimer.singleShot(3000, splash.launch_main_gui)
+
+        log.info("GUI bereit – Starte Event Loop")
+        sys.exit(app.exec())
+
+    except Exception as e:
+        log.error(f"❌ Schwerwiegender Fehler beim Start: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     start_app()
