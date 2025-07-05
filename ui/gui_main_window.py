@@ -17,7 +17,7 @@ from ui.viewport.viewport_3d import Viewport3D
 from ui.style_manager import StyleManager
 from ui.panels.debug_console import DebugConsole
 from core.character_system.character_system import CharacterSystem
-from core.logger import log  # ⬅️ Logging importieren
+from core.logger import log
 
 import os
 
@@ -26,8 +26,10 @@ class MainWindow(QMainWindow):
         log.info("[MainWindow][__init__] Initialisiere mit Konfiguration...")
         super().__init__()
         self.config = config
-        StyleManager.apply_theme(config.get("theme", "dark"))
 
+        self.character_system = CharacterSystem()  # ✅ Frühzeitig initialisieren
+
+        StyleManager.apply_theme(config.get("theme", "dark"))
         self.setWindowTitle("3D God Creator")
         self.setGeometry(100, 100, 1600, 900)
 
@@ -35,7 +37,7 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.status)
 
         self.tabs = QTabWidget()
-        self.viewport = Viewport3D(self.character_system)
+        self.viewport = Viewport3D(self.character_system)  # ✅ Jetzt korrekt
         self.debug_console = DebugConsole()
         self.debug_console.hide()
 
@@ -47,7 +49,6 @@ class MainWindow(QMainWindow):
         self.shortcut_debug = QShortcut(QKeySequence("F12"), self)
         self.shortcut_debug.activated.connect(self.toggle_debug_console)
 
-        self.character_system = CharacterSystem()
         self.character_system.bind_viewport(self.viewport)
 
         if os.path.exists("presets/default.json"):
@@ -72,7 +73,7 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(NSFWPanel(self.character_system), "🔞 NSFW")
         self.tabs.addTab(ClothingPanel(self.character_system), "👕 Kleidung")
         self.tabs.addTab(RiggingPanel(self.character_system), "🦴 Rigging")
-        self.tabs.addTab(ExportPanel(), "📤 Export")
+        self.tabs.addTab(ExportPanel(self.character_system), "📤 Export")
         self.tabs.addTab(SettingsPanel(), "⚙️ Einstellungen")
         self.tabs.addTab(AIPanel(self.character_system), "🧠 KI")
         self.addDockWidget(Qt.BottomDockWidgetArea, self.debug_console)
