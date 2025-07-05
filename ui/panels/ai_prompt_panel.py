@@ -1,4 +1,7 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTextEdit, QPushButton, QFileDialog, QHBoxLayout
+from PySide6.QtWidgets import (
+    QWidget, QVBoxLayout, QLabel, QTextEdit, QPushButton,
+    QFileDialog, QHBoxLayout, QMessageBox
+)
 from core.ai_generation.ai_generator import AIGenerator
 from core.logger import log
 
@@ -11,6 +14,7 @@ class AIPromptPanel(QWidget):
 
             log.info("[AIPromptPanel][__init__] ▶️ Initialisiere AI-Prompt-Panel...")
 
+            # Code aus Text
             layout.addWidget(QLabel("🧠 Text → Code (FauxPilot)"))
             self.text_input = QTextEdit()
             self.text_input.setPlaceholderText("Was soll die KI schreiben? (z. B. Blender-Skript, Material...)")
@@ -24,6 +28,7 @@ class AIPromptPanel(QWidget):
             btn_generate.clicked.connect(self.handle_generate)
             layout.addWidget(btn_generate)
 
+            # Bild zu Mesh
             layout.addWidget(QLabel("🖼️ Bild → Mesh (TripoSR)"))
             image_layout = QHBoxLayout()
             self.image_path_label = QLabel("Kein Bild gewählt")
@@ -37,6 +42,7 @@ class AIPromptPanel(QWidget):
             btn_mesh.clicked.connect(self.handle_mesh)
             layout.addWidget(btn_mesh)
 
+            # Körperform
             layout.addWidget(QLabel("💪 AI-Körperform (CharMorph):"))
             self.charmorph_input = QTextEdit()
             self.charmorph_input.setPlaceholderText("z. B. 'slim tall male', 'muscular orc woman'")
@@ -53,11 +59,18 @@ class AIPromptPanel(QWidget):
             raise
 
     def handle_generate(self):
-        prompt = self.text_input.toPlainText()
+        prompt = self.text_input.toPlainText().strip()
+        if not prompt:
+            QMessageBox.warning(self, "Eingabe fehlt", "Bitte gib einen Text-Prompt ein.")
+            return
         log.info(f"[AIPromptPanel][handle_generate] ▶️ Prompt empfangen: {prompt}")
-        result = self.generator.generate_code(prompt)
-        self.text_output.setPlainText(result)
-        log.info("[AIPromptPanel][handle_generate] ✅ Code generiert")
+        try:
+            result = self.generator.generate_code(prompt)
+            self.text_output.setPlainText(result or "⚠️ Keine Antwort erhalten.")
+            log.info("[AIPromptPanel][handle_generate] ✅ Code generiert")
+        except Exception as e:
+            log.error(f"[AIPromptPanel][handle_generate] ❌ Fehler: {e}")
+            QMessageBox.critical(self, "Fehler", f"Fehler beim Generieren:\n{e}")
 
     def handle_image(self):
         path, _ = QFileDialog.getOpenFileName(self, "Bild auswählen", "", "Bilder (*.png *.jpg *.jpeg)")
@@ -69,18 +82,32 @@ class AIPromptPanel(QWidget):
             log.warning("[AIPromptPanel][handle_image] ❌ Kein Bild gewählt")
 
     def handle_mesh(self):
-        log.info("[AIPromptPanel][handle_mesh] ▶️ Starte Mesh-Generierung via TripoSR")
-        self.generator.generate_mesh_from_image()
-        log.info("[AIPromptPanel][handle_mesh] ✅ Vorgang abgeschlossen")
+        try:
+            log.info("[AIPromptPanel][handle_mesh] ▶️ Starte Mesh-Generierung via TripoSR")
+            self.generator.generate_mesh_from_image()
+            QMessageBox.information(self, "Erledigt", "Mesh-Erzeugung abgeschlossen.")
+            log.info("[AIPromptPanel][handle_mesh] ✅ Vorgang abgeschlossen")
+        except Exception as e:
+            log.error(f"[AIPromptPanel][handle_mesh] ❌ Fehler: {e}")
+            QMessageBox.critical(self, "Fehler", f"Mesh-Generierung fehlgeschlagen:\n{e}")
 
     def handle_shape(self):
-        prompt = self.charmorph_input.toPlainText()
+        prompt = self.charmorph_input.toPlainText().strip()
+        if not prompt:
+            QMessageBox.warning(self, "Eingabe fehlt", "Bitte gib einen Prompt für die Körperform ein.")
+            return
         log.info(f"[AIPromptPanel][handle_shape] ▶️ Prompt für Morphing: {prompt}")
-        shape = self.generator.generate_shape_from_prompt(prompt)
-        if shape:
-            for key, value in shape.items():
-                self.generator.character_system.update_sculpt_value(key, value)
-                log.info(f"[AIPromptPanel][handle_shape] 🔁 {key} = {value}")
-            log.info("[AIPromptPanel][handle_shape] ✅ Körperform übernommen")
-        else:
-            log.warning("[AIPromptPanel][handle_shape] ❌ Keine gültige Form empfangen")
+        try:
+            shape = self.generator.generate_shape_from_prompt(prompt)
+            if shape:
+                for key, value in shape.items():
+                    self.generator.character_system.update_sculpt_value(key, value)
+                    log.info(f"[AIPromptPanel][handle_shape] 🔁 {key} = {value}")
+                QMessageBox.information(self, "Erfolg", "Körperform erfolgreich angewendet.")
+                log.info("[AIPromptPanel][handle_shape] ✅ Körperform übernommen")
+            else:
+                QMessageBox.warning(self, "Keine Daten", "Die KI hat keine Form zurückgegeben.")
+                log.warning("[AIPromptPanel][handle_shape] ❌ Keine gültige Form empfangen")
+        except Exception as e:
+            log.error(f"[AIPromptPanel][handle_shape] ❌ Fehler: {e}")
+            QMessageBox.critical(self, "Fehler", f"Fehler bei der Körperform:\n{e}")
