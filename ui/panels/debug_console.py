@@ -10,7 +10,6 @@ from PySide6.QtWidgets import (
 
 from core.logger import log
 
-
 class DebugConsole(QWidget):
     def __init__(self):
         super().__init__()
