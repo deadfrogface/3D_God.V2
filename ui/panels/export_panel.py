@@ -11,7 +11,7 @@ class ExportPanel(QWidget):
     def __init__(self, character_system: CharacterSystem):
         super().__init__()
         self.character_system = character_system
-        log("[ExportPanel][__init__] ▶️ Initialisierung gestartet", "INFO")
+        log.info("[ExportPanel][__init__] ▶️ Initialisierung gestartet")
 
         layout = QVBoxLayout()
         layout.addWidget(QLabel("📦 Modell-Export"))
@@ -50,10 +50,18 @@ class ExportPanel(QWidget):
         layout.addWidget(self.logbox)
 
         self.setLayout(layout)
-        log("[ExportPanel][__init__] ✅ Initialisierung abgeschlossen", "SUCCESS")
+        log.info("[ExportPanel][__init__] ✅ Initialisierung abgeschlossen")
 
     def write_log(self, message: str, level="INFO"):
-        log(message, level)
+        # Direktes Logging je nach Level
+        if level == "INFO":
+            log.info(message)
+        elif level == "ERROR":
+            log.error(message)
+        elif level == "SUCCESS":
+            log.success(message)  # ← nur falls success() in logger.py definiert ist
+        else:
+            log.info(message)
         self.logbox.append(message)
 
     def save_preset(self):
