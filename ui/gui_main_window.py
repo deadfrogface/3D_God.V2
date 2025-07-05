@@ -1,8 +1,7 @@
 from PySide6.QtWidgets import (
-    QMainWindow, QTabWidget, QSplitter, QStatusBar,
-    QDockWidget, QShortcut
+    QMainWindow, QTabWidget, QSplitter, QStatusBar, QDockWidget
 )
-from PySide6.QtGui import QKeySequence
+from PySide6.QtGui import QShortcut, QKeySequence  # ✅ Korrektur hier
 from PySide6.QtCore import Qt
 
 from ui.panels.settings_panel import SettingsPanel
