@@ -19,3 +19,9 @@ def setup_logger(name="3DGod", level=logging.DEBUG, logfile="debug_log.txt"):
     return logger
 
 log = setup_logger()
+
+# ✅ Zusatz für Erfolgsausgaben mit Emoji oder Markierung
+def success(msg):
+    log.info("✅ " + msg)
+
+log.success = success
