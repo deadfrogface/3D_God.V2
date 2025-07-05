@@ -25,16 +25,16 @@ class SculptPanel(QWidget):
         layout.addWidget(self.status_label)
 
         self.setLayout(layout)
-        log("[SculptPanel][__init__] ✅ Initialisiert.")
+        log.info("[SculptPanel][__init__] ✅ Initialisiert.")
 
     def set_symmetry(self, state):
         active = (state == 2)
         self.character_system.sculpt_data["symmetry"] = active
-        log(f"[SculptPanel][set_symmetry] 🔁 Symmetrie: {'Aktiv' if active else 'Deaktiviert'}")
+        log.info(f"[SculptPanel][set_symmetry] 🔁 Symmetrie: {'Aktiv' if active else 'Deaktiviert'}")
 
     def start_sculpt(self):
         self.status_label.setText("⏳ Sculpting wird geladen...")
-        log("[SculptPanel][start_sculpt] ▶️ Starte Sculpting...")
+        log.info("[SculptPanel][start_sculpt] ▶️ Starte Sculpting...")
         self.character_system.sculpt()
         self.status_label.setText("✅ Sculpting-Modus aktiv (in Blender)")
-        log("[SculptPanel][start_sculpt] ✅ Sculpting-Vorgang abgeschlossen.")
+        log.info("[SculptPanel][start_sculpt] ✅ Sculpting-Vorgang abgeschlossen.")
