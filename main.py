@@ -1,10 +1,11 @@
 import sys
 import os
 import json
+import traceback
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QTimer
 from ui.gui_main_window import MainWindow
-from core.logger import log  # ← Logging aus zentralem Modul
+from core.logger import log
 
 CONFIG_PATH = "config.json"
 
@@ -45,10 +46,13 @@ def start_app():
         config = load_config()
 
         app = QApplication(sys.argv)
+        log.info("Initialisiere MainWindow mit geladener Konfiguration...")
         splash = MainWindow(config)
+
+        log.info("Zeige Hauptfenster...")
         splash.show()
 
-        # Optional: Panels mit Delay laden
+        log.info("Starte zeitverzögerte GUI-Initialisierung (3s)...")
         QTimer.singleShot(3000, splash.launch_main_gui)
 
         log.info("GUI bereit – Starte Event Loop")
@@ -56,6 +60,8 @@ def start_app():
 
     except Exception as e:
         log.error(f"❌ Schwerwiegender Fehler beim Start: {e}")
+        tb = traceback.format_exc()
+        log.error(tb)
         sys.exit(1)
 
 if __name__ == "__main__":
