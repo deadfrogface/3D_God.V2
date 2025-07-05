@@ -27,9 +27,11 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.config = config
 
-        self.character_system = CharacterSystem()  # ✅ Frühzeitig initialisieren
+        # ✅ Erst initialisieren, dann verwenden!
+        self.character_system = CharacterSystem()
 
         StyleManager.apply_theme(config.get("theme", "dark"))
+
         self.setWindowTitle("3D God Creator")
         self.setGeometry(100, 100, 1600, 900)
 
@@ -37,7 +39,7 @@ class MainWindow(QMainWindow):
         self.setStatusBar(self.status)
 
         self.tabs = QTabWidget()
-        self.viewport = Viewport3D(self.character_system)  # ✅ Jetzt korrekt
+        self.viewport = Viewport3D(self.character_system)
         self.debug_console = DebugConsole()
         self.debug_console.hide()
 
@@ -73,8 +75,8 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(NSFWPanel(self.character_system), "🔞 NSFW")
         self.tabs.addTab(ClothingPanel(self.character_system), "👕 Kleidung")
         self.tabs.addTab(RiggingPanel(self.character_system), "🦴 Rigging")
-        self.tabs.addTab(ExportPanel(self.character_system), "📤 Export")
-        self.tabs.addTab(SettingsPanel(), "⚙️ Einstellungen")
+        self.tabs.addTab(ExportPanel(self.character_system), "📤 Export")            # ✅ korrigiert
+        self.tabs.addTab(SettingsPanel(self.character_system), "⚙️ Einstellungen")   # ✅ korrigiert
         self.tabs.addTab(AIPanel(self.character_system), "🧠 KI")
         self.addDockWidget(Qt.BottomDockWidgetArea, self.debug_console)
         log.info("[MainWindow] ✅ GUI geladen")
