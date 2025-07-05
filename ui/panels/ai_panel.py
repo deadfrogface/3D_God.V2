@@ -4,22 +4,26 @@ from core.logger import log
 
 class AIPanel(QWidget):
     def __init__(self, character_system: CharacterSystem):
-        super().__init__()
-        self.character_system = character_system
-        layout = QVBoxLayout()
+        try:
+            super().__init__()
+            self.character_system = character_system
+            layout = QVBoxLayout()
 
-        layout.addWidget(QLabel("🧠 AI Morph Generator"))
+            layout.addWidget(QLabel("🧠 AI Morph Generator"))
 
-        self.prompt_input = QLineEdit()
-        self.prompt_input.setPlaceholderText("Optionaler Prompt (z. B. 'muscular warrior')")
-        layout.addWidget(self.prompt_input)
+            self.prompt_input = QLineEdit()
+            self.prompt_input.setPlaceholderText("Optionaler Prompt (z. B. 'muscular warrior')")
+            layout.addWidget(self.prompt_input)
 
-        btn = QPushButton("⚡ Erzeuge Morph")
-        btn.clicked.connect(self.generate)
-        layout.addWidget(btn)
+            btn = QPushButton("⚡ Erzeuge Morph")
+            btn.clicked.connect(self.generate)
+            layout.addWidget(btn)
 
-        self.setLayout(layout)
-        log.info("[AIPanel][__init__] ✅ Initialisiert")
+            self.setLayout(layout)
+            log.info("[AIPanel][__init__] ✅ Initialisiert")
+        except Exception as e:
+            log.error(f"[AIPanel][__init__] ❌ Fehler beim Initialisieren: {e}")
+            raise
 
     def generate(self):
         prompt = self.prompt_input.text().strip()
