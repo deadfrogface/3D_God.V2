@@ -4,27 +4,31 @@ from core.logger import log
 
 class AnimationPreviewPanel(QWidget):
     def __init__(self):
-        super().__init__()
-        self.character_system = CharacterSystem()
-        log.info("[AnimationPreviewPanel][__init__] ▶️ Initialisiere Animation-Panel...")
+        try:
+            super().__init__()
+            self.character_system = CharacterSystem()
+            log.info("[AnimationPreviewPanel][__init__] ▶️ Initialisiere Animation-Panel...")
 
-        layout = QVBoxLayout()
-        layout.addWidget(QLabel("🎬 Animation Vorschau"))
+            layout = QVBoxLayout()
+            layout.addWidget(QLabel("🎬 Animation Vorschau"))
 
-        self.anim_select = QComboBox()
-        self.anim_select.addItems(["Idle", "Walk", "Run", "CombatIdle", "Pose_A", "Pose_B"])
-        layout.addWidget(self.anim_select)
+            self.anim_select = QComboBox()
+            self.anim_select.addItems(["Idle", "Walk", "Run", "CombatIdle", "Pose_A", "Pose_B"])
+            layout.addWidget(self.anim_select)
 
-        btn_play = QPushButton("▶ Animation abspielen")
-        btn_play.clicked.connect(self.play_animation)
-        layout.addWidget(btn_play)
+            btn_play = QPushButton("▶ Animation abspielen")
+            btn_play.clicked.connect(self.play_animation)
+            layout.addWidget(btn_play)
 
-        btn_stop = QPushButton("⏹ Stop")
-        btn_stop.clicked.connect(self.stop_animation)
-        layout.addWidget(btn_stop)
+            btn_stop = QPushButton("⏹ Stop")
+            btn_stop.clicked.connect(self.stop_animation)
+            layout.addWidget(btn_stop)
 
-        self.setLayout(layout)
-        log.info("[AnimationPreviewPanel][__init__] ✅ Bereit")
+            self.setLayout(layout)
+            log.info("[AnimationPreviewPanel][__init__] ✅ Bereit")
+        except Exception as e:
+            log.error(f"[AnimationPreviewPanel][__init__] ❌ Fehler bei Initialisierung: {e}")
+            raise
 
     def play_animation(self):
         selected = self.anim_select.currentText()
