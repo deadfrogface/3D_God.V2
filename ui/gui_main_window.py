@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import (
-    QMainWindow, QTabWidget, QSplitter, QStatusBar, QDockWidget
+    QMainWindow, QTabWidget, QSplitter, QStatusBar,
+    QDockWidget, QShortcut
 )
-from PySide6.QtGui import QShortcut
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence
+from PySide6.QtCore import Qt
 
 from ui.panels.settings_panel import SettingsPanel
 from ui.panels.character_editor_panel import CharacterEditorPanel
@@ -27,39 +27,47 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.config = config
 
+        # 🧠 CharacterSystem vorbereiten
         self.character_system = CharacterSystem()
         StyleManager.apply_theme(config.get("theme", "dark"))
 
+        # 🪟 Fenster-Setup
         self.setWindowTitle("3D God Creator")
         self.setGeometry(100, 100, 1600, 900)
+        self.setStatusBar(QStatusBar())
 
-        self.status = QStatusBar()
-        self.setStatusBar(self.status)
-
+        # 🧭 Tabs & Viewport
         self.tabs = QTabWidget()
         self.viewport = Viewport3D(self.character_system)
 
+        # 🐞 Debug-Konsole als DockWidget
         self.debug_console = DebugConsole()
-        self.dock_debug = QDockWidget("🛠 Debug-Konsole")
+        self.dock_debug = QDockWidget("🛠 Debug-Konsole", self)
         self.dock_debug.setWidget(self.debug_console)
         self.dock_debug.setAllowedAreas(Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
         self.dock_debug.setFloating(False)
         self.dock_debug.hide()
+        self.addDockWidget(Qt.BottomDockWidgetArea, self.dock_debug)
 
+        # ➗ Hauptlayout
         self.splitter = QSplitter()
         self.splitter.addWidget(self.tabs)
         self.splitter.addWidget(self.viewport)
         self.setCentralWidget(self.splitter)
 
+        # 🔁 Shortcuts
         self.shortcut_debug = QShortcut(QKeySequence("F12"), self)
         self.shortcut_debug.activated.connect(self.toggle_debug_console)
 
+        # 🔗 Viewport verbinden
         self.character_system.bind_viewport(self.viewport)
 
+        # 🎯 Preset laden
         if os.path.exists("presets/default.json"):
             log.info("[MainWindow] Lade Standard-Preset...")
             self.character_system.load_preset("default")
 
+        # 🚀 GUI aufbauen
         self.launch_main_gui()
 
     def toggle_debug_console(self):
@@ -81,6 +89,4 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(ExportPanel(self.character_system), "📤 Export")
         self.tabs.addTab(SettingsPanel(self.character_system), "⚙️ Einstellungen")
         self.tabs.addTab(AIPanel(self.character_system), "🧠 KI")
-
-        self.addDockWidget(Qt.BottomDockWidgetArea, self.dock_debug)
         log.info("[MainWindow] ✅ GUI geladen")
