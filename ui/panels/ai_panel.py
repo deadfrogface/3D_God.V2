@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QLineEdit, QMessageBox
 from core.character_system.character_system import CharacterSystem
 from core.logger import log
 
@@ -26,6 +26,17 @@ class AIPanel(QWidget):
             raise
 
     def generate(self):
-        prompt = self.prompt_input.text().strip()
-        log.info(f"[AIPanel][generate] ▶️ Starte Morph mit Prompt: '{prompt or '–'}'")
-        self.character_system.generate_ai_morph(prompt if prompt else None)
+        try:
+            prompt = self.prompt_input.text().strip()
+            log.info(f"[AIPanel][generate] ▶️ Starte Morph mit Prompt: '{prompt or '–'}'")
+            result = self.character_system.generate_ai_morph(prompt if prompt else None)
+
+            if result is None:
+                QMessageBox.warning(self, "Fehlgeschlagen", "Die Morph-Generierung hat kein Ergebnis geliefert.")
+                log.warning("[AIPanel][generate] ⚠️ Keine Werte von der KI erhalten")
+            else:
+                QMessageBox.information(self, "Erfolg", "Körperform erfolgreich generiert.")
+                log.info("[AIPanel][generate] ✅ Morph erfolgreich übernommen")
+        except Exception as e:
+            QMessageBox.critical(self, "Fehler", f"Fehler beim Morphing:\n{e}")
+            log.error(f"[AIPanel][generate] ❌ Fehler bei Morphing: {e}")
