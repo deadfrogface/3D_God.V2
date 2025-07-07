@@ -1,9 +1,7 @@
-# ai_backend/froggy/froggy_handler.py
-
 import os
 import json
 import torch
-from ai_backend.froggy.froggy_brain import predict, train_feedback
+from ai_backend.froggy.froggy_brain import predict, train_feedback, train_on_example
 from ai_backend.froggy.froggy_worldview import scan_worldview
 
 # 🔍 Hauptanalyse
@@ -41,10 +39,11 @@ def suggest_fix(log_text="") -> dict:
         "fix_code": diagnosis.get("fix_code", "[interner Methodenaufruf]"),
         "fix_fn": fix_fn,
         "target_file": diagnosis.get("target_file"),
+        "features": features,
         "world_info": worldview
     }
 
-# ❓ Bestätigung & Ausführung
+# ❓ Bestätigung & Ausführung + Autotrain
 def confirm_and_execute_fix(fix: dict) -> str:
     if not fix.get("can_fix") or not fix.get("fix_fn"):
         return "❌ Kein automatischer Fix verfügbar."
@@ -64,10 +63,18 @@ def confirm_and_execute_fix(fix: dict) -> str:
 """)
     confirm = input(">>> ").strip().lower()
     if confirm in ("ja", "yes", "y"):
-        return fix['fix_fn']()
+        result = fix['fix_fn']()
+
+        # ✅ Autotrain bei Bestätigung
+        features = fix.get("features")
+        label = fix.get("error_id")
+        if features and label is not None:
+            train_on_example(features, label)
+
+        return f"✅ Fix angewendet: {result}"
     return "🛑 Fix abgebrochen."
 
-# 🔁 Manuelles Feedback (per Button oder NLP)
+# 🔁 Manuelles Feedback (optional)
 def give_froggy_feedback(log_text: str, correct_label: int):
     features = extract_log_features(log_text)
     train_feedback(features, correct_label)
