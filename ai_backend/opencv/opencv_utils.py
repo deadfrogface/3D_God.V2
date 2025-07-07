@@ -1,4 +1,12 @@
-import cv2
+# Auto-Installer für OpenCV
+try:
+    import cv2
+except ImportError:
+    import subprocess
+    import sys
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "opencv-python"])
+    import cv2  # nachinstallieren
+
 import os
 
 def load_image(image_path: str):
