@@ -1,11 +1,10 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QTextEdit, QPushButton,
-    QHBoxLayout, QCheckBox, QLineEdit, QFileDialog
+    QHBoxLayout, QCheckBox, QLineEdit, QFileDialog, QMessageBox
 )
 import sys
 import os
 import datetime
-import re
 from core.logger import log
 
 
@@ -27,7 +26,7 @@ class DebugConsole(QWidget):
             filter_row = QHBoxLayout()
             for cb in self.filters.values():
                 cb.setChecked(False)
-                cb.stateChanged.connect(self.apply_filter)  # ✅ Methode ist jetzt definiert
+                cb.stateChanged.connect(self.apply_filter)
                 filter_row.addWidget(cb)
             layout.addLayout(filter_row)
 
@@ -50,9 +49,9 @@ class DebugConsole(QWidget):
             btn_row.addWidget(btn_export)
             layout.addLayout(btn_row)
 
-            btn_diagnostics = QPushButton("🧠 Projekt-Diagnose starten")
-            btn_diagnostics.clicked.connect(self.run_diagnostics)
-            layout.addWidget(btn_diagnostics)
+            btn_froggy = QPushButton("🐸 Froggy helfen lassen")
+            btn_froggy.clicked.connect(self.ask_froggy)
+            layout.addWidget(btn_froggy)
 
             self.setLayout(layout)
             self.full_log = []
@@ -97,5 +96,30 @@ class DebugConsole(QWidget):
             log.warning("[DebugConsole][export_log] ❌ Kein Pfad gewählt")
 
     def run_diagnostics(self):
-        log.info("[DebugConsole][run_diagnostics] ▶️ Starte Projektprüfung...")
-        # ... hier käme deine bestehende Diagnoselogik ...
+        self.ask_froggy()
+
+    def ask_froggy(self):
+        try:
+            from ai_backend.froggy.froggy_handler import ask_froggy_anything
+
+            log.info("[DebugConsole][ask_froggy] ▶️ Froggy wird gefragt...")
+            log_text = "\n".join(self.full_log)
+
+            result = ask_froggy_anything(log_text=log_text)
+
+            self.output.append("\n🐸 Froggy sagt:\n")
+            self.output.append(f"❌ Problem: {result.get('problem')}")
+            self.output.append(f"📎 Ursache: {result.get('cause')}")
+            self.output.append(f"💡 Vorschlag: {result.get('suggestion')}")
+
+            if result.get("can_fix"):
+                fix = QMessageBox.question(self, "Froggy kann es reparieren!",
+                    "Froggy hat eine automatische Reparaturmöglichkeit gefunden. Jetzt ausführen?",
+                    QMessageBox.Yes | QMessageBox.No)
+                if fix == QMessageBox.Yes:
+                    fix_result = result.get("fix_fn", lambda: "Kein Fix definiert")()
+                    log.success(f"[Froggy] 🛠 Reparatur durchgeführt: {fix_result}")
+                    self.output.append(f"\n🛠 Reparatur durchgeführt:\n{fix_result}")
+
+        except Exception as e:
+            log.error(f"[DebugConsole][ask_froggy] ❌ Fehler bei Froggy-Analyse: {e}")
