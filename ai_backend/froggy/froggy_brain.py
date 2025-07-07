@@ -1,5 +1,3 @@
-# ai_backend/froggy/froggy_brain.py
-
 # 🧠 Auto-Installer für torch
 try:
     import torch
@@ -15,6 +13,10 @@ except ImportError:
 
 import json
 import os
+
+# 📁 Pfade
+_memory_path = os.path.join(os.path.dirname(__file__), "froggy_memory.json")
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "froggy_model.pt")
 
 # 🧠 Einfaches Feedforward-Netz für Froggys Entscheidungsfindung
 class FroggyNet(nn.Module):
@@ -33,8 +35,7 @@ class FroggyNet(nn.Module):
 _model = FroggyNet()
 _model.eval()
 
-_memory_path = os.path.join(os.path.dirname(__file__), "froggy_memory.json")
-
+# 💾 Speicherfunktionen
 def _load_memory():
     if os.path.exists(_memory_path):
         with open(_memory_path, "r") as f:
@@ -45,6 +46,17 @@ def _save_memory(memory):
     with open(_memory_path, "w") as f:
         json.dump(memory, f, indent=2)
 
+def save_model():
+    torch.save(_model.state_dict(), MODEL_PATH)
+
+def load_model():
+    global _model
+    if os.path.exists(MODEL_PATH):
+        _model.load_state_dict(torch.load(MODEL_PATH))
+        _model.eval()
+        print("✅ Froggy-Modell geladen.")
+
+# 🔁 Training
 def train_on_example(features: list, label: int):
     global _model
     _model.train()
@@ -63,11 +75,14 @@ def train_on_example(features: list, label: int):
     memory = _load_memory()
     memory.append({"x": features, "y": label})
     _save_memory(memory)
+    save_model()
 
+# 🧠 Feedback lernen
 def train_feedback(features: list, correct_label: int):
     print(f"[Froggy Feedback] 📚 Korrigiere mit Label {correct_label}")
     train_on_example(features, correct_label)
 
+# 🔮 Vorhersage
 def predict(features: list) -> int:
     global _model
     _model.eval()
@@ -75,3 +90,6 @@ def predict(features: list) -> int:
     with torch.no_grad():
         out = _model(x)
         return torch.argmax(out, dim=1).item()
+
+# 🟢 Modell beim Start laden
+load_model()
