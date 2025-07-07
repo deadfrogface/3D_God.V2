@@ -6,4 +6,8 @@ don´t forget to put triposr locally in the right folder!
 Download link: https://huggingface.co/stabilityai/TripoSR/blob/main/model.ckpt
 the folder structure: ai_backend/triposr/checkpoints/epoch_00009.ckpt
 ____________________________________________________________________________________
+don´t forget to put imagesuperresolution locally in the right folder!
+Download link: https://huggingface.co/ai-forever/Real-ESRGAN/blob/main/RealESRGAN_x4.pth
+the folder structure: ai_backend/imagesuperresolution/weights/RealESRGAN_x4plus.pth
+____________________________________________________________________________________
 -> rest coming soon.
