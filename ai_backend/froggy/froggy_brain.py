@@ -1,33 +1,37 @@
+# ai_backend/froggy/froggy_brain.py
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import json
 import os
 
-# Einfaches Feedforward-Netz als Basis
+# Einfaches Feedforward-Netz
 class FroggyNet(nn.Module):
     def __init__(self):
         super().__init__()
-        self.fc1 = nn.Linear(7, 64)
+        self.fc1 = nn.Linear(7, 64)   # 7 Features (aus Log)
         self.fc2 = nn.Linear(64, 32)
-        self.out = nn.Linear(32, 4)  # z. B. Fehlerklasse 0–3
+        self.out = nn.Linear(32, 4)   # Fehlerklassen 0–3
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         return self.out(x)
 
+# Globale Instanz
 _model = FroggyNet()
+_model.eval()
+
 _memory_path = os.path.join(os.path.dirname(__file__), "froggy_memory.json")
 
-def load_brain():
+def _load_memory():
     if os.path.exists(_memory_path):
         with open(_memory_path, "r") as f:
-            data = json.load(f)
-            return data
+            return json.load(f)
     return []
 
-def save_brain(memory):
+def _save_memory(memory):
     with open(_memory_path, "w") as f:
         json.dump(memory, f, indent=2)
 
@@ -39,22 +43,27 @@ def train_on_example(features: list, label: int):
     x = torch.tensor(features).float().unsqueeze(0)
     y = torch.tensor([label]).long()
 
-    for _ in range(10):  # 10 Epochen auf Einzeldatenpunkt
+    for _ in range(10):
         optimizer.zero_grad()
         out = _model(x)
         loss = F.cross_entropy(out, y)
         loss.backward()
         optimizer.step()
 
-    # Speichern im Langzeitgedächtnis
-    memory = load_brain()
+    # Speichern ins Langzeitgedächtnis
+    memory = _load_memory()
     memory.append({"x": features, "y": label})
-    save_brain(memory)
+    _save_memory(memory)
+
+def train_feedback(features: list, correct_label: int):
+    """Wird aufgerufen, wenn Nutzer Feedback gibt"""
+    print(f"[Froggy Feedback] 📚 Korrigiere mit Label {correct_label}")
+    train_on_example(features, correct_label)
 
 def predict(features: list) -> int:
+    global _model
     _model.eval()
     x = torch.tensor(features).float().unsqueeze(0)
     with torch.no_grad():
         out = _model(x)
-        pred = torch.argmax(out, dim=1).item()
-        return pred
+        return torch.argmax(out, dim=1).item()
