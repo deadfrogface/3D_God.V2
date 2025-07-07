@@ -1,13 +1,23 @@
 import subprocess
 import sys
 import os
+import importlib
 from core.logger import log
 
+# 🧩 FauxPilot-Abhängigkeiten automatisch installieren
+def ensure_fauxpilot_dependencies():
+    packages = ["flask", "torch", "transformers", "requests"]
+    for package in packages:
+        try:
+            importlib.import_module(package)
+        except ImportError:
+            log.info(f"📦 Installiere fehlendes Paket: {package}")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+# 🧠 FauxPilot-Server starten (wenn nicht bereits läuft)
 def start_fauxpilot_server():
-    """Startet FauxPilot-Server, falls er nicht bereits läuft."""
     script_path = os.path.join(os.path.dirname(__file__), "ai_backend", "fauxpilot", "fauxpilot_server.py")
 
-    # Prüfe, ob der Server schon läuft
     try:
         import requests
         requests.get("http://localhost:5000", timeout=1)
@@ -26,15 +36,22 @@ def start_fauxpilot_server():
     except Exception as e:
         log.error(f"❌ Fehler beim Start von FauxPilot-Server: {e}")
 
+# 🚀 Hauptfunktion
 def main():
     log.info("🧪 Starte 3D_God Launcher...")
 
-    # Starte FauxPilot zuerst
+    # Schritt 1: Abhängigkeiten prüfen
+    try:
+        ensure_fauxpilot_dependencies()
+    except Exception as e:
+        log.error(f"❌ Abhängigkeitsprüfung fehlgeschlagen: {e}")
+        return
+
+    # Schritt 2: FauxPilot starten
     start_fauxpilot_server()
 
-    # Starte dein eigentliches Tool
+    # Schritt 3: Main-Tool starten
     script = os.path.join(os.path.dirname(__file__), "main.py")
-
     if not os.path.isfile(script):
         log.error("main.py nicht gefunden! Stelle sicher, dass die Datei im selben Verzeichnis liegt.")
         return
