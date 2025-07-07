@@ -43,7 +43,7 @@ def suggest_fix(log_text="") -> dict:
         "world_info": worldview
     }
 
-# ❓ Bestätigung & Ausführung + Autotrain
+# ❓ Bestätigung & Ausführung + Autotrain + Fehlerabfang
 def confirm_and_execute_fix(fix: dict) -> str:
     if not fix.get("can_fix") or not fix.get("fix_fn"):
         return "❌ Kein automatischer Fix verfügbar."
@@ -63,15 +63,15 @@ def confirm_and_execute_fix(fix: dict) -> str:
 """)
     confirm = input(">>> ").strip().lower()
     if confirm in ("ja", "yes", "y"):
-        result = fix['fix_fn']()
-
-        # ✅ Autotrain bei Bestätigung
-        features = fix.get("features")
-        label = fix.get("error_id")
-        if features and label is not None:
-            train_on_example(features, label)
-
-        return f"✅ Fix angewendet: {result}"
+        try:
+            result = fix['fix_fn']()
+            features = fix.get("features")
+            label = fix.get("error_id")
+            if features and label is not None:
+                train_on_example(features, label)
+            return f"✅ Fix angewendet: {result}"
+        except Exception as e:
+            return f"❌ Fehler beim Ausführen des Fixes: {e}"
     return "🛑 Fix abgebrochen."
 
 # 🔁 Manuelles Feedback (optional)
