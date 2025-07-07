@@ -4,7 +4,6 @@ from PySide6.QtWidgets import (
 )
 import sys
 import os
-import datetime
 from core.logger import log
 
 
@@ -52,6 +51,12 @@ class DebugConsole(QWidget):
             btn_froggy = QPushButton("🐸 Froggy helfen lassen")
             btn_froggy.clicked.connect(self.ask_froggy)
             layout.addWidget(btn_froggy)
+
+            # 🔤 Froggy Chatfeld (Copilot-Style)
+            self.chat_input = QLineEdit()
+            self.chat_input.setPlaceholderText("💬 Frag Froggy etwas... (z. B. 'Warum exportiert das nicht?')")
+            self.chat_input.returnPressed.connect(self.ask_froggy_chat)
+            layout.addWidget(self.chat_input)
 
             self.setLayout(layout)
             self.full_log = []
@@ -101,7 +106,6 @@ class DebugConsole(QWidget):
     def ask_froggy(self):
         try:
             from ai_backend.froggy.froggy_handler import ask_froggy_anything
-
             log.info("[DebugConsole][ask_froggy] ▶️ Froggy wird gefragt...")
             log_text = "\n".join(self.full_log)
 
@@ -120,6 +124,21 @@ class DebugConsole(QWidget):
                     fix_result = result.get("fix_fn", lambda: "Kein Fix definiert")()
                     log.success(f"[Froggy] 🛠 Reparatur durchgeführt: {fix_result}")
                     self.output.append(f"\n🛠 Reparatur durchgeführt:\n{fix_result}")
-
         except Exception as e:
             log.error(f"[DebugConsole][ask_froggy] ❌ Fehler bei Froggy-Analyse: {e}")
+
+    def ask_froggy_chat(self):
+        from ai_backend.froggy import froggy_nlp
+        msg = self.chat_input.text().strip()
+        if not msg:
+            return
+        self.output.append(f"\n🗣 Du: {msg}")
+        self.chat_input.clear()
+
+        try:
+            log_text = "\n".join(self.full_log)
+            response = froggy_nlp.process_natural_input(msg, log_text)
+            self.output.append(f"\n🐸 Froggy antwortet:\n{response}")
+        except Exception as e:
+            log.error(f"[DebugConsole][ask_froggy_chat] ❌ Fehler im Froggy NLP: {e}")
+            self.output.append("\n❌ Froggy versteht das leider gerade nicht.")
