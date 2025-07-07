@@ -1,20 +1,48 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer import torch import os
+from .froggy_handler import ( ask_froggy_anything, suggest_fix, confirm_and_execute_fix, give_froggy_feedback ) from .froggy_worldview import scan_worldview from .code_inspector import inspect_all_code from .fix_generator import apply_fix_to_file from .froggy_llm import generate_response
 
-📦 Modellname (lokal oder aus HuggingFace, z. B. TinyCoder oder Phi-2)
+def process_natural_input(user_input: str, log_text: str) -> str: lower = user_input.lower()
 
-LLM_NAME = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"  # alternativ: "tiiuae/falcon-rw-1b" oder "microsoft/phi-2"
+# 🔍 Loganalyse durch Modell
+if "analyse" in lower or "problem" in lower or "was ist los" in lower:
+    result = ask_froggy_anything(log_text)
+    return f"""❌ Problem: {result.get("problem")}
 
-📁 Cache-Verzeichnis, um HuggingFace-Downloads zu speichern
+📎 Ursache: {result.get("cause")} 💡 Vorschlag: {result.get("suggestion")}"""
 
-HF_CACHE = os.path.expanduser("~/.cache/huggingface")
+# 🧠 NLP-gesteuerter Code-Fix
+if "fix" in lower or "reparier" in lower or "mach" in lower:
+    if "code" in lower or "funktion" in lower or "leer" in lower:
+        # → Code-Struktur analysieren
+        problems = inspect_all_code()
+        if not problems:
+            return "✅ Keine strukturellen Codeprobleme gefunden."
 
-🔄 Gerät auswählen (GPU/CPU)
+        messages = []
+        for p in problems:
+            messages.append(f"""📂 Datei: {p['file']}
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+🔍 Problem: {p.get('type', p.get('error', 'Unbekannt'))} 📍 Zeile: {p.get('lineno', '?')} 💡 Fix-Vorschlag: {p.get('fix', '[kein Fix bekannt]')} """) confirm = input("🐸 Fix jetzt einfügen? (ja/nein): ").strip().lower() if confirm in ("ja", "yes", "y"): result = apply_fix_to_file( file_path=p["file"], lineno=p.get("lineno", 0), fix_code=p.get("fix", "") ) messages.append(f"✅ Ergebnis: {result}") else: messages.append("🛑 Übersprungen.") return "\n".join(messages) else: fix = suggest_fix(log_text) return confirm_and_execute_fix(fix)
 
-print(f"🧠 Lade LLM: {LLM_NAME} auf {device}...") tokenizer = AutoTokenizer.from_pretrained(LLM_NAME, cache_dir=HF_CACHE) model = AutoModelForCausalLM.from_pretrained(LLM_NAME, cache_dir=HF_CACHE).to(device) model.eval()
+# 💬 Freie Codegenerierung durch LLM
+if any(kw in lower for kw in ["klasse", "panel", "methode", "funktion", "code schreiben"]):
+    response = generate_response(user_input)
+    return f"🧠 Froggy generiert:
 
-def generate_response(prompt: str, max_tokens: int = 200) -> str: input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(device) with torch.no_grad(): output = model.generate( input_ids, max_length=input_ids.shape[1] + max_tokens, do_sample=True, temperature=0.7, top_k=50, top_p=0.95, pad_token_id=tokenizer.eos_token_id ) decoded = tokenizer.decode(output[0], skip_special_tokens=True) return decoded[len(prompt):].strip()
+{response}"
 
-if name == "main": test = "Schreibe eine Python-Klasse namens CharacterPanel mit einer Methode export_character()" print("\n🧪 Test-Prompt:") print(test) print("\n📤 Antwort:") print(generate_response(test))
+# 📤 Feedback-Verarbeitung
+if "feedback" in lower and "ok" in lower:
+    give_froggy_feedback(log_text, correct_label=0)
+    return "✅ Danke! Froggy hat gelernt, dass das die richtige Lösung war."
+
+# 🧩 Modulübersicht & Worldview
+if "was fehlt" in lower or "module" in lower or "systemstatus" in lower:
+    view = scan_worldview()
+    missing = view.get("missing", [])
+    found = view.get("modules", {})
+    return f"""📦 Froggys Systemstatus:
+
+Fehlende Module: {', '.join(missing) if missing else 'Keine'} Aktive Module: {', '.join(k for k,v in found.items() if v)}"""
+
+return "🤷‍♂️ Froggy weiß (noch) nicht, wie er darauf reagieren soll."
 
