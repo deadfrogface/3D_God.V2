@@ -4,14 +4,14 @@ import os
 import json
 import torch
 from ai_backend.froggy.froggy_brain import predict, train_feedback
+from ai_backend.froggy.froggy_worldview import scan_worldview
 
-# Fehlerklassifikationen + Vorschläge
+# 🔍 Hauptanalyse
 def ask_froggy_anything(log_text="") -> dict:
     features = extract_log_features(log_text)
     prediction = predict(features)
     diagnosis = get_error_description(prediction)
-
-    fix_fn = FIX_FUNCTIONS.get(prediction, lambda: "Kein Fix verfügbar")
+    fix_fn = FIX_FUNCTIONS.get(prediction, None)
 
     return {
         "problem": diagnosis.get("problem"),
@@ -23,12 +23,56 @@ def ask_froggy_anything(log_text="") -> dict:
         "predicted_label": prediction
     }
 
-# Nutzer gibt Feedback: das war richtig/nicht richtig
+# 🧠 Vorschlag mit Priorisierung & Fix-Vorschau
+def suggest_fix(log_text="") -> dict:
+    features = extract_log_features(log_text)
+    error_id = predict(features)
+    diagnosis = get_error_description(error_id)
+    fix_fn = FIX_FUNCTIONS.get(error_id, None)
+    worldview = scan_worldview()
+
+    return {
+        "error_id": error_id,
+        "problem": diagnosis.get("problem"),
+        "cause": diagnosis.get("cause"),
+        "suggestion": diagnosis.get("suggestion"),
+        "can_fix": diagnosis.get("can_fix", False),
+        "priority": diagnosis.get("priority", "mittel"),
+        "fix_code": diagnosis.get("fix_code", "[interner Methodenaufruf]"),
+        "fix_fn": fix_fn,
+        "target_file": diagnosis.get("target_file"),
+        "world_info": worldview
+    }
+
+# ❓ Bestätigung & Ausführung
+def confirm_and_execute_fix(fix: dict) -> str:
+    if not fix.get("can_fix") or not fix.get("fix_fn"):
+        return "❌ Kein automatischer Fix verfügbar."
+
+    print(f"""
+🧠 Froggy Vorschlag:
+❌ Problem: {fix['problem']}
+📎 Ursache: {fix['cause']}
+💡 Vorschlag: {fix['suggestion']}
+📂 Datei: {fix['target_file']}
+📈 Priorität: {fix['priority']}
+
+🛠 Fix-Vorschau:
+{fix['fix_code']}
+
+❓ Jetzt anwenden? (ja/nein)
+""")
+    confirm = input(">>> ").strip().lower()
+    if confirm in ("ja", "yes", "y"):
+        return fix['fix_fn']()
+    return "🛑 Fix abgebrochen."
+
+# 🔁 Manuelles Feedback (per Button oder NLP)
 def give_froggy_feedback(log_text: str, correct_label: int):
     features = extract_log_features(log_text)
     train_feedback(features, correct_label)
 
-# Dummy-Feature-Vektor aus Logtext
+# 🔍 Logfeatures extrahieren
 def extract_log_features(log_text: str) -> list:
     lines = log_text.lower().split("\n")
     return [
@@ -41,6 +85,7 @@ def extract_log_features(log_text: str) -> list:
         sum("mesh" in l for l in lines)
     ]
 
+# 🧠 Fehler-Definitionen laden
 def get_error_description(error_id: int) -> dict:
     path = os.path.join(os.path.dirname(__file__), "error_tags.json")
     if os.path.exists(path):
@@ -48,7 +93,7 @@ def get_error_description(error_id: int) -> dict:
             return json.load(f).get(str(error_id), DEFAULT_ERROR)
     return DEFAULT_ERROR
 
-# Fallback-Beschreibung
+# 🧱 Fallback
 DEFAULT_ERROR = {
     "problem": "Unbekannter Fehler im System",
     "cause": "Keine Analyse möglich",
@@ -56,7 +101,7 @@ DEFAULT_ERROR = {
     "can_fix": False
 }
 
-# Reparaturfunktionen pro Fehler-ID
+# 🛠 Beispielhafte Fix-Funktionen
 def fix_triposr_bbox():
     from ai_backend.triposr.triposr_handler import enable_default_bbox
     return enable_default_bbox()
