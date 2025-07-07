@@ -8,10 +8,11 @@ from .froggy_worldview import scan_worldview
 from .code_inspector import inspect_all_code
 from .fix_generator import apply_fix_to_file
 
+
 def process_natural_input(user_input: str, log_text: str) -> str:
     lower = user_input.lower()
 
-    # 🔍 Loganalyse
+    # 🔍 Loganalyse durch Modell
     if "analyse" in lower or "problem" in lower or "was ist los" in lower:
         result = ask_froggy_anything(log_text)
         return f"""❌ Problem: {result.get("problem")}
@@ -49,13 +50,13 @@ def process_natural_input(user_input: str, log_text: str) -> str:
             fix = suggest_fix(log_text)
             return confirm_and_execute_fix(fix)
 
-    # 📤 Feedback
+    # 📤 Feedback-Verarbeitung
     if "feedback" in lower and "ok" in lower:
         give_froggy_feedback(log_text, correct_label=0)
         return "✅ Danke! Froggy hat gelernt, dass das die richtige Lösung war."
 
-    # 🧩 Module & Systemstatus
-    if "was fehlt" in lower or "module" in lower:
+    # 🧩 Modulübersicht & Worldview
+    if "was fehlt" in lower or "module" in lower or "systemstatus" in lower:
         view = scan_worldview()
         missing = view.get("missing", [])
         found = view.get("modules", {})
