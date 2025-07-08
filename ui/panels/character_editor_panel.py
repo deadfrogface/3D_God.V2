@@ -32,14 +32,12 @@ class CharacterEditorPanel(QWidget):
                 slider = QSlider(Qt.Horizontal)
                 slider.setRange(min_val, max_val)
                 slider.setValue(default_val)
-                slider.setObjectName(key)
-                slider.valueChanged.connect(lambda val, k=key: self.update_value(k, val))
+                slider.valueChanged.connect(lambda val, k=key: self.on_slider_changed(k, val))
 
                 self.sliders[key] = slider
                 row.addWidget(slider)
                 layout.addLayout(row)
 
-            layout.addStretch()
             self.setLayout(layout)
             log.success("[CharacterEditorPanel][__init__] ✅ Initialisierung abgeschlossen")
         except Exception as e:
@@ -60,9 +58,11 @@ class CharacterEditorPanel(QWidget):
             log.error(f"[CharacterEditorPanel][load_parameters] ❌ Fehler beim Laden: {e}")
             return {}
 
-    def update_value(self, key, value):
-        log.debug(f"[CharacterEditorPanel][update_value] 🔧 {key} → {value}")
+    def on_slider_changed(self, key, value):
+        log.debug(f"[CharacterEditorPanel][on_slider_changed] 🔧 {key} → {value}")
         self.character_system.update_sculpt_value(key, value)
+        self.character_system.sculpt()  # 👈 Sofortige Live-Aktualisierung des Models
+        self.character_system.refresh_layers()
 
     def refresh_sliders(self):
         log.debug("[CharacterEditorPanel][refresh_sliders] 🔄 Synchronisiere Slider")
