@@ -65,6 +65,8 @@ class CharacterSystem:
     def update_sculpt_value(self, key, value):
         log.info(f"[CharacterSystem][update_sculpt_value] ▶️ {key} = {value}")
         self.sculpt_data[key] = value
+        self.sculpt_tools.send_data(self.sculpt_data)  # 🟢 Direkt an Blender senden
+        self.refresh_layers()                          # 🔁 Viewport updaten
 
     def sculpt(self):
         log.info("[CharacterSystem][sculpt] ▶️ Starte Blender Sculpting")
