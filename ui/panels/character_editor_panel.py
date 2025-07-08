@@ -1,44 +1,62 @@
+import os
+import json
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider, QHBoxLayout
 from PySide6.QtCore import Qt
 from core.logger import log
 
+PARAMS_FILE = "assets/body_parameters.json"
+
 class CharacterEditorPanel(QWidget):
     def __init__(self, character_system):
-        try:
-            super().__init__()
-            self.character_system = character_system
-            self.character_system.slider_sync_callback = self.refresh_sliders
+        super().__init__()
+        self.character_system = character_system
+        self.character_system.slider_sync_callback = self.refresh_sliders
+        self.sliders = {}
 
+        try:
             log.info("[CharacterEditorPanel][__init__] ▶️ Initialisiere Körperform-Editor")
 
             layout = QVBoxLayout()
             layout.addWidget(QLabel("🧍‍♂️ Körperform-Editor"))
 
-            self.sliders = {}
-            self.fields = {
-                "height":      ("Größe",       0, 100),
-                "breast_size": ("Brustgröße",  0, 100),
-                "hip_width":   ("Hüften",      0, 100),
-                "arm_length":  ("Armlänge",    0, 100),
-                "leg_length":  ("Beinlänge",   0, 100)
-            }
+            self.fields = self.load_parameters()
+            for key, params in self.fields.items():
+                label_text = params.get("label", key)
+                min_val = params.get("min", 0)
+                max_val = params.get("max", 100)
+                default_val = character_system.sculpt_data.get(key, params.get("default", 50))
 
-            for key, (label, min_val, max_val) in self.fields.items():
                 row = QHBoxLayout()
-                row.addWidget(QLabel(label))
+                row.addWidget(QLabel(label_text))
+
                 slider = QSlider(Qt.Horizontal)
                 slider.setRange(min_val, max_val)
-                slider.setValue(self.character_system.sculpt_data.get(key, 50))
+                slider.setValue(default_val)
                 slider.valueChanged.connect(lambda val, k=key: self.update_value(k, val))
+
                 self.sliders[key] = slider
                 row.addWidget(slider)
                 layout.addLayout(row)
 
             self.setLayout(layout)
-            log.info("[CharacterEditorPanel][__init__] ✅ Initialisierung abgeschlossen")
+            log.success("[CharacterEditorPanel][__init__] ✅ Initialisierung abgeschlossen")
         except Exception as e:
             log.error(f"[CharacterEditorPanel][__init__] ❌ Fehler bei Initialisierung: {e}")
             raise
+
+    def load_parameters(self):
+        if not os.path.exists(PARAMS_FILE):
+            log.error(f"[CharacterEditorPanel][load_parameters] ❌ Datei nicht gefunden: {PARAMS_FILE}")
+            return {}
+
+        try:
+            with open(PARAMS_FILE, "r", encoding="utf-8") as f:
+                params = json.load(f)
+                log.success(f"[CharacterEditorPanel][load_parameters] ✅ Parameter geladen: {len(params)}")
+                return params
+        except Exception as e:
+            log.error(f"[CharacterEditorPanel][load_parameters] ❌ Fehler beim Laden: {e}")
+            return {}
 
     def update_value(self, key, value):
         log.debug(f"[CharacterEditorPanel][update_value] 🔧 {key} → {value}")
