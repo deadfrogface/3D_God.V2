@@ -69,19 +69,23 @@ return unlinked
 
 def find_unlinked_assets(): all_assets = find_asset_files() used = find_used_asset_paths() unused = [a for a in all_assets if not any(u in a for u in used)] return unused
 
-def run_connection_inspector(): results = [] unused_funcs = find_defined_but_unused_functions() if unused_funcs: results.append("🔍 Nicht verwendete Funktionen:") for name, path in unused_funcs: results.append(f"- {name} in {path}")
+def run_connection_inspector(with_fixes=True): results = [] unused_funcs = find_defined_but_unused_functions() if unused_funcs: results.append("🔍 Nicht verwendete Funktionen:") for name, path in unused_funcs: results.append(f"- {name} in {path}") if with_fixes: results.append(f"  💡 Vorschlag: Funktion '{name}' aufrufen oder entfernen.")
 
 unlinked_btns = find_unlinked_ui_elements()
 if unlinked_btns:
     results.append("\n🔗 Nicht verbundene UI-Buttons:")
     for btn, path in unlinked_btns:
         results.append(f"- {btn} in {path}")
+        if with_fixes:
+            results.append(f"  💡 Vorschlag: {btn}.clicked.connect(...) einfügen.")
 
 unlinked_assets = find_unlinked_assets()
 if unlinked_assets:
     results.append("\n🧱 Unverwendete Assets:")
     for a in unlinked_assets:
         results.append(f"- {a}")
+        if with_fixes:
+            results.append(f"  💡 Vorschlag: Asset laden, z. B. mit `load_asset('{a}')`.")
 
 return "\n".join(results) if results else "✅ Alle Verbindungen sehen gut aus."
 
