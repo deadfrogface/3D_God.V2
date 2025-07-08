@@ -1,0 +1,77 @@
+ai_backend/froggy/connection_inspector.py
+
+import os import ast
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(file), '../../..'))
+
+IGNORED_DIRS = {"pycache", "venv", ".git", ".idea", "build", "dist"} PYTHON_EXT = ".py"
+
+def find_python_files(base_path=PROJECT_ROOT): for root, dirs, files in os.walk(base_path): # Ignoriere bestimmte Ordner dirs[:] = [d for d in dirs if d not in IGNORED_DIRS] for file in files: if file.endswith(PYTHON_EXT): yield os.path.join(root, file)
+
+def find_defined_but_unused_functions(): defined = set() called = set()
+
+for path in find_python_files():
+    try:
+        with open(path, encoding="utf-8") as f:
+            tree = ast.parse(f.read(), filename=path)
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef):
+                defined.add((node.name, path))
+            elif isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name):
+                    called.add(node.func.id)
+                elif isinstance(node.func, ast.Attribute):
+                    called.add(node.func.attr)
+    except Exception:
+        continue
+
+unused = [(name, path) for (name, path) in defined if name not in called and not name.startswith("_")]
+return unused
+
+def find_unlinked_ui_elements(): buttons = [] connections = set()
+
+for path in find_python_files():
+    try:
+        with open(path, encoding="utf-8") as f:
+            content = f.read()
+
+        if "QPushButton" not in content:
+            continue
+
+        tree = ast.parse(content, filename=path)
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign):
+                if isinstance(node.value, ast.Call) and hasattr(node.value.func, "id"):
+                    if node.value.func.id == "QPushButton":
+                        for target in node.targets:
+                            if isinstance(target, ast.Name):
+                                buttons.append((target.id, path))
+
+            elif isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
+                func = node.value.func
+                if isinstance(func, ast.Attribute):
+                    if func.attr.startswith("connect"):
+                        if isinstance(func.value, ast.Attribute):
+                            connections.add(func.value.value.id)
+                        elif isinstance(func.value, ast.Name):
+                            connections.add(func.value.id)
+    except Exception:
+        continue
+
+unlinked = [(btn, path) for (btn, path) in buttons if btn not in connections]
+return unlinked
+
+def run_connection_inspector(): results = [] unused_funcs = find_defined_but_unused_functions() if unused_funcs: results.append("🔍 Nicht verwendete Funktionen:") for name, path in unused_funcs: results.append(f"- {name} in {path}")
+
+unlinked_btns = find_unlinked_ui_elements()
+if unlinked_btns:
+    results.append("\n🔗 Nicht verbundene UI-Buttons:")
+    for btn, path in unlinked_btns:
+        results.append(f"- {btn} in {path}")
+
+return "\n".join(results) if results else "✅ Alle Verbindungen sehen gut aus."
+
+if name == "main": print(run_connection_inspector())
+
