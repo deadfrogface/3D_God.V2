@@ -1,98 +1,51 @@
-import os
-import ast
+from .froggy_handler import ( ask_froggy_anything, suggest_fix, confirm_and_execute_fix, give_froggy_feedback, ) from .froggy_worldview import scan_worldview from .code_inspector import inspect_all_code from .fix_generator import apply_fix_to_file from .connection_inspector import run_connection_inspector from .froggy_llm import generate_response
 
-IGNORED_DIRS = {"__pycache__", "venv", ".git", ".idea", "build", "dist"}
-PYTHON_EXT = ".py"
-ASSET_EXTS = {".glb", ".fbx", ".png", ".jpg", ".jpeg", ".json", ".shader", ".txt", ".cfg"}
-ASSET_DIRS = {"assets", "resources", "data", "models"}
+def process_natural_input(user_input: str, log_text: str) -> str: lower = user_input.lower()
 
-def run_connection_inspector() -> str:
-    root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
-    found_functions = set()
-    called_functions = set()
-    buttons = {}
-    connected_buttons = set()
-    all_assets = set()
-    used_assets = set()
+# 🔍 Loganalyse durch Modell
+if "analyse" in lower or "problem" in lower or "was ist los" in lower:
+    result = ask_froggy_anything(log_text)
+    return f"""❌ Problem: {result.get('problem')}
+
+📎 Ursache: {result.get('cause')} 💡 Vorschlag: {result.get('suggestion')}"""
+
+# 🧠 NLP-gesteuerter Code-Fix
+if "fix" in lower or "reparier" in lower or "mach" in lower:
+    problems = inspect_all_code()
+    if not problems:
+        return "✅ Keine strukturellen Codeprobleme gefunden."
+
     messages = []
+    for p in problems:
+        messages.append(
+            f"""📂 Datei: {p['file']}
 
-    for dirpath, dirnames, filenames in os.walk(root):
-        # Filter ignorierte Ordner
-        if any(ignored in dirpath for ignored in IGNORED_DIRS):
-            continue
+🔍 Problem: {p.get('type', p.get('error', 'Unbekannt'))} 📍 Zeile: {p.get('lineno', '?')} 💡 Fix-Vorschlag: {p.get('fix', '[kein Fix bekannt]')}""" ) if p.get("autofix", True): result = apply_fix_to_file( file_path=p["file"], lineno=p.get("lineno", 0), fix_code=p.get("fix", ""), ) messages.append(f"✅ Automatisch repariert: {result}") else: confirm = input("🐸 Fix jetzt einfügen? (ja/nein): ").strip().lower() if confirm in ("ja", "yes", "y"): result = apply_fix_to_file( file_path=p["file"], lineno=p.get("lineno", 0), fix_code=p.get("fix", ""), ) messages.append(f"✅ Ergebnis: {result}") else: messages.append("🛑 Übersprungen.") return "\n".join(messages)
 
-        # 🧠 Code analysieren
-        for fname in filenames:
-            fpath = os.path.join(dirpath, fname)
+# 🔗 Verbindungsprüfung
+if "verbindung" in lower or "verbinde" in lower or "verknüpfung" in lower:
+    result = run_connection_inspector()
+    return result
 
-            # ⬛ Python-Dateien analysieren
-            if fname.endswith(PYTHON_EXT):
-                try:
-                    with open(fpath, "r", encoding="utf-8") as f:
-                        source = f.read()
-                    tree = ast.parse(source)
+# 💬 Freie Codegenerierung durch LLM
+if any(kw in lower for kw in ["klasse", "panel", "methode", "funktion", "code schreiben"]):
+    response = generate_response(user_input)
+    return f"🧠 Froggy generiert:\n\n{response}"
 
-                    for node in ast.walk(tree):
-                        # Funktionen merken
-                        if isinstance(node, ast.FunctionDef):
-                            found_functions.add((node.name, fpath, node.lineno))
-                        # Funktionsaufrufe erkennen
-                        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
-                            called_functions.add(node.func.id)
-                        # UI-Buttons erfassen
-                        if isinstance(node, ast.Assign):
-                            for target in node.targets:
-                                if isinstance(target, ast.Name) and "btn" in target.id.lower():
-                                    buttons[target.id] = (fpath, node.lineno)
-                        # Button-Verbindungen
-                        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
-                            func = node.value.func
-                            if isinstance(func, ast.Attribute) and "connect" in func.attr:
-                                if isinstance(func.value, ast.Attribute) and func.value.attr == "clicked":
-                                    if isinstance(func.value.value, ast.Name):
-                                        connected_buttons.add(func.value.value.id)
-                except Exception as e:
-                    messages.append(f"❌ Fehler beim Parsen von {fpath}: {e}")
+# 📤 Feedback-Verarbeitung
+if "feedback" in lower and "ok" in lower:
+    give_froggy_feedback(log_text, correct_label=0)
+    return "✅ Danke! Froggy hat gelernt, dass das die richtige Lösung war."
 
-            # 📂 Assets sammeln
-            for ext in ASSET_EXTS:
-                if fname.endswith(ext):
-                    relpath = os.path.relpath(fpath, root)
-                    all_assets.add(relpath.replace("\\", "/"))
+# 🧩 Modulübersicht & Worldview
+if "was fehlt" in lower or "module" in lower or "systemstatus" in lower:
+    view = scan_worldview()
+    missing = view.get("missing", [])
+    found = view.get("modules", {})
+    return f"""📦 Froggys Systemstatus:
 
-            # 🔍 Asset-Verwendung prüfen
-            try:
-                with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
-                    content = f.read()
-                    for asset in list(all_assets):
-                        if asset in content:
-                            used_assets.add(asset)
-            except:
-                pass
+Fehlende Module: {', '.join(missing) if missing else 'Keine'} Aktive Module: {', '.join(k for k, v in found.items() if v)}"""
 
-    # 🧩 Unverbundene Funktionen
-    unused = [f for f in found_functions if f[0] not in called_functions]
-    if unused:
-        messages.append("🔍 Nicht verwendete Funktionen:")
-        for name, fpath, lineno in unused:
-            messages.append(f"- {name} in {os.path.relpath(fpath, root)}:{lineno}")
+# 🧠 Allgemeiner LLM-Fallback
+return generate_response(user_input)
 
-    # 🔗 Unverbundene Buttons
-    disconnected = [b for b in buttons if b not in connected_buttons]
-    if disconnected:
-        messages.append("🔗 Nicht verbundene UI-Buttons:")
-        for b in disconnected:
-            fpath, lineno = buttons[b]
-            messages.append(f"- {b} in {os.path.relpath(fpath, root)}:{lineno}")
-
-    # 📦 Unverwendete Assets
-    missing_assets = all_assets - used_assets
-    if missing_assets:
-        messages.append("🧱 Unverwendete Assets:")
-        for asset in sorted(missing_assets):
-            messages.append(f"- {asset} (nicht referenziert im Code)")
-
-    if not messages:
-        return "✅ Alle Verbindungen scheinen korrekt zu sein."
-
-    return "\n".join(messages)
