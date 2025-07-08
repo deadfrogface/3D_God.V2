@@ -1,6 +1,7 @@
 ai_backend/froggy/connection_inspector.py
 
-import os import ast
+import os
+import ast
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(file), '../../..'))
 
