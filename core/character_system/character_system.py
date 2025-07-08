@@ -42,7 +42,7 @@ class CharacterSystem:
 
         # Standardmodell laden, wenn kein Preset existiert
         if not os.path.exists(os.path.join(self.preset_path, "default.json")):
-            self.load_default_model("male")
+            self.load_base_model("male")
 
         log.success("[CharacterSystem][__init__] ✅ Initialisierung abgeschlossen")
 
@@ -175,12 +175,12 @@ class CharacterSystem:
         if self.slider_sync_callback:
             self.slider_sync_callback()
 
-    def load_default_model(self, gender="male"):
-        log.info(f"[CharacterSystem][load_default_model] ▶️ Lade Standardmodell ({gender})")
-        path = f"assets/models/base/Base{gender.capitalize()}.glb"
+    def load_base_model(self, gender="male"):
+        log.info(f"[CharacterSystem][load_base_model] ▶️ Lade Basis-Modell ({gender})")
+        path = f"assets/characters/{gender}_base.glb"
         if os.path.exists(path):
             if self.viewport_ref:
                 self.viewport_ref.load_preview(path)
-            log.success(f"[CharacterSystem][load_default_model] ✅ Geladen: {path}")
+            log.success(f"[CharacterSystem][load_base_model] ✅ Geladen: {path}")
         else:
-            log.error(f"[CharacterSystem][load_default_model] ❌ Nicht gefunden: {path}")
+            log.error(f"[CharacterSystem][load_base_model] ❌ Nicht gefunden: {path}")
