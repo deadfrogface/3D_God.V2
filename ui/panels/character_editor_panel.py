@@ -32,12 +32,14 @@ class CharacterEditorPanel(QWidget):
                 slider = QSlider(Qt.Horizontal)
                 slider.setRange(min_val, max_val)
                 slider.setValue(default_val)
+                slider.setObjectName(key)
                 slider.valueChanged.connect(lambda val, k=key: self.update_value(k, val))
 
                 self.sliders[key] = slider
                 row.addWidget(slider)
                 layout.addLayout(row)
 
+            layout.addStretch()
             self.setLayout(layout)
             log.success("[CharacterEditorPanel][__init__] ✅ Initialisierung abgeschlossen")
         except Exception as e:
