@@ -4,9 +4,13 @@ import os import ast
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(file), '../../..'))
 
-IGNORED_DIRS = {"pycache", "venv", ".git", ".idea", "build", "dist"} PYTHON_EXT = ".py"
+IGNORED_DIRS = {"pycache", "venv", ".git", ".idea", "build", "dist"} PYTHON_EXT = ".py" ASSET_EXTS = {".glb", ".fbx", ".png", ".jpg", ".jpeg", ".json", ".shader", ".txt", ".cfg"} ASSET_DIRS = {"assets", "resources", "data", "models"}
 
-def find_python_files(base_path=PROJECT_ROOT): for root, dirs, files in os.walk(base_path): # Ignoriere bestimmte Ordner dirs[:] = [d for d in dirs if d not in IGNORED_DIRS] for file in files: if file.endswith(PYTHON_EXT): yield os.path.join(root, file)
+def find_python_files(base_path=PROJECT_ROOT): for root, dirs, files in os.walk(base_path): dirs[:] = [d for d in dirs if d not in IGNORED_DIRS] for file in files: if file.endswith(PYTHON_EXT): yield os.path.join(root, file)
+
+def find_asset_files(base_path=PROJECT_ROOT): asset_paths = [] for root, dirs, files in os.walk(base_path): if not any(part in root for part in ASSET_DIRS): continue for file in files: ext = os.path.splitext(file)[1].lower() if ext in ASSET_EXTS: asset_paths.append(os.path.relpath(os.path.join(root, file), base_path)) return asset_paths
+
+def find_used_asset_paths(): used_assets = set() for path in find_python_files(): try: with open(path, encoding="utf-8") as f: content = f.read() for ext in ASSET_EXTS: for line in content.splitlines(): if ext in line: fragments = line.split('"') + line.split("'") for frag in fragments: if ext in frag: used_assets.add(frag.strip()) except Exception: continue return used_assets
 
 def find_defined_but_unused_functions(): defined = set() called = set()
 
@@ -63,6 +67,8 @@ for path in find_python_files():
 unlinked = [(btn, path) for (btn, path) in buttons if btn not in connections]
 return unlinked
 
+def find_unlinked_assets(): all_assets = find_asset_files() used = find_used_asset_paths() unused = [a for a in all_assets if not any(u in a for u in used)] return unused
+
 def run_connection_inspector(): results = [] unused_funcs = find_defined_but_unused_functions() if unused_funcs: results.append("🔍 Nicht verwendete Funktionen:") for name, path in unused_funcs: results.append(f"- {name} in {path}")
 
 unlinked_btns = find_unlinked_ui_elements()
@@ -70,6 +76,12 @@ if unlinked_btns:
     results.append("\n🔗 Nicht verbundene UI-Buttons:")
     for btn, path in unlinked_btns:
         results.append(f"- {btn} in {path}")
+
+unlinked_assets = find_unlinked_assets()
+if unlinked_assets:
+    results.append("\n🧱 Unverwendete Assets:")
+    for a in unlinked_assets:
+        results.append(f"- {a}")
 
 return "\n".join(results) if results else "✅ Alle Verbindungen sehen gut aus."
 
