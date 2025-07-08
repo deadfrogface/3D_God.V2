@@ -5,7 +5,10 @@ import ast
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(file), '../../..'))
 
-IGNORED_DIRS = {"pycache", "venv", ".git", ".idea", "build", "dist"} PYTHON_EXT = ".py" ASSET_EXTS = {".glb", ".fbx", ".png", ".jpg", ".jpeg", ".json", ".shader", ".txt", ".cfg"} ASSET_DIRS = {"assets", "resources", "data", "models"}
+IGNORED_DIRS = {"__pycache__", "venv", ".git", ".idea", "build", "dist"}
+PYTHON_EXT = ".py"
+ASSET_EXTS = {".glb", ".fbx", ".png", ".jpg", ".jpeg", ".json", ".shader", ".txt", ".cfg"}
+ASSET_DIRS = {"assets", "resources", "data", "models"}
 
 def find_python_files(base_path=PROJECT_ROOT): for root, dirs, files in os.walk(base_path): dirs[:] = [d for d in dirs if d not in IGNORED_DIRS] for file in files: if file.endswith(PYTHON_EXT): yield os.path.join(root, file)
 
