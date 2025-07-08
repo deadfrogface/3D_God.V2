@@ -52,6 +52,7 @@ class DebugConsole(QWidget):
             btn_froggy.clicked.connect(self.ask_froggy)
             layout.addWidget(btn_froggy)
 
+            # 🔤 Froggy Chatfeld (Copilot-Style)
             self.chat_input = QLineEdit()
             self.chat_input.setPlaceholderText("💬 Frag Froggy etwas... (z. B. 'Warum exportiert das nicht?')")
             self.chat_input.returnPressed.connect(self.ask_froggy_chat)
@@ -60,23 +61,12 @@ class DebugConsole(QWidget):
             self.setLayout(layout)
             self.full_log = []
 
-            # 🔁 Umleitung von stdout/stderr in die Konsole
             sys.stdout = self
             sys.stderr = self
-
             log.info("[DebugConsole][__init__] ✅ Debug-Konsole bereit.")
         except Exception as e:
             log.error(f"[DebugConsole][__init__] ❌ Fehler bei Initialisierung: {e}")
             raise
-
-    def write(self, message):
-        message = message.strip()
-        if message:
-            self.full_log.append(message)
-            self.output.append(message)
-
-    def flush(self):
-        pass
 
     def apply_filter(self):
         self.output.clear()
@@ -152,3 +142,12 @@ class DebugConsole(QWidget):
         except Exception as e:
             log.error(f"[DebugConsole][ask_froggy_chat] ❌ Fehler im Froggy NLP: {e}")
             self.output.append("\n❌ Froggy versteht das leider gerade nicht.")
+
+    def write(self, message):
+        message = message.strip()
+        if message:
+            self.full_log.append(message)
+            self.output.append(message)
+
+    def flush(self):
+        pass
