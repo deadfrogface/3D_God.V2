@@ -1,0 +1,94 @@
+{
+  "main_launcher.py": {
+    "classes": [],
+    "functions": [
+      "ensure_fauxpilot_dependencies",
+      "fauxpilot_server_healthcheck",
+      "start_fauxpilot_server",
+      "stop_fauxpilot_server",
+      "run_main_script",
+      "main",
+      "setup_signal_handlers"
+    ],
+    "imports": [
+      "subprocess",
+      "sys",
+      "os",
+      "importlib",
+      "signal",
+      "atexit",
+      "traceback",
+      "core.logger.log"
+    ]
+  },
+  "ai_backend/froggy/__init__.py": {
+    "classes": [],
+    "functions": [],
+    "imports": [
+      ".froggy_repo_indexer"
+    ]
+  },
+  "ai_backend/froggy/froggy_repo_indexer.py": {
+    "classes": [],
+    "functions": [
+      "is_valid_file",
+      "scan_python_file",
+      "scan_project",
+      "save_cache"
+    ],
+    "imports": [
+      "os",
+      "ast",
+      "json"
+    ]
+  },
+  "ai_backend/froggy/froggy_worldview.py": {
+    "classes": [],
+    "functions": [
+      "scan_worldview",
+      "get_cached_worldview"
+    ],
+    "imports": [
+      "os",
+      "json",
+      "datetime.datetime"
+    ]
+  },
+  "ai_backend/froggy/froggy_handler.py": {
+    "classes": [],
+    "functions": [
+      "ask_froggy_anything",
+      "suggest_fix",
+      "confirm_and_execute_fix",
+      "give_froggy_feedback",
+      "extract_log_features",
+      "get_error_description",
+      "fix_triposr_bbox",
+      "fix_yolo_confidence"
+    ],
+    "imports": [
+      "os",
+      "json",
+      "torch",
+      "ai_backend.froggy.froggy_brain.predict",
+      "ai_backend.froggy.froggy_brain.train_feedback",
+      "ai_backend.froggy.froggy_brain.train_on_example",
+      "ai_backend.froggy.froggy_worldview.scan_worldview"
+    ]
+  },
+  "ai_backend/froggy/froggy_cnn.py": {
+    "classes": [
+      "FroggyCNN"
+    ],
+    "functions": [
+      "predict_image_class"
+    ],
+    "imports": [
+      "torch",
+      "torch.nn",
+      "torch.nn.functional",
+      "torchvision.transforms",
+      "PIL.Image"
+    ]
+  }
+}
