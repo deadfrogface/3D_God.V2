@@ -1,6 +1,7 @@
 # ui/viewport/viewport_3d.py
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QOpenGLWidget
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from PySide6.QtCore import Qt
 from core.logger import log
 
