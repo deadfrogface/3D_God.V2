@@ -10,11 +10,32 @@ from core.logger import log
 FAUXPILOT_PORT = int(os.environ.get("FAUXPILOT_PORT", 5000))
 FAUXPILOT_PROCESS = None
 
+IS_CODESPACE = os.environ.get("CODESPACES") == "true"
+
+
+def install_codespace_dependencies():
+    """
+    Installs Qt/X11/Xvfb dependencies only if running inside GitHub Codespace.
+    """
+    log.info("🧪 Running in GitHub Codespace – installing system dependencies...")
+    try:
+        subprocess.check_call([
+            "sudo", "apt-get", "update"
+        ])
+        subprocess.check_call([
+            "sudo", "apt-get", "install", "-y",
+            "xvfb", "libxcb1", "libxcb-util1", "libxcb-cursor0", "libxcb-keysyms1", "libxcb-xinerama0",
+            "libxcb-randr0", "libxcb-shape0", "libxcb-icccm4", "libxcb-image0", "libxcb-xkb1",
+            "libxkbcommon-x11-0", "libx11-xcb1", "libxrender1", "libxi6", "libxcomposite1",
+            "libxcursor1", "libxrandr2", "libxtst6", "libegl1", "libgl1"
+        ])
+        log.success("✅ Qt/X11 dependencies installed (Codespace).")
+    except Exception as e:
+        log.error(f"❌ Failed to install system dependencies: {e}")
+        log.debug(traceback.format_exc())
+
+
 def ensure_fauxpilot_dependencies():
-    """
-    Ensures required dependencies for FauxPilot are installed.
-    Uses requirements.txt if present, otherwise checks individual packages.
-    """
     requirements_file = os.path.join(os.path.dirname(__file__), "requirements.txt")
     if os.path.isfile(requirements_file):
         log.info("📦 Installing dependencies from requirements.txt...")
@@ -38,15 +59,12 @@ def ensure_fauxpilot_dependencies():
                 log.error(f"❌ Failed to install package {package}: {inst_e}")
                 log.debug(traceback.format_exc())
 
+
 def fauxpilot_server_healthcheck():
-    """
-    Checks if FauxPilot server is running and healthy.
-    Returns True if server responds with expected status, else False.
-    """
     try:
         import requests
         resp = requests.get(f"http://localhost:{FAUXPILOT_PORT}/", timeout=2)
-        if resp.status_code == 200 and "FauxPilot" in resp.text:  # Replace with a specific check if you have an endpoint
+        if resp.status_code == 200 and "FauxPilot" in resp.text:
             log.info(f"🧠 FauxPilot-Server already running and healthy on port {FAUXPILOT_PORT}.")
             return True
         else:
@@ -55,10 +73,8 @@ def fauxpilot_server_healthcheck():
         log.debug(f"FauxPilot healthcheck failed: {e}")
     return False
 
+
 def start_fauxpilot_server():
-    """
-    Starts the FauxPilot server in the background if not already running.
-    """
     global FAUXPILOT_PROCESS
     script_path = os.path.join(os.path.dirname(__file__), "ai_backend", "fauxpilot", "fauxpilot_server.py")
     if fauxpilot_server_healthcheck():
@@ -76,10 +92,8 @@ def start_fauxpilot_server():
         log.error(f"❌ Error starting FauxPilot-Server: {e}")
         log.debug(traceback.format_exc())
 
+
 def stop_fauxpilot_server():
-    """
-    Gracefully stops the FauxPilot server if it was started by this launcher.
-    """
     global FAUXPILOT_PROCESS
     if FAUXPILOT_PROCESS and FAUXPILOT_PROCESS.poll() is None:
         log.info("🛑 Stopping FauxPilot-Server...")
@@ -91,10 +105,8 @@ def stop_fauxpilot_server():
             log.error(f"❌ Error stopping FauxPilot-Server: {e}")
             log.debug(traceback.format_exc())
 
+
 def run_main_script(script):
-    """
-    Runs the given script with the current python executable and passes command line args.
-    """
     try:
         log.info(f"▶️ Running {script} with Python...")
         result = subprocess.run([sys.executable, script] + sys.argv[1:])
@@ -106,13 +118,28 @@ def run_main_script(script):
         log.error(f"❌ Exception while running {os.path.basename(script)}: {e}")
         log.debug(traceback.format_exc())
 
+
+def setup_qt_offscreen_env():
+    """
+    Sets environment for Qt to run in headless/offscreen mode (only inside Codespaces).
+    """
+    try:
+        import PySide6
+        plugin_path = os.path.join(os.path.dirname(PySide6.__file__), "Qt", "plugins", "platforms")
+        os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = plugin_path
+        os.environ["QT_QPA_PLATFORM"] = "offscreen"
+        log.info("🔧 Qt offscreen mode enabled (Codespace).")
+    except Exception as e:
+        log.warning(f"⚠️ Could not configure Qt offscreen mode: {e}")
+
+
 def main():
-    """
-    Main entry point for the launcher.
-    """
     log.info("🧪 Starting 3D_God Launcher...")
 
-    # Step 1: Check dependencies
+    if IS_CODESPACE:
+        install_codespace_dependencies()
+        setup_qt_offscreen_env()
+
     try:
         ensure_fauxpilot_dependencies()
     except Exception as e:
@@ -120,10 +147,8 @@ def main():
         log.debug(traceback.format_exc())
         return
 
-    # Step 2: Start FauxPilot
     start_fauxpilot_server()
 
-    # Step 3: Run main tool
     script = os.path.join(os.path.dirname(__file__), "main.py")
     if not os.path.isfile(script):
         log.error("main.py not found! Ensure the file is in the same directory.")
@@ -131,10 +156,8 @@ def main():
 
     run_main_script(script)
 
+
 def setup_signal_handlers():
-    """
-    Set up signal and exit handlers for graceful termination.
-    """
     def cleanup(*args, **kwargs):
         stop_fauxpilot_server()
         sys.exit(0)
@@ -142,7 +165,8 @@ def setup_signal_handlers():
     signal.signal(signal.SIGINT, cleanup)
     signal.signal(signal.SIGTERM, cleanup)
 
+
 if __name__ == "__main__":
     setup_signal_handlers()
     main()
-    input("\n[🔚] Drücke Enter zum Beenden...")  # Kept as per your request (improvement #11 excluded)
+    input("\n[🔚] Drücke Enter zum Beenden...")
