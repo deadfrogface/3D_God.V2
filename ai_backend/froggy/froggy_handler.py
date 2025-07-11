@@ -3,10 +3,11 @@ import json
 import torch
 from ai_backend.froggy.froggy_brain import predict, train_feedback, train_on_example
 from ai_backend.froggy.froggy_worldview import scan_worldview
+from ai_backend.froggy.feature_extractor import extract_features
 
 # 🔍 Hauptanalyse
 def ask_froggy_anything(log_text="") -> dict:
-    features = extract_log_features(log_text)
+    features = extract_features(log_text)
     prediction = predict(features)
     diagnosis = get_error_description(prediction)
     fix_fn = FIX_FUNCTIONS.get(prediction, None)
@@ -23,7 +24,7 @@ def ask_froggy_anything(log_text="") -> dict:
 
 # 🧠 Vorschlag mit Priorisierung & Fix-Vorschau
 def suggest_fix(log_text="") -> dict:
-    features = extract_log_features(log_text)
+    features = extract_features(log_text)
     error_id = predict(features)
     diagnosis = get_error_description(error_id)
     fix_fn = FIX_FUNCTIONS.get(error_id, None)
@@ -76,21 +77,8 @@ def confirm_and_execute_fix(fix: dict) -> str:
 
 # 🔁 Manuelles Feedback (optional)
 def give_froggy_feedback(log_text: str, correct_label: int):
-    features = extract_log_features(log_text)
+    features = extract_features(log_text)
     train_feedback(features, correct_label)
-
-# 🔍 Logfeatures extrahieren
-def extract_log_features(log_text: str) -> list:
-    lines = log_text.lower().split("\n")
-    return [
-        sum("error" in l for l in lines),
-        sum("warning" in l for l in lines),
-        sum("yolo" in l for l in lines),
-        sum("triposr" in l for l in lines),
-        sum("export" in l for l in lines),
-        sum("success" in l for l in lines),
-        sum("mesh" in l for l in lines)
-    ]
 
 # 🧠 Fehler-Definitionen laden
 def get_error_description(error_id: int) -> dict:
