@@ -3,16 +3,17 @@ import json
 import torch
 from ai_backend.froggy.froggy_brain import predict, train_feedback, train_on_example
 from ai_backend.froggy.froggy_worldview import scan_worldview
-from ai_backend.froggy.feature_extractor import extract_features
+from ai_backend.froggy.feature_extractor import extract_log_features
+from ai_backend.froggy.froggy_llm import generate_explanation
 
 # 🔍 Hauptanalyse
 def ask_froggy_anything(log_text="") -> dict:
-    features = extract_features(log_text)
+    features = extract_log_features(log_text)
     prediction = predict(features)
     diagnosis = get_error_description(prediction)
     fix_fn = FIX_FUNCTIONS.get(prediction, None)
 
-    return {
+    result = {
         "problem": diagnosis.get("problem"),
         "cause": diagnosis.get("cause"),
         "suggestion": diagnosis.get("suggestion"),
@@ -22,15 +23,22 @@ def ask_froggy_anything(log_text="") -> dict:
         "predicted_label": prediction
     }
 
+    try:
+        result["explanation"] = generate_explanation(result)
+    except Exception:
+        result["explanation"] = "(⚠️ Keine LLM-Erklärung verfügbar)"
+
+    return result
+
 # 🧠 Vorschlag mit Priorisierung & Fix-Vorschau
 def suggest_fix(log_text="") -> dict:
-    features = extract_features(log_text)
+    features = extract_log_features(log_text)
     error_id = predict(features)
     diagnosis = get_error_description(error_id)
     fix_fn = FIX_FUNCTIONS.get(error_id, None)
     worldview = scan_worldview()
 
-    return {
+    result = {
         "error_id": error_id,
         "problem": diagnosis.get("problem"),
         "cause": diagnosis.get("cause"),
@@ -43,6 +51,13 @@ def suggest_fix(log_text="") -> dict:
         "features": features,
         "world_info": worldview
     }
+
+    try:
+        result["explanation"] = generate_explanation(result)
+    except Exception:
+        result["explanation"] = "(⚠️ Keine LLM-Erklärung verfügbar)"
+
+    return result
 
 # ❓ Bestätigung & Ausführung + Autotrain + Fehlerabfang
 def confirm_and_execute_fix(fix: dict) -> str:
@@ -59,6 +74,9 @@ def confirm_and_execute_fix(fix: dict) -> str:
 
 🛠 Fix-Vorschau:
 {fix['fix_code']}
+
+📘 Erklärung:
+{fix.get('explanation')}
 
 ❓ Jetzt anwenden? (ja/nein)
 """)
@@ -77,7 +95,7 @@ def confirm_and_execute_fix(fix: dict) -> str:
 
 # 🔁 Manuelles Feedback (optional)
 def give_froggy_feedback(log_text: str, correct_label: int):
-    features = extract_features(log_text)
+    features = extract_log_features(log_text)
     train_feedback(features, correct_label)
 
 # 🧠 Fehler-Definitionen laden
@@ -109,3 +127,10 @@ FIX_FUNCTIONS = {
     1: fix_yolo_confidence,
     2: fix_triposr_bbox
 }
+
+# 💬 Erklärung durch LLM (optional direkt nutzbar)
+def explain_froggy_diagnosis(fix: dict) -> str:
+    try:
+        return generate_explanation(fix)
+    except Exception as e:
+        return f"❌ LLM-Erklärung fehlgeschlagen: {e}"
