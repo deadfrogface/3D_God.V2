@@ -12,6 +12,16 @@ FAUXPILOT_PROCESS = None
 
 IS_CODESPACE = os.environ.get("CODESPACES") == "true"
 
+# Qt Offscreen-Konfiguration direkt zu Beginn, wenn Codespace erkannt wird
+if IS_CODESPACE:
+    try:
+        import PySide6
+        qt_plugins = os.path.join(os.path.dirname(PySide6.__file__), "Qt", "plugins", "platforms")
+        os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = qt_plugins
+        os.environ["QT_QPA_PLATFORM"] = "offscreen"
+        print(f"[Qt Init] ✅ Offscreen-Plug-in path gesetzt: {qt_plugins}")
+    except Exception as e:
+        print(f"[Qt Init] ❌ Fehler beim Setzen des Plugin-Pfads: {e}")
 
 def install_codespace_dependencies():
     """
@@ -33,7 +43,6 @@ def install_codespace_dependencies():
     except Exception as e:
         log.error(f"❌ Failed to install system dependencies: {e}")
         log.debug(traceback.format_exc())
-
 
 def ensure_fauxpilot_dependencies():
     requirements_file = os.path.join(os.path.dirname(__file__), "requirements.txt")
@@ -59,7 +68,6 @@ def ensure_fauxpilot_dependencies():
                 log.error(f"❌ Failed to install package {package}: {inst_e}")
                 log.debug(traceback.format_exc())
 
-
 def fauxpilot_server_healthcheck():
     try:
         import requests
@@ -72,7 +80,6 @@ def fauxpilot_server_healthcheck():
     except Exception as e:
         log.debug(f"FauxPilot healthcheck failed: {e}")
     return False
-
 
 def start_fauxpilot_server():
     global FAUXPILOT_PROCESS
@@ -92,7 +99,6 @@ def start_fauxpilot_server():
         log.error(f"❌ Error starting FauxPilot-Server: {e}")
         log.debug(traceback.format_exc())
 
-
 def stop_fauxpilot_server():
     global FAUXPILOT_PROCESS
     if FAUXPILOT_PROCESS and FAUXPILOT_PROCESS.poll() is None:
@@ -105,11 +111,14 @@ def stop_fauxpilot_server():
             log.error(f"❌ Error stopping FauxPilot-Server: {e}")
             log.debug(traceback.format_exc())
 
-
 def run_main_script(script):
     try:
         log.info(f"▶️ Running {script} with Python...")
-        result = subprocess.run([sys.executable, script] + sys.argv[1:])
+        if IS_CODESPACE:
+            log.info("🖼️ Starte App im virtuellen Display (Xvfb)...")
+            result = subprocess.run(["xvfb-run", "-a", sys.executable, script] + sys.argv[1:])
+        else:
+            result = subprocess.run([sys.executable, script] + sys.argv[1:])
         if result.returncode == 0:
             log.success(f"{os.path.basename(script)} exited with code {result.returncode}")
         else:
@@ -118,11 +127,7 @@ def run_main_script(script):
         log.error(f"❌ Exception while running {os.path.basename(script)}: {e}")
         log.debug(traceback.format_exc())
 
-
 def setup_qt_offscreen_env():
-    """
-    Sets environment for Qt to run in headless/offscreen mode (only inside Codespaces).
-    """
     try:
         import PySide6
         plugin_path = os.path.join(os.path.dirname(PySide6.__file__), "Qt", "plugins", "platforms")
@@ -131,7 +136,6 @@ def setup_qt_offscreen_env():
         log.info("🔧 Qt offscreen mode enabled (Codespace).")
     except Exception as e:
         log.warning(f"⚠️ Could not configure Qt offscreen mode: {e}")
-
 
 def main():
     log.info("🧪 Starting 3D_God Launcher...")
@@ -158,7 +162,6 @@ def main():
 
     run_main_script(script)
 
-
 def setup_signal_handlers():
     def cleanup(*args, **kwargs):
         stop_fauxpilot_server()
@@ -166,7 +169,6 @@ def setup_signal_handlers():
     atexit.register(stop_fauxpilot_server)
     signal.signal(signal.SIGINT, cleanup)
     signal.signal(signal.SIGTERM, cleanup)
-
 
 if __name__ == "__main__":
     setup_signal_handlers()
