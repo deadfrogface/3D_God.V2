@@ -139,6 +139,8 @@ def main():
     if IS_CODESPACE:
         install_codespace_dependencies()
         setup_qt_offscreen_env()
+    else:
+        log.info("🖥️ Running locally – using system display")
 
     try:
         ensure_fauxpilot_dependencies()
