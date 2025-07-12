@@ -28,8 +28,12 @@ class GLBViewport(QOpenGLWidget):
         self.scene = None
         self.img = None
 
-    def initializeGL(self):
+    def showEvent(self, event):
+        super().showEvent(event)
         self.load_glb(self.glb_path)
+
+    def initializeGL(self):
+        pass  # Wichtiger Fix: GL wird erst in showEvent geladen
 
     def load_glb(self, path):
         if not os.path.exists(path):
@@ -37,20 +41,20 @@ class GLBViewport(QOpenGLWidget):
             return
         log.info(f"[GLBViewport] ▶️ Lade Modell: {path}")
 
-        mesh = trimesh.load(path, force='mesh')
-        if isinstance(mesh, trimesh.Scene):
-            mesh = mesh.dump().sum()
-
-        render_mesh = pyrender.Mesh.from_trimesh(mesh, smooth=True)
-        scene = pyrender.Scene()
-        scene.add(render_mesh)
-
-        cam = pyrender.PerspectiveCamera(yfov=np.pi / 3.0)
-        scene.add(cam, pose=np.eye(4))
-        light = pyrender.DirectionalLight(color=np.ones(3), intensity=2.0)
-        scene.add(light, pose=np.eye(4))
-
         try:
+            mesh = trimesh.load(path, force='mesh')
+            if isinstance(mesh, trimesh.Scene):
+                mesh = mesh.dump().sum()
+
+            render_mesh = pyrender.Mesh.from_trimesh(mesh, smooth=True)
+            scene = pyrender.Scene()
+            scene.add(render_mesh)
+
+            cam = pyrender.PerspectiveCamera(yfov=np.pi / 3.0)
+            scene.add(cam, pose=np.eye(4))
+            light = pyrender.DirectionalLight(color=np.ones(3), intensity=2.0)
+            scene.add(light, pose=np.eye(4))
+
             r = pyrender.OffscreenRenderer(self.width(), self.height())
             color, _ = r.render(scene)
             self.img = color
@@ -60,14 +64,16 @@ class GLBViewport(QOpenGLWidget):
             log.error(f"[GLBViewport] ❌ Rendering-Fehler: {e}")
 
     def paintGL(self):
-        if self.img is not None:
-            image = QImage(self.img, self.img.shape[1], self.img.shape[0], QImage.Format_RGB888)
-            painter = QPainter(self)
-            painter.drawImage(0, 0, image)
-            painter.end()
+        if self.img is None:
+            return
+        image = QImage(self.img, self.img.shape[1], self.img.shape[0], QImage.Format_RGB888)
+        painter = QPainter(self)
+        painter.drawImage(0, 0, image)
+        painter.end()
 
     def resizeGL(self, w, h):
         self.load_glb(self.glb_path)
+
 
 class Viewport3D(QWidget):
     def __init__(self, character_system):
