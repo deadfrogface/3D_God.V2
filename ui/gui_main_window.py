@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import (
     QMainWindow, QTabWidget, QSplitter, QStatusBar, QDockWidget
 )
-from PySide6.QtGui import QShortcut, QKeySequence  # ✅ Korrektur hier
+from PySide6.QtGui import QShortcut, QKeySequence
 from PySide6.QtCore import Qt
 
 from ui.panels.settings_panel import SettingsPanel
@@ -79,6 +79,10 @@ class MainWindow(QMainWindow):
             log.info("[MainWindow] 🔼 Debug-Konsole angezeigt")
 
     def launch_main_gui(self):
+        if self.tabs.count() > 0:
+            log.warning("⚠️ Tabs wurden bereits geladen – Abbruch.")
+            return
+
         log.info("[MainWindow][launch_main_gui] Tabs werden geladen...")
         self.tabs.addTab(CharacterEditorPanel(self.character_system), "🧍 Form")
         self.tabs.addTab(SculptPanel(self.character_system), "🪨 Sculpt")
