@@ -1,10 +1,13 @@
+# ui/panels/character_editor_panel.py
+
 import os
 import json
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider, QHBoxLayout, QPushButton
 from PySide6.QtCore import Qt
 from core.logger import log
 
 PARAMS_FILE = "assets/body_parameters.json"
+
 
 class CharacterEditorPanel(QWidget):
     def __init__(self, character_system):
@@ -19,12 +22,23 @@ class CharacterEditorPanel(QWidget):
             layout = QVBoxLayout()
             layout.addWidget(QLabel("🧍‍♂️ Körperform-Editor"))
 
+            # ➕ Gender-Buttons
+            gender_row = QHBoxLayout()
+            male_btn = QPushButton("♂ Männlich")
+            female_btn = QPushButton("♀ Weiblich")
+            male_btn.clicked.connect(self.set_male)
+            female_btn.clicked.connect(self.set_female)
+            gender_row.addWidget(male_btn)
+            gender_row.addWidget(female_btn)
+            layout.addLayout(gender_row)
+
+            # 🔧 Sliders
             self.fields = self.load_parameters()
             for key, params in self.fields.items():
                 label_text = params.get("label", key)
                 min_val = params.get("min", 0)
                 max_val = params.get("max", 100)
-                default_val = character_system.sculpt_data.get(key, params.get("default", 50))
+                default_val = self.character_system.sculpt_data.get(key, params.get("default", 50))
 
                 row = QHBoxLayout()
                 row.addWidget(QLabel(label_text))
@@ -60,9 +74,10 @@ class CharacterEditorPanel(QWidget):
 
     def on_slider_changed(self, key, value):
         log.debug(f"[CharacterEditorPanel][on_slider_changed] 🔧 {key} → {value}")
-        self.character_system.update_sculpt_value(key, value)
-        self.character_system.sculpt()  # 👈 Sofortige Live-Aktualisierung des Models
-        self.character_system.refresh_layers()
+        if self.character_system:
+            self.character_system.update_sculpt_value(key, value)
+            self.character_system.sculpt()
+            self.character_system.refresh_layers()
 
     def refresh_sliders(self):
         log.debug("[CharacterEditorPanel][refresh_sliders] 🔄 Synchronisiere Slider")
@@ -70,3 +85,21 @@ class CharacterEditorPanel(QWidget):
             new_val = self.character_system.sculpt_data.get(key, 50)
             if slider.value() != new_val:
                 slider.setValue(new_val)
+
+    def set_male(self):
+        log.info("[CharacterEditorPanel] ♂ Männlich gewählt")
+        try:
+            self.character_system.set_gender("male")
+            self.character_system.load_base_model("male")
+            self.character_system.refresh_viewport()
+        except Exception as e:
+            log.error(f"[CharacterEditorPanel][set_male] ❌ Fehler: {e}")
+
+    def set_female(self):
+        log.info("[CharacterEditorPanel] ♀ Weiblich gewählt")
+        try:
+            self.character_system.set_gender("female")
+            self.character_system.load_base_model("female")
+            self.character_system.refresh_viewport()
+        except Exception as e:
+            log.error(f"[CharacterEditorPanel][set_female] ❌ Fehler: {e}")
