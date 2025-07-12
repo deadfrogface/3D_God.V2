@@ -62,11 +62,16 @@ class CharacterSystem:
             json.dump(self.config, f, indent=4)
         log.success("[CharacterSystem][save_config] ✅ Konfiguration gespeichert")
 
+    def set_gender(self, gender: str):
+        log.info(f"[CharacterSystem][set_gender] 🎭 Geschlecht gesetzt: {gender}")
+        self.config["gender"] = gender
+        self.save_config()
+
     def update_sculpt_value(self, key, value):
         log.info(f"[CharacterSystem][update_sculpt_value] ▶️ {key} = {value}")
         self.sculpt_data[key] = value
-        self.sculpt_tools.send_data(self.sculpt_data)  # 🟢 Direkt an Blender senden
-        self.refresh_layers()                          # 🔁 Viewport updaten
+        self.sculpt_tools.send_data(self.sculpt_data)
+        self.refresh_layers()
 
     def sculpt(self):
         log.info("[CharacterSystem][sculpt] ▶️ Starte Blender Sculpting")
@@ -115,6 +120,11 @@ class CharacterSystem:
     def bind_viewport(self, viewport):
         log.info("[CharacterSystem][bind_viewport] ▶️ Binde Viewport")
         self.viewport_ref = viewport
+
+    def refresh_viewport(self):
+        if self.viewport_ref:
+            log.info("[CharacterSystem][refresh_viewport] 🔁 Aktualisiere Viewport")
+            self.viewport_ref.update_view()
 
     def save_preset(self, name="default"):
         log.info(f"[CharacterSystem][save_preset] ▶️ Speichert Preset: {name}")
