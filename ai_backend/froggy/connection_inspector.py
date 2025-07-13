@@ -1,4 +1,9 @@
-from .froggy_handler import ( ask_froggy_anything, suggest_fix, confirm_and_execute_fix, give_froggy_feedback, ) from .froggy_worldview import scan_worldview from .code_inspector import inspect_all_code from .fix_generator import apply_fix_to_file from .connection_inspector import run_connection_inspector from .froggy_llm import generate_response
+from .froggy_handler import ( ask_froggy_anything, suggest_fix, confirm_and_execute_fix, give_froggy_feedback, )
+from .froggy_worldview import scan_worldview
+from .code_inspector import inspect_all_code
+from .fix_generator import apply_fix_to_file
+from .connection_inspector import run_connection_inspector
+from .froggy_llm import generate_response
 
 def process_natural_input(user_input: str, log_text: str) -> str: lower = user_input.lower()
 
