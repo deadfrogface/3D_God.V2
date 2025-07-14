@@ -100,14 +100,14 @@ class CharacterSystem:
         self.anatomy_state[layer_name] = state
         self.refresh_layers()
 
-    def add_asset(self, category):
+    def add_asset(self, category, path=None):
         log.info(f"[CharacterSystem][add_asset] ▶️ Kategorie: {category}")
         if category not in self.asset_state:
             log.error(f"[CharacterSystem][add_asset] ❌ Ungültige Kategorie: {category}")
             return
-        example_asset = f"{category}_demo_asset"
-        self.asset_state[category].append(example_asset)
-        log.success(f"[CharacterSystem][add_asset] ✅ Hinzugefügt: {example_asset}")
+        asset = path if path else f"{category}_demo_asset"
+        self.asset_state[category].append(asset)
+        log.success(f"[CharacterSystem][add_asset] ✅ Hinzugefügt: {asset}")
         self.refresh_layers()
 
     def refresh_layers(self):
@@ -189,7 +189,8 @@ class CharacterSystem:
 
     def load_base_model(self, gender="male"):
         log.info(f"[CharacterSystem][load_base_model] ▶️ Lade Basis-Modell ({gender})")
-        path = f"assets/characters/{gender}_base.glb"
+        rel_path = os.path.join("assets", "characters", f"{gender}_base.glb")
+        path = os.path.abspath(rel_path)
         if os.path.exists(path):
             if self.viewport_ref:
                 self.viewport_ref.load_preview(path)
