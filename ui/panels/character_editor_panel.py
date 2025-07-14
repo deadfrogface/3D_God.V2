@@ -5,8 +5,12 @@ import json
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider, QHBoxLayout, QPushButton
 from PySide6.QtCore import Qt
 from core.logger import log
+import os
 
-PARAMS_FILE = "assets/body_parameters.json"
+PARAMS_FILE = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../../assets/body_parameters.json")
+)
+
 
 
 class CharacterEditorPanel(QWidget):
