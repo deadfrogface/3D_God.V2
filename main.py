@@ -1,3 +1,5 @@
+# main.py
+
 import sys
 import os
 import json
@@ -6,6 +8,9 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QTimer
 from ui.gui_main_window import MainWindow
 from core.logger import log
+
+# 📁 Arbeitsverzeichnis setzen – wichtig für Doppelklick-Start & Pfadauflösungen
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 CONFIG_PATH = "config.json"
 
