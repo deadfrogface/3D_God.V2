@@ -9,7 +9,7 @@ from PySide6.QtCore import QTimer
 from ui.gui_main_window import MainWindow
 from core.logger import log
 
-# 📁 Arbeitsverzeichnis setzen – wichtig für Doppelklick-Start & Pfadauflösungen
+#  Arbeitsverzeichnis setzen – wichtig für Doppelklick-Start & Pfadauflösungen
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 CONFIG_PATH = "config.json"
