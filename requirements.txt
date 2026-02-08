@@ -1,4 +1,4 @@
-PySide6
+PySide6.5.3
 torch
 numpy
 opencv-python
