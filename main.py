@@ -2,6 +2,7 @@
 
 import sys
 import os
+os.environ["QT_OPENGL"] = "angle"
 import json
 import traceback
 from PySide6.QtWidgets import QApplication
